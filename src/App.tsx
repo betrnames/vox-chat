@@ -3,7 +3,7 @@ import './index.css'
 
 function useTheme() {
   const [dark, setDark] = useState(() => {
-    if (typeof window === 'undefined') return true
+    if (typeof window === 'undefined') return false
     const stored = localStorage.getItem('vox-theme')
     if (stored) return stored === 'dark'
     return document.documentElement.classList.contains('dark')
