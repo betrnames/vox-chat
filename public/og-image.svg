@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
+  <rect width="1200" height="630" fill="#1e2040"/>
+  <rect x="0" y="0" width="1200" height="630" fill="url(#grad)" opacity="0.4"/>
+  <defs>
+    <linearGradient id="grad" x1="0" y1="630" x2="1200" y2="0">
+      <stop offset="0%" stop-color="#c8480a" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#1e2040" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <text x="80" y="240" font-family="Inter, sans-serif" font-size="72" font-weight="700" fill="#ffffff">vox<tspan fill="#c8480a">.</tspan>chat</text>
+  <text x="80" y="330" font-family="Inter, sans-serif" font-size="40" font-weight="400" fill="#a0a0b8">Your business. Never offline.</text>
+  <text x="80" y="420" font-family="Inter, sans-serif" font-size="24" font-weight="400" fill="#6b6b80">AI voice agents, website chatbots, and review</text>
+  <text x="80" y="458" font-family="Inter, sans-serif" font-size="24" font-weight="400" fill="#6b6b80">automation for local service businesses.</text>
+  <rect x="80" y="520" width="180" height="48" rx="8" fill="#c8480a"/>
+  <text x="118" y="551" font-family="Inter, sans-serif" font-size="16" font-weight="600" fill="#ffffff">Book a demo</text>
+  <circle cx="1050" cy="200" r="80" fill="#c8480a" opacity="0.08"/>
+  <circle cx="1100" cy="400" r="120" fill="#c8480a" opacity="0.05"/>
+</svg>
