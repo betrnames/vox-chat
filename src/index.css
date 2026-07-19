@@ -187,3 +187,21 @@
     @apply bg-primary text-primary-foreground;
   }
 }
+
+@keyframes vox-bounce {
+  0%, 80%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-5px); }
+}
+
+.vox-bounce {
+  animation: vox-bounce 1.2s ease-in-out infinite;
+}
+
+@keyframes vox-fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.vox-fadein {
+  animation: vox-fadein 0.4s ease-out;
+}

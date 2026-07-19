@@ -1,18 +1,47 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
-  <rect width="1200" height="630" fill="#1e2040"/>
-  <rect x="0" y="0" width="1200" height="630" fill="url(#grad)" opacity="0.4"/>
-  <defs>
-    <linearGradient id="grad" x1="0" y1="630" x2="1200" y2="0">
-      <stop offset="0%" stop-color="#c8480a" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#1e2040" stop-opacity="0"/>
-    </linearGradient>
-  </defs>
-  <text x="80" y="240" font-family="Inter, sans-serif" font-size="72" font-weight="700" fill="#ffffff">vox<tspan fill="#c8480a">.</tspan>chat</text>
-  <text x="80" y="330" font-family="Inter, sans-serif" font-size="40" font-weight="400" fill="#a0a0b8">Your business. Never offline.</text>
-  <text x="80" y="420" font-family="Inter, sans-serif" font-size="24" font-weight="400" fill="#6b6b80">AI voice agents, website chatbots, and review</text>
-  <text x="80" y="458" font-family="Inter, sans-serif" font-size="24" font-weight="400" fill="#6b6b80">automation for local service businesses.</text>
-  <rect x="80" y="520" width="180" height="48" rx="8" fill="#c8480a"/>
-  <text x="118" y="551" font-family="Inter, sans-serif" font-size="16" font-weight="600" fill="#ffffff">Book a demo</text>
-  <circle cx="1050" cy="200" r="80" fill="#c8480a" opacity="0.08"/>
-  <circle cx="1100" cy="400" r="120" fill="#c8480a" opacity="0.05"/>
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#E2E3E8"/>
+
+  <!-- Warm band at bottom -->
+  <rect x="0" y="510" width="1200" height="120" fill="#EDE4DC"/>
+  <line x1="0" y1="510" x2="1200" y2="510" stroke="#D2D3D9" stroke-width="1"/>
+
+  <!-- Subtle wave lines -->
+  <path d="M0 280 Q150 220 300 260 T600 240 T900 270 T1200 240" stroke="#FF6B4A" stroke-width="1.5" stroke-linecap="round" opacity="0.12"/>
+  <path d="M0 260 Q180 300 350 250 T700 280 T1000 240 T1200 260" stroke="#4A9EFF" stroke-width="1.5" stroke-linecap="round" opacity="0.12"/>
+  <path d="M0 300 Q200 250 400 290 T750 260 T1050 290 T1200 270" stroke="#FFB84A" stroke-width="1.5" stroke-linecap="round" opacity="0.12"/>
+
+  <!-- Three dots — logo mark, left aligned -->
+  <circle cx="90" cy="150" r="12" fill="#FF6B4A"/>
+  <circle cx="126" cy="150" r="12" fill="#4A9EFF"/>
+  <circle cx="162" cy="150" r="12" fill="#FFB84A"/>
+
+  <!-- Tagline left aligned -->
+  <text x="80" y="260" font-family="Georgia, serif" font-size="52" font-weight="700" fill="#2E2E2E">Your business.</text>
+  <text x="80" y="325" font-family="Georgia, serif" font-size="52" font-weight="700" fill="#C45A30">Never offline.</text>
+
+  <!-- Subtext -->
+  <text x="82" y="385" font-family="monospace" font-size="18" fill="#7C7F88">AI automation for HVAC, plumbing &amp; electrical</text>
+
+  <!-- Service pills left aligned -->
+  <!-- AI Phone Agent -->
+  <rect x="80" y="420" width="170" height="38" rx="8" fill="white" opacity="0.6"/>
+  <rect x="80" y="420" width="170" height="38" rx="8" fill="none" stroke="#D2D3D9" stroke-width="1"/>
+  <circle cx="100" cy="439" r="5" fill="#FF6B4A"/>
+  <text x="112" y="444" font-family="monospace" font-size="12" font-weight="500" fill="#2E2E2E">AI Phone Agent</text>
+
+  <!-- AI Chatbot -->
+  <rect x="266" y="420" width="145" height="38" rx="8" fill="white" opacity="0.6"/>
+  <rect x="266" y="420" width="145" height="38" rx="8" fill="none" stroke="#D2D3D9" stroke-width="1"/>
+  <circle cx="286" cy="439" r="5" fill="#4A9EFF"/>
+  <text x="298" y="444" font-family="monospace" font-size="12" font-weight="500" fill="#2E2E2E">AI Chatbot</text>
+
+  <!-- AI Review Agent -->
+  <rect x="427" y="420" width="175" height="38" rx="8" fill="white" opacity="0.6"/>
+  <rect x="427" y="420" width="175" height="38" rx="8" fill="none" stroke="#D2D3D9" stroke-width="1"/>
+  <circle cx="447" cy="439" r="5" fill="#FFB84A"/>
+  <text x="459" y="444" font-family="monospace" font-size="12" font-weight="500" fill="#2E2E2E">AI Review Agent</text>
+
+  <!-- Domain -->
+  <text x="82" y="490" font-family="monospace" font-size="14" fill="#7C7F88" opacity="0.5">vox.chat</text>
 </svg>

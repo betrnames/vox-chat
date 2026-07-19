@@ -1,5 +1,49 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './index.css'
+
+function VoxDots({ size = 'md', className = '' }: { size?: 'sm' | 'md' | 'lg'; className?: string }) {
+  const s = size === 'sm' ? 'w-1.5 h-1.5' : size === 'lg' ? 'w-3 h-3' : 'w-2 h-2'
+  const gap = size === 'sm' ? 'gap-1' : size === 'lg' ? 'gap-2' : 'gap-1.5'
+  return (
+    <span className={`inline-flex items-center ${gap} ${className}`} aria-hidden="true">
+      <span className={`${s} rounded-full bg-voice`} />
+      <span className={`${s} rounded-full bg-chat`} />
+      <span className={`${s} rounded-full bg-review`} />
+    </span>
+  )
+}
+
+function HeroWaves() {
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <svg viewBox="0 0 1400 500" fill="none" preserveAspectRatio="none" className="absolute inset-0 w-full h-full">
+        <path d="M0 280 Q150 220 300 260 T600 240 T900 270 T1200 230 T1400 260" stroke="var(--voice)" strokeWidth="1.5" strokeLinecap="round" opacity="0.12" fill="none" />
+        <path d="M0 260 Q180 300 350 250 T700 280 T1000 240 T1300 270 T1400 250" stroke="var(--chat)" strokeWidth="1.5" strokeLinecap="round" opacity="0.12" fill="none" />
+        <path d="M0 300 Q200 250 400 290 T750 260 T1050 290 T1350 250 T1400 280" stroke="var(--review)" strokeWidth="1.5" strokeLinecap="round" opacity="0.12" fill="none" />
+      </svg>
+    </div>
+  )
+}
+
+function VoxMicroDots() {
+  return (
+    <span className="inline-flex items-center gap-1" aria-hidden="true">
+      <span className="w-1 h-1 rounded-full bg-voice" />
+      <span className="w-1 h-1 rounded-full bg-chat" />
+      <span className="w-1 h-1 rounded-full bg-review" />
+    </span>
+  )
+}
+
+function TypingDots() {
+  return (
+    <span className="inline-flex items-center gap-1" aria-label="Typing">
+      <span className="w-1.5 h-1.5 rounded-full bg-voice vox-bounce" style={{ animationDelay: '0ms' }} />
+      <span className="w-1.5 h-1.5 rounded-full bg-chat vox-bounce" style={{ animationDelay: '150ms' }} />
+      <span className="w-1.5 h-1.5 rounded-full bg-review vox-bounce" style={{ animationDelay: '300ms' }} />
+    </span>
+  )
+}
 
 function useTheme() {
   const [dark, setDark] = useState(() => {
@@ -24,8 +68,10 @@ function Nav() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
-        <a href="#" className="font-mono text-lg tracking-tight text-foreground">
-          vox<span className="text-primary">.</span>chat
+        <a href="#" className="inline-flex items-center gap-1.5" aria-label="Vox.chat">
+          <span className="w-2.5 h-2.5 rounded-full bg-voice" />
+          <span className="w-2.5 h-2.5 rounded-full bg-chat" />
+          <span className="w-2.5 h-2.5 rounded-full bg-review" />
         </a>
         <div className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
           <a href="#services" className="hover:text-foreground transition-colors">Services</a>
@@ -88,8 +134,9 @@ function Nav() {
 
 function Hero() {
   return (
-    <section className="relative pt-32 sm:pt-44 pb-24 sm:pb-36 px-5 bg-gradient-to-t from-primary/10 via-primary/5 to-transparent">
-      <div className="max-w-6xl mx-auto">
+    <section className="relative pt-32 sm:pt-44 pb-24 sm:pb-36 px-5 bg-gradient-to-t from-primary/10 via-primary/5 to-transparent overflow-hidden">
+      <HeroWaves />
+      <div className="relative max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-16 items-center">
           {/* Left — headline */}
           <div className="text-center lg:text-left">
@@ -467,6 +514,8 @@ function ChatDemo() {
     { from: 'bot', text: "Hi! 👋 I'm the AI assistant for Valley Air Pros. How can I help?" },
   ])
   const [showOptions, setShowOptions] = useState(true)
+  const [typing, setTyping] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   const options = [
     'Schedule a repair',
@@ -480,18 +529,24 @@ function ChatDemo() {
     'What areas do you serve?': "We serve the entire Central Valley — Manteca, Stockton, Tracy, Modesto, Turlock, and surrounding areas. Same-day service available in most zones. Need to schedule something?",
   }
 
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+  }, [messages, typing])
+
   function handleOption(opt: string) {
     setMessages((m) => [...m, { from: 'user', text: opt }])
     setShowOptions(false)
+    setTyping(true)
     setTimeout(() => {
+      setTyping(false)
       setMessages((m) => [...m, { from: 'bot', text: responses[opt] }])
       setShowOptions(true)
-    }, 800)
+    }, 1200)
   }
 
   return (
     <div className="flex flex-col h-[420px]">
-      <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div
@@ -505,6 +560,13 @@ function ChatDemo() {
             </div>
           </div>
         ))}
+        {typing && (
+          <div className="flex justify-start">
+            <div className="px-4 py-3 rounded-lg bg-chat/10 border border-chat/20">
+              <TypingDots />
+            </div>
+          </div>
+        )}
       </div>
       {showOptions && (
         <div className="flex flex-wrap gap-2">
@@ -787,8 +849,10 @@ function Footer() {
   return (
     <footer className="border-t border-border py-10 px-5">
       <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="font-mono text-sm text-muted-foreground/50">
-          vox<span className="text-primary">.</span>chat
+        <div className="inline-flex items-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-voice" />
+          <span className="w-2.5 h-2.5 rounded-full bg-chat" />
+          <span className="w-2.5 h-2.5 rounded-full bg-review" />
         </div>
         <div className="flex items-center gap-6 text-sm text-muted-foreground/50">
           <a href="#services" className="hover:text-foreground transition-colors">Services</a>
