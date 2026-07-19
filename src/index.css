@@ -210,8 +210,4 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-@media (max-width: 639px) {
-  footer {
-    padding-bottom: 4rem;
-  }
-}
+/* Mobile bottom bar clearance is handled via Tailwind pb-24 on footer */

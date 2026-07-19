@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import './index.css'
-import { blogPosts } from './blog-data'
+import { blogPosts, type ContentBlock } from './blog-data'
 
 function useTheme() {
   const [dark, setDark] = useState(() => {
@@ -22,6 +22,122 @@ function getSlugFromPath() {
   const path = window.location.pathname
   const match = path.match(/\/blog\/(.+?)(?:\.html)?$/)
   return match ? match[1] : null
+}
+
+function HtmlBody({ html }: { html: string }) {
+  return (
+    <div
+      className="prose-blog text-muted-foreground leading-relaxed text-base space-y-4 [&_p]:mb-4 [&_p:last-child]:mb-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:space-y-2 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:space-y-2 [&_li]:leading-relaxed [&_strong]:text-foreground [&_strong]:font-semibold [&_a]:text-primary [&_a]:underline [&_a]:underline-offset-2 hover:[&_a]:text-primary/80"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  )
+}
+
+function ContentSection({ section }: { section: ContentBlock }) {
+  const type = section.type || 'paragraph'
+
+  if (type === 'faq' && section.questions?.length) {
+    return (
+      <section>
+        <h2 className="font-serif text-xl sm:text-2xl font-bold mb-6">
+          {section.heading || 'Frequently asked questions'}
+        </h2>
+        <div className="space-y-4">
+          {section.questions.map((item, i) => (
+            <details
+              key={i}
+              className="group rounded-xl border border-border/60 bg-card/50 open:bg-card open:border-primary/20 transition-colors"
+            >
+              <summary className="cursor-pointer list-none flex items-start justify-between gap-3 p-4 sm:p-5 font-medium text-foreground">
+                <span className="text-sm sm:text-base leading-snug">{item.q}</span>
+                <svg
+                  className="w-5 h-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180 mt-0.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </summary>
+              <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-sm sm:text-base text-muted-foreground leading-relaxed border-t border-border/40 pt-3">
+                {item.a}
+              </div>
+            </details>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  if (type === 'table' && section.headers && section.rows) {
+    return (
+      <section>
+        {section.heading && (
+          <h2 className="font-serif text-xl sm:text-2xl font-bold mb-3">{section.heading}</h2>
+        )}
+        {section.description && (
+          <p className="text-muted-foreground leading-relaxed text-base mb-5">{section.description}</p>
+        )}
+        <div className="overflow-x-auto rounded-xl border border-border/60">
+          <table className="w-full text-sm min-w-[32rem]">
+            <thead>
+              <tr className="bg-muted/60 border-b border-border/60">
+                {section.headers.map((h, i) => (
+                  <th
+                    key={i}
+                    className="text-left font-semibold text-foreground px-4 py-3 whitespace-nowrap"
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {section.rows.map((row, ri) => (
+                <tr
+                  key={ri}
+                  className="border-b border-border/40 last:border-0 odd:bg-card/40"
+                >
+                  {row.map((cell, ci) => (
+                    <td
+                      key={ci}
+                      className={`px-4 py-3 text-muted-foreground leading-snug ${ci === 0 ? 'font-medium text-foreground' : ''}`}
+                    >
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )
+  }
+
+  if (type === 'html' && section.body) {
+    return (
+      <section>
+        {section.heading && (
+          <h2 className="font-serif text-xl sm:text-2xl font-bold mb-4">{section.heading}</h2>
+        )}
+        <HtmlBody html={section.body} />
+      </section>
+    )
+  }
+
+  // Default: plain paragraph (legacy posts)
+  return (
+    <section>
+      {section.heading && (
+        <h2 className="font-serif text-xl sm:text-2xl font-bold mb-4">{section.heading}</h2>
+      )}
+      {section.body && (
+        <p className="text-muted-foreground leading-relaxed text-base">{section.body}</p>
+      )}
+    </section>
+  )
 }
 
 export default function BlogPost() {
@@ -82,7 +198,7 @@ export default function BlogPost() {
       <article className="pt-28 sm:pt-32 pb-16 px-5">
         <div className="max-w-3xl mx-auto">
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8">
+          <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8" aria-label="Breadcrumb">
             <a href="/" className="hover:text-foreground transition-colors">Home</a>
             <span>/</span>
             <a href="/blog.html" className="hover:text-foreground transition-colors">Blog</a>
@@ -91,8 +207,8 @@ export default function BlogPost() {
           </nav>
 
           {/* Header */}
-          <header className="mb-12">
-            <div className="flex items-center gap-3 mb-4">
+          <header className="mb-10">
+            <div className="flex flex-wrap items-center gap-3 mb-4">
               <span className="px-2.5 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium">{post.tag}</span>
               <span className="text-sm text-muted-foreground">{post.date}</span>
               <span className="text-sm text-muted-foreground/50">{post.readTime}</span>
@@ -100,18 +216,36 @@ export default function BlogPost() {
             <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-[1.1] mb-5">
               {post.title}
             </h1>
-            <p className="text-lg text-muted-foreground leading-relaxed">
+            <p className="text-lg text-muted-foreground leading-relaxed mb-5">
               {post.excerpt}
             </p>
+            {post.author && (
+              <p className="text-sm text-muted-foreground">
+                By <span className="font-medium text-foreground">{post.author.name}</span>
+                <span className="text-muted-foreground/60"> · {post.author.title}</span>
+              </p>
+            )}
           </header>
+
+          {/* Key takeaways */}
+          {post.takeaways && post.takeaways.length > 0 && (
+            <aside className="mb-12 rounded-2xl border border-primary/20 bg-primary/5 p-5 sm:p-6">
+              <h2 className="font-serif text-lg sm:text-xl font-bold mb-4">Key takeaways</h2>
+              <ul className="space-y-3">
+                {post.takeaways.map((item, i) => (
+                  <li key={i} className="flex gap-3 text-sm sm:text-base text-muted-foreground leading-relaxed">
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary shrink-0" aria-hidden />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </aside>
+          )}
 
           {/* Content */}
           <div className="space-y-10">
             {post.content.map((section, i) => (
-              <section key={i}>
-                <h2 className="font-serif text-xl sm:text-2xl font-bold mb-4">{section.heading}</h2>
-                <p className="text-muted-foreground leading-relaxed text-base">{section.body}</p>
-              </section>
+              <ContentSection key={i} section={section} />
             ))}
           </div>
 

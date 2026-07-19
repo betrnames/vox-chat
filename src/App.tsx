@@ -401,19 +401,22 @@ function Services() {
                     </ul>
                   </div>
                 </div>
-                <div className="mt-auto px-5 sm:px-6 pb-5 sm:pb-6">
+                <div className="mt-auto px-5 sm:px-6 pb-5 sm:pb-6 space-y-2">
                   <a
-                    href="tel:+12099967102"
+                    href={`#demo-${s.color === 'voice' ? 'voice' : s.color === 'chat' ? 'chat' : 'review'}`}
                     className={`flex w-full items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
                       s.popular
                         ? 'bg-primary text-primary-foreground hover:bg-primary/80'
                         : 'border border-input text-foreground hover:border-primary/40 hover:text-primary'
                     }`}
                   >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    Call now
+                    Try the demo
+                  </a>
+                  <a
+                    href="tel:+12099967102"
+                    className="flex w-full items-center justify-center gap-2 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    or call now
                   </a>
                 </div>
               </div>
@@ -435,96 +438,215 @@ function Services() {
 
 function VoiceDemo() {
   const messages = [
-    { from: 'system', text: 'Incoming call from (209) 555-0147...' },
-    { from: 'ai', text: "Good afternoon, Valley Air Pros, this is Vox. How can I help you today?" },
-    { from: 'caller', text: "Yeah, my AC stopped blowing cold air about an hour ago. It's 102 out here in Manteca." },
-    { from: 'ai', text: "I'm sorry to hear that — let me get you taken care of. Can I get your name?" },
-    { from: 'caller', text: "Mike Torres." },
-    { from: 'ai', text: "Thanks Mike. And what's the best address for the service call?" },
-    { from: 'caller', text: "1247 Oakwood Drive, Manteca." },
-    { from: 'ai', text: "Got it. I have availability tomorrow morning between 8 and 10 AM, or this afternoon between 4 and 6. Which works better?" },
-    { from: 'caller', text: "This afternoon for sure." },
-    { from: 'ai', text: "Done — you're booked for today between 4 and 6 PM. You'll get a confirmation text shortly. Anything else I can help with?" },
-    { from: 'system', text: '✓ Appointment booked → SMS sent to contractor → Calendar updated' },
+    { from: 'system' as const, text: 'Incoming call from (209) 555-0147...' },
+    { from: 'ai' as const, text: "Good afternoon, Valley Air Pros, this is Vox. How can I help you today?" },
+    { from: 'caller' as const, text: "Yeah, my AC stopped blowing cold air about an hour ago. It's 102 out here in Manteca." },
+    { from: 'ai' as const, text: "I'm sorry to hear that — let me get you taken care of. Can I get your name?" },
+    { from: 'caller' as const, text: 'Mike Torres.' },
+    { from: 'ai' as const, text: "Thanks Mike. And what's the best address for the service call?" },
+    { from: 'caller' as const, text: '1247 Oakwood Drive, Manteca.' },
+    { from: 'ai' as const, text: 'Got it. I have availability tomorrow morning between 8 and 10 AM, or this afternoon between 4 and 6. Which works better?' },
+    { from: 'caller' as const, text: 'This afternoon for sure.' },
+    { from: 'ai' as const, text: "Done — you're booked for today between 4 and 6 PM. You'll get a confirmation text shortly. Anything else I can help with?" },
+    { from: 'system' as const, text: '✓ Appointment booked → SMS sent to contractor → Calendar updated' },
   ]
 
-  const [visibleCount, setVisibleCount] = useState(3)
+  const [visibleCount, setVisibleCount] = useState(0)
+  const [playing, setPlaying] = useState(false)
+  const [done, setDone] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+  }, [visibleCount])
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [])
+
+  function stopPlayback() {
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
+    setPlaying(false)
+  }
+
+  function startPlayback() {
+    stopPlayback()
+    setVisibleCount(0)
+    setDone(false)
+    setPlaying(true)
+    let count = 0
+    timerRef.current = setInterval(() => {
+      count += 1
+      setVisibleCount(count)
+      if (count >= messages.length) {
+        stopPlayback()
+        setDone(true)
+      }
+    }, 1400)
+  }
+
+  function reset() {
+    stopPlayback()
+    setVisibleCount(0)
+    setDone(false)
+  }
+
+  const statusLabel =
+    playing && visibleCount > 0
+      ? messages[visibleCount - 1]?.from === 'ai'
+        ? 'Agent speaking'
+        : messages[visibleCount - 1]?.from === 'caller'
+          ? 'Caller speaking'
+          : 'Connecting…'
+      : done
+        ? 'Call complete'
+        : 'Ready to play'
 
   return (
-    <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2">
-      {messages.slice(0, visibleCount).map((m, i) => (
-        <div
-          key={i}
-          className={`flex ${m.from === 'caller' ? 'justify-end' : 'justify-start'}`}
-        >
-          <div
-            className={`max-w-[85%] px-4 py-2.5 rounded-lg text-sm ${
-              m.from === 'system'
-                ? 'bg-primary/10 text-primary font-mono text-xs border border-primary/20'
-                : m.from === 'ai'
-                ? 'bg-voice/10 text-foreground border border-voice/20'
-                : 'bg-muted text-muted-foreground border border-border'
-            }`}
-          >
-            {m.from !== 'system' && (
-              <span className={`block text-[10px] font-mono uppercase tracking-wider mb-1 ${m.from === 'ai' ? 'text-voice' : 'text-muted-foreground/50'}`}>
-                {m.from === 'ai' ? 'Vox Agent' : 'Caller'}
-              </span>
-            )}
-            {m.text}
-          </div>
+    <div className="flex flex-col h-[420px]">
+      <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-border/50">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className={`w-2 h-2 rounded-full shrink-0 ${playing ? 'bg-voice animate-pulse' : done ? 'bg-primary' : 'bg-muted-foreground/40'}`} />
+          <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground truncate">{statusLabel}</span>
         </div>
-      ))}
-      {visibleCount < messages.length && (
-        <button
-          onClick={() => setVisibleCount((c) => Math.min(c + 2, messages.length))}
-          className="w-full py-2 text-xs font-mono text-primary hover:text-primary/70 transition-colors"
-        >
-          Continue conversation →
-        </button>
-      )}
+        <div className="flex items-center gap-2 shrink-0">
+          {!playing && !done && (
+            <button
+              type="button"
+              onClick={startPlayback}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-voice text-white text-xs font-semibold hover:bg-voice/90 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+              Play call
+            </button>
+          )}
+          {playing && (
+            <button
+              type="button"
+              onClick={stopPlayback}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Pause
+            </button>
+          )}
+          {(done || visibleCount > 0) && !playing && (
+            <button
+              type="button"
+              onClick={reset}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Replay
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pr-1">
+        {visibleCount === 0 && (
+          <div className="h-full flex flex-col items-center justify-center text-center px-4">
+            <div className="w-12 h-12 rounded-full bg-voice/10 border border-voice/20 flex items-center justify-center mb-3">
+              <svg className="w-5 h-5 text-voice" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-foreground mb-1">After-hours AC emergency</p>
+            <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
+              Constrained demo — a real Manteca-style call. Agent qualifies, books, and notifies the contractor in under 2 minutes.
+            </p>
+          </div>
+        )}
+        {messages.slice(0, visibleCount).map((m, i) => (
+          <div key={i} className={`flex ${m.from === 'caller' ? 'justify-end' : 'justify-start'} vox-fadein`}>
+            <div
+              className={`max-w-[85%] px-4 py-2.5 rounded-lg text-sm ${
+                m.from === 'system'
+                  ? 'bg-primary/10 text-primary font-mono text-xs border border-primary/20'
+                  : m.from === 'ai'
+                    ? 'bg-voice/10 text-foreground border border-voice/20'
+                    : 'bg-muted text-muted-foreground border border-border'
+              }`}
+            >
+              {m.from !== 'system' && (
+                <span className={`block text-[10px] font-mono uppercase tracking-wider mb-1 ${m.from === 'ai' ? 'text-voice' : 'text-muted-foreground/50'}`}>
+                  {m.from === 'ai' ? 'Vox Agent' : 'Caller'}
+                </span>
+              )}
+              {m.text}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
 
+function chatBotReply(input: string): string {
+  const t = input.toLowerCase()
+  if (/\b(\d{3}[-.\s]?\d{3}[-.\s]?\d{4}|\d{10})\b/.test(t)) {
+    return "Got it — I've saved that number. Want morning or afternoon for the tech visit?"
+  }
+  if (/\b(schedule|book|appointment|repair|fix|broken|not working|ac|furnace|leak)\b/.test(t)) {
+    return "I can get that on the calendar. What needs service — AC, heating, or plumbing/electrical? And what's the best phone number to reach you?"
+  }
+  if (/\b(quote|price|cost|how much|estimate|pricing)\b/.test(t)) {
+    return "Happy to help with pricing. For a solid range I need: (1) install, repair, or maintenance, (2) system type/age if you know it, (3) zip code. What are we looking at?"
+  }
+  if (/\b(area|serve|service area|manteca|turlock|modesto|stockton|tracy|lathrop|ripon)\b/.test(t)) {
+    return 'We cover the 209 corridor — Manteca, Stockton, Tracy, Modesto, Turlock, Lathrop, Ripon, and nearby. Same-day often available. Need to book something?'
+  }
+  if (/\b(review|google|rating)\b/.test(t)) {
+    return "After every job we text a one-tap Google review link (with a private path if something went wrong). Want to see how that works, or book a service?"
+  }
+  if (/\b(hello|hi|hey|howdy)\b/.test(t)) {
+    return "Hey! I'm the AI assistant for Valley Air Pros. I can schedule repairs, rough out quotes, or tell you where we serve — what do you need?"
+  }
+  if (/\b(human|person|tech|owner|call me)\b/.test(t)) {
+    return "I can have the owner call you back. Drop your name and best number, or call the shop directly — whatever's easier."
+  }
+  return "I can help with scheduling, quotes, or service areas. Try something like \"AC not cooling in Manteca\" or use a quick chip below."
+}
+
 function ChatDemo() {
-  const [messages, setMessages] = useState([
-    { from: 'bot', text: "Hi! 👋 I'm the AI assistant for Valley Air Pros. How can I help?" },
+  const [messages, setMessages] = useState<Array<{ from: 'bot' | 'user'; text: string }>>([
+    { from: 'bot', text: "Hi — I'm the AI assistant for Valley Air Pros (sample business). Ask about scheduling, quotes, or service areas. Type freely or use a chip." },
   ])
-  const [showOptions, setShowOptions] = useState(true)
+  const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const options = [
-    'Schedule a repair',
-    'Get a quote',
-    'What areas do you serve?',
-  ]
-
-  const responses: Record<string, string> = {
-    'Schedule a repair': "I'd be happy to schedule that. What type of system needs repair — AC, heating, or ductwork? And what's the best phone number to reach you?",
-    'Get a quote': "Sure! For an accurate quote I'll need: 1) Type of service (install, repair, maintenance), 2) System type and age if known, 3) Your zip code. What are we working with?",
-    'What areas do you serve?': "We serve the entire Central Valley — Manteca, Stockton, Tracy, Modesto, Turlock, and surrounding areas. Same-day service available in most zones. Need to schedule something?",
-  }
+  const chips = ['Schedule a repair', 'Get a quote', 'What areas do you serve?', 'My AC died — 95336']
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [messages, typing])
 
-  function handleOption(opt: string) {
-    setMessages((m) => [...m, { from: 'user', text: opt }])
-    setShowOptions(false)
+  function send(text: string) {
+    const trimmed = text.trim()
+    if (!trimmed || typing) return
+    setMessages((m) => [...m, { from: 'user', text: trimmed }])
+    setInput('')
     setTyping(true)
+    const delay = 700 + Math.min(trimmed.length * 12, 900)
     setTimeout(() => {
       setTyping(false)
-      setMessages((m) => [...m, { from: 'bot', text: responses[opt] }])
-      setShowOptions(true)
-    }, 1200)
+      setMessages((m) => [...m, { from: 'bot', text: chatBotReply(trimmed) }])
+    }, delay)
   }
 
   return (
     <div className="flex flex-col h-[420px]">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
+      <div className="flex items-center gap-2 mb-3 pb-3 border-b border-border/50">
+        <span className="w-2 h-2 rounded-full bg-chat" />
+        <span className="font-mono text-[11px] uppercase tracking-wider text-chat">Live widget PoC</span>
+        <span className="text-[11px] text-muted-foreground/60">· type anything</span>
+      </div>
+      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 mb-3 pr-1">
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div
@@ -546,72 +668,200 @@ function ChatDemo() {
           </div>
         )}
       </div>
-      {showOptions && (
-        <div className="flex flex-wrap gap-2">
-          {options.map((opt) => (
-            <button
-              key={opt}
-              onClick={() => handleOption(opt)}
-              className="px-3 py-1.5 rounded-md border border-chat/30 text-chat text-xs font-medium hover:bg-chat/10 transition-colors"
-            >
-              {opt}
-            </button>
-          ))}
+      <div className="flex flex-wrap gap-1.5 mb-2">
+        {chips.map((opt) => (
+          <button
+            key={opt}
+            type="button"
+            onClick={() => send(opt)}
+            className="px-2.5 py-1 rounded-md border border-chat/30 text-chat text-[11px] font-medium hover:bg-chat/10 transition-colors"
+          >
+            {opt}
+          </button>
+        ))}
+      </div>
+      <form
+        className="flex gap-2"
+        onSubmit={(e) => {
+          e.preventDefault()
+          send(input)
+        }}
+      >
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Type a message…"
+          className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-chat/50"
+        />
+        <button
+          type="submit"
+          disabled={!input.trim() || typing}
+          className="px-3.5 py-2 rounded-lg bg-chat text-white text-sm font-semibold hover:bg-chat/90 disabled:opacity-40 transition-colors"
+        >
+          Send
+        </button>
+      </form>
+    </div>
+  )
+}
+
+function ReviewDemo() {
+  type Phase = 'job' | 'rating' | 'result'
+  const [phase, setPhase] = useState<Phase>('job')
+  const [rating, setRating] = useState<number | null>(null)
+
+  function reset() {
+    setPhase('job')
+    setRating(null)
+  }
+
+  const positive = rating !== null && rating >= 4
+
+  const steps =
+    phase === 'result' && rating !== null
+      ? positive
+        ? [
+            { time: '2:00 PM', label: 'Job complete', desc: 'Tech marks AC repair done for Mike Torres · Manteca', active: true },
+            { time: '+2 hrs', label: 'Satisfaction check', desc: `Customer replied ${rating}/5 — route to public review`, active: true },
+            { time: '+2 hrs', label: 'Google review text', desc: '"Hi Mike, glad the AC is running again. 30 seconds for a Google review? [one-tap link]"', active: true },
+            { time: '+2 min', label: 'Review submitted', desc: '5-star review lands on Google Business Profile', active: true },
+            { time: '+48 hrs', label: 'Follow-up', desc: 'Skipped — review already received', active: false },
+          ]
+        : [
+            { time: '2:00 PM', label: 'Job complete', desc: 'Tech marks AC repair done for Mike Torres · Manteca', active: true },
+            { time: '+2 hrs', label: 'Satisfaction check', desc: `Customer replied ${rating}/5 — do NOT send Google link`, active: true },
+            { time: 'Instant', label: 'Private owner alert', desc: 'You get SMS: "Mike Torres rated 2/5 — call before it hits Google"', active: true },
+            { time: 'You', label: 'Resolve offline', desc: 'Fix the issue, then optionally re-invite to review later', active: true },
+            { time: 'Public', label: 'Google profile', desc: 'Protected — unhappy path never reached the public review page', active: true },
+          ]
+      : []
+
+  return (
+    <div className="flex flex-col h-[420px]">
+      <div className="flex items-center justify-between gap-3 mb-4 pb-3 border-b border-border/50">
+        <div className="flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-review" />
+          <span className="font-mono text-[11px] uppercase tracking-wider text-review">Review flow PoC</span>
+        </div>
+        {phase !== 'job' && (
+          <button type="button" onClick={reset} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            Reset
+          </button>
+        )}
+      </div>
+
+      {phase === 'job' && (
+        <div className="flex-1 flex flex-col justify-center">
+          <div className="rounded-xl border border-border/60 bg-muted/40 p-4 mb-5">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Completed job</p>
+            <p className="text-sm font-semibold text-foreground">Mike Torres · AC repair</p>
+            <p className="text-xs text-muted-foreground mt-1">1247 Oakwood Dr, Manteca · marked done 2:00 PM</p>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
+            Two hours later the system texts a satisfaction check — not a blind Google link. Choose how the customer responds:
+          </p>
+          <button
+            type="button"
+            onClick={() => setPhase('rating')}
+            className="w-full py-2.5 rounded-lg bg-review/15 border border-review/30 text-review text-sm font-semibold hover:bg-review/25 transition-colors"
+          >
+            Simulate customer reply →
+          </button>
+        </div>
+      )}
+
+      {phase === 'rating' && (
+        <div className="flex-1 flex flex-col justify-center">
+          <p className="text-sm text-foreground font-medium mb-1 text-center">How was your service today?</p>
+          <p className="text-xs text-muted-foreground mb-6 text-center">Customer taps a score in the SMS flow</p>
+          <div className="flex justify-center gap-2 mb-6">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => {
+                  setRating(n)
+                  setPhase('result')
+                }}
+                className="w-11 h-11 rounded-xl border border-border/60 bg-card text-sm font-bold text-foreground hover:border-review hover:bg-review/10 transition-colors"
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] text-muted-foreground text-center">1–3 → private alert · 4–5 → Google review link</p>
+        </div>
+      )}
+
+      {phase === 'result' && (
+        <div className="flex-1 overflow-y-auto relative pl-6 pr-1">
+          <div className={`mb-4 rounded-lg px-3 py-2 text-xs font-medium border ${positive ? 'bg-primary/10 text-primary border-primary/20' : 'bg-destructive/10 text-destructive border-destructive/20'}`}>
+            {positive ? 'Positive path — public review request sent' : 'Negative path — Google link blocked, owner alerted'}
+          </div>
+          <div className="absolute left-[11px] top-14 bottom-3 w-px bg-input" />
+          <div className="space-y-5">
+            {steps.map((s, i) => (
+              <div key={i} className="relative flex gap-4">
+                <div className={`absolute left-[-17px] w-3 h-3 rounded-full border-2 ${s.active ? 'border-review bg-review/30' : 'border-input bg-card'}`} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-2 mb-0.5 flex-wrap">
+                    <span className="font-mono text-xs text-review">{s.time}</span>
+                    <span className="text-sm font-semibold text-foreground">{s.label}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
   )
 }
 
-function ReviewDemo() {
-  const steps = [
-    { time: '2:00 PM', label: 'Job Complete', desc: 'Technician marks job done in the field', icon: '✓', active: true },
-    { time: '4:00 PM', label: 'First Text Sent', desc: '"Hi Mike! How was your service today? Tap to leave a review →"', icon: '📱', active: true },
-    { time: '4:02 PM', label: 'Link Opened', desc: 'Customer clicks direct link to Google review page', icon: '🔗', active: true },
-    { time: '4:05 PM', label: '5-Star Review', desc: '"Fast service, AC works great. Mike was professional."', icon: '⭐', active: true },
-    { time: '—', label: '48hr Follow-up', desc: 'Skipped — review already received', icon: '↩', active: false },
-  ]
-
-  return (
-    <div className="relative pl-6">
-      <div className="absolute left-[11px] top-3 bottom-3 w-px bg-input" />
-      <div className="space-y-6">
-        {steps.map((s, i) => (
-          <div key={i} className="relative flex gap-4">
-            <div className={`absolute left-[-17px] w-3 h-3 rounded-full border-2 ${s.active ? 'border-review bg-review/30' : 'border-input bg-card'}`} />
-            <div className="flex-1 min-w-0">
-              <div className="flex items-baseline gap-2 mb-0.5">
-                <span className="font-mono text-xs text-review">{s.time}</span>
-                <span className="text-sm font-semibold text-foreground">{s.label}</span>
-              </div>
-              <p className="text-sm text-muted-foreground">{s.desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
 function Demos() {
-  const [activeTab, setActiveTab] = useState<'voice' | 'chat' | 'review'>('voice')
+  const [activeTab, setActiveTab] = useState<'voice' | 'chat' | 'review'>('chat')
 
   const tabs = [
-    { id: 'voice' as const, label: 'Voice Agent', desc: 'AI answers calls, qualifies callers, and books appointments — all without you lifting a finger.' },
-    { id: 'chat' as const, label: 'Chatbot', desc: 'Your website never sleeps. Visitors get instant answers and appointments booked automatically.' },
-    { id: 'review' as const, label: 'Reviews', desc: 'Automated follow-ups turn completed jobs into 5-star reviews on autopilot.' },
+    { id: 'chat' as const, label: 'AI Chatbot', desc: 'Type freely — this is the live widget PoC. Captures intent the way a visitor on a contractor site would.' },
+    { id: 'review' as const, label: 'AI Review Agent', desc: 'Walk the real branch: satisfaction score → Google link or private owner alert. No blind review spam.' },
+    { id: 'voice' as const, label: 'AI Phone Agent', desc: 'Constrained call playback — qualify, book, notify. Full telephony ships once the voice path is solid.' },
   ]
+
+  useEffect(() => {
+    function applyHash() {
+      const h = window.location.hash.replace('#', '')
+      if (h === 'demo-voice' || h === 'demos-voice') setActiveTab('voice')
+      else if (h === 'demo-chat' || h === 'demos-chat') setActiveTab('chat')
+      else if (h === 'demo-review' || h === 'demos-review') setActiveTab('review')
+      if (h === 'demos' || h.startsWith('demo-') || h.startsWith('demos-')) {
+        document.getElementById('demos')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }
+    applyHash()
+    window.addEventListener('hashchange', applyHash)
+    return () => window.removeEventListener('hashchange', applyHash)
+  }, [])
+
+  function selectTab(id: 'voice' | 'chat' | 'review') {
+    setActiveTab(id)
+    const next = `demo-${id}`
+    if (window.location.hash.replace('#', '') !== next) {
+      history.replaceState(null, '', `#${next}`)
+    }
+  }
 
   const activeDesc = tabs.find((t) => t.id === activeTab)!.desc
 
   return (
-    <section id="demos" className="py-24 sm:py-32 px-5 bg-muted">
+    <section id="demos" className="py-24 sm:py-32 px-5 bg-muted scroll-mt-20">
       <div className="max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12 lg:gap-16 items-start">
           <div className="lg:sticky lg:top-24">
-            <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">Live demos</p>
+            <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">Interactive demos</p>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight mb-4">
-              See how it works
+              Proof, not slides
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-8">
               {activeDesc}
@@ -620,7 +870,8 @@ function Demos() {
               {tabs.map((t) => (
                 <button
                   key={t.id}
-                  onClick={() => setActiveTab(t.id)}
+                  type="button"
+                  onClick={() => selectTab(t.id)}
                   className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all border text-left ${
                     activeTab === t.id
                       ? colorMap[t.id].tabActive
@@ -825,28 +1076,30 @@ function Contact() {
 
 function Footer() {
   return (
-    <footer className="border-t border-border py-10 px-5">
-      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="inline-flex items-center gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full bg-voice" />
-          <span className="w-2.5 h-2.5 rounded-full bg-chat" />
-          <span className="w-2.5 h-2.5 rounded-full bg-review" />
+    <footer className="border-t border-border py-10 px-6 sm:px-10 pb-20 sm:pb-10">
+      <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center sm:items-start justify-between gap-6 sm:gap-8">
+        <div className="flex flex-col items-center sm:items-start gap-2.5">
+          <div className="inline-flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-voice" />
+            <span className="w-2.5 h-2.5 rounded-full bg-chat" />
+            <span className="w-2.5 h-2.5 rounded-full bg-review" />
+          </div>
+          <div className="flex items-center gap-2.5">
+            <a href="mailto:email@vox.chat" aria-label="Email us" className="text-muted-foreground/50 hover:text-foreground transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </a>
+            <span className="font-mono text-xs text-muted-foreground/50">&copy; {new Date().getFullYear()} Vox.chat</span>
+          </div>
         </div>
-        <div className="flex items-center gap-6 text-sm text-muted-foreground/50">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5 text-sm text-muted-foreground/50">
           <a href="#services" className="hover:text-foreground transition-colors">Services</a>
           <a href="#demos" className="hover:text-foreground transition-colors">Demos</a>
           <a href="/blog.html" className="hover:text-foreground transition-colors">Blog</a>
           <a href="/faq.html" className="hover:text-foreground transition-colors">FAQ</a>
           <a href="#contact" className="hover:text-foreground transition-colors">Contact</a>
           <a href="/legal.html" className="hover:text-foreground transition-colors">Legal</a>
-        </div>
-        <div className="flex items-center gap-3">
-          <a href="mailto:email@vox.chat" aria-label="Email us" className="text-muted-foreground/50 hover:text-foreground transition-colors">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-          </a>
-          <span className="font-mono text-xs text-muted-foreground/50">&copy; {new Date().getFullYear()} Vox.chat</span>
         </div>
       </div>
     </footer>
@@ -856,21 +1109,41 @@ function Footer() {
 function MobileBottomBar() {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden border-t border-border bg-background/95 backdrop-blur-xl safe-area-bottom">
-      <div className="flex items-center justify-around h-14">
-        <a href="mailto:email@vox.chat" className="flex items-center justify-center w-12 h-12 text-muted-foreground active:text-primary transition-colors" aria-label="Email">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+      <div className="flex items-center justify-between h-14 px-4 max-w-lg mx-auto gap-2">
+        {/* Showroom — not a product dock */}
+        <a
+          href="#demos"
+          className="flex flex-1 flex-col items-center justify-center gap-0.5 min-h-11 text-muted-foreground/40 active:text-muted-foreground transition-colors"
+          aria-label="See demos"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
+          </svg>
+          <span className="text-[10px] font-medium text-muted-foreground/30">Demos</span>
+        </a>
+
+        {/* Primary conversion */}
+        <a
+          href="tel:+12099967102"
+          className="flex items-center justify-center w-14 h-14 -mt-3 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 active:scale-95 transition-transform"
+          aria-label="Call Vox.chat"
+        >
+          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
           </svg>
         </a>
-        <a href="tel:+12099967102" className="flex items-center justify-center w-12 h-12 text-primary" aria-label="Call">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+
+        {/* Structured lead — power/start icon */}
+        <a
+          href="#contact"
+          className="flex flex-1 flex-col items-center justify-center gap-0.5 min-h-11 text-muted-foreground/40 active:text-muted-foreground transition-colors"
+          aria-label="Get started"
+        >
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3v9" />
+            <path d="M5.64 6.64a8 8 0 1012.72 0" />
           </svg>
-        </a>
-        <a href="#contact" className="flex items-center justify-center w-12 h-12 text-muted-foreground active:text-primary transition-colors" aria-label="Contact form">
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
-          </svg>
+          <span className="text-[10px] font-medium text-muted-foreground/30">Start</span>
         </a>
       </div>
     </div>
