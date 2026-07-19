@@ -30,12 +30,12 @@ const categories = [
       {
         id: 'technical-skills',
         q: 'Do I need any technical skills to use Vox.chat?',
-        a: 'None at all. We handle the entire setup, including phone forwarding, chat widget installation, and AI review agent configuration. You just run your business. If you can answer a few questions about your services, you\'re ready.',
+        a: 'None at all. We handle the entire setup, including phone forwarding, AI Receptionist setup, and AI review agent configuration. You just run your business. If you can answer a few questions about your services, you\'re ready.',
       },
       {
         id: 'onboarding',
         q: 'What does the onboarding process look like?',
-        a: 'Step 1: You tell us about your business — services offered, service area, hours, and how you want calls handled. Step 2: We build and train your custom AI agent. Step 3: We activate call forwarding and/or install your chat widget. You get a notification the moment your first customer reaches out.',
+        a: 'Step 1: You tell us about your business — services offered, service area, hours, and how you want calls handled. Step 2: We build and train your custom AI agent. Step 3: We activate call forwarding and/or your AI Receptionist. You get a notification the moment your first customer reaches out.',
       },
     ],
   },
@@ -66,22 +66,22 @@ const categories = [
     ],
   },
   {
-    id: 'chatbot',
-    label: 'AI Chatbot',
+    id: 'receptionist',
+    label: 'AI Receptionist',
     questions: [
       {
         id: 'custom-training',
-        q: 'Can the chatbot be trained on my specific services and pricing?',
-        a: 'Yes. We custom-train the chatbot on your service menu, pricing, service areas, FAQs, and brand voice. It answers questions specific to your business — not generic responses. When your pricing changes, we update the training within 24 hours.',
+        q: 'Can the AI Receptionist be trained on my specific services and pricing?',
+        a: 'Yes. We custom-train the AI Receptionist on your service menu, pricing, service areas, FAQs, and brand voice. It answers questions specific to your business — not generic responses. When your pricing changes, we update the training within 24 hours.',
       },
       {
-        id: 'chatbot-languages',
-        q: 'Does the chatbot support multiple languages?',
-        a: 'Yes. The chatbot can communicate in English and Spanish out of the box. This is especially valuable for service businesses in bilingual markets — your Spanish-speaking customers get the same quality experience as English speakers.',
+        id: 'receptionist-languages',
+        q: 'Does the AI Receptionist support multiple languages?',
+        a: 'Yes. The AI Receptionist can communicate in English and Spanish out of the box. This is especially valuable for service businesses in bilingual markets — your Spanish-speaking customers get the same quality experience as English speakers.',
       },
       {
-        id: 'chatbot-notifications',
-        q: 'How do I get notified when the chatbot books a customer?',
+        id: 'receptionist-notifications',
+        q: 'How do I get notified when the AI Receptionist books a customer?',
         a: 'Notifications are sent instantly via your choice of email, SMS, or directly into your CRM (ServiceTitan, Housecall Pro, Jobber, etc.). You get the customer\'s name, phone number, service needed, and preferred appointment time — all handled automatically.',
       },
     ],

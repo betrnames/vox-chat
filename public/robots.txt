@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /setup
+Disallow: /setup.html
 
 Sitemap: https://vox.chat/sitemap.xml

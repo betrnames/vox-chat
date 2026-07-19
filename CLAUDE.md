@@ -27,8 +27,8 @@
 - Custom script per business
 - Color: #FF6B4A
 
-### Vox Chat — Website Chatbot ($500–$800/mo)
-- Smart chat widget on contractor's website
+### Vox Receptionist — AI Receptionist ($500–$800/mo)
+- AI Receptionist greets and qualifies every customer conversation
 - Custom-trained on their services and pricing
 - Captures lead info: name, phone, service needed
 - Answers FAQs automatically
@@ -50,7 +50,7 @@
 1. Nav (logo + CTA)
 2. Hero (tagline, subtext, CTA)
 3. Services grid (3 color-coded cards)
-4. Interactive Demos (tabbed: Voice call flow, Chat widget, Review timeline)
+4. Interactive Demos (tabbed: Voice call flow, AI Receptionist, Review timeline)
 5. ROI stats ($2,500 lost/week, 312% ROI month one, 4.8 star avg)
 6. Contact form (Formspree)
 7. Footer

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import './index.css'
+import { advanceReceptionist, type ChatMemory, type ChatStep } from './receptionist/localFlow'
 
 function HeroWaves() {
   return (
@@ -143,7 +144,7 @@ function Hero() {
               <span className="text-primary">Never offline.</span>
             </h1>
             <p className="text-muted-foreground text-lg max-w-lg leading-relaxed mb-8 mx-auto lg:mx-0">
-              AI voice agents, AI chatbots, and AI review agents that automate your phones, your website, and your reviews — so you never miss a customer again.
+              AI voice agents, AI Receptionists, and AI review agents that answer phones, handle customer conversations, and grow your reviews — so you never miss a customer again.
             </p>
             <a
               href="#demos"
@@ -218,7 +219,7 @@ function Hero() {
                 >
                   <option value="">Which service?</option>
                   <option value="voice">AI Phone Agent</option>
-                  <option value="chat">AI Chatbot</option>
+                  <option value="chat">AI Receptionist</option>
                   <option value="reviews">AI Review Agent</option>
                   <option value="bundle">All Three</option>
                 </select>
@@ -249,7 +250,7 @@ function HowItWorks() {
       eyebrow: 'Step 2',
       title: 'Your AI goes live',
       description: 'Your AI agent starts answering calls, chatting with website visitors, and following up on reviews — even at 2 AM when a pipe bursts.',
-      detail: ['Phone forwarding setup', 'Chat widget installed', 'Review automation activated'],
+      detail: ['Phone forwarding setup', 'AI Receptionist activated', 'Review automation activated'],
     },
     {
       eyebrow: 'Step 3',
@@ -337,16 +338,16 @@ const services = [
     ],
   },
   {
-    name: 'Vox Chat',
-    tagline: 'AI Chatbot',
+    name: 'Vox Receptionist',
+    tagline: 'AI Receptionist',
     color: 'chat' as const,
     popular: true,
     features: [
-      'Smart widget on your website',
+      'Greets and qualifies every visitor',
       'Custom-trained on your services & pricing',
       'Collects name, phone, service needed',
       'Answers FAQs automatically',
-      'Schedules appointments',
+      'Books appointments to your calendar',
     ],
   },
   {
@@ -455,7 +456,7 @@ function Services() {
 function VoiceDemo() {
   const messages = [
     { from: 'system' as const, text: 'Incoming call from (209) 555-0147...' },
-    { from: 'ai' as const, text: "Good afternoon, Valley Air Pros, this is Vox. How can I help you today?" },
+    { from: 'ai' as const, text: "Good afternoon, Valley Air Pros, this is the AI phone agent. How can I help you today?" },
     { from: 'caller' as const, text: "Yeah, my AC stopped blowing cold air about an hour ago. It's 102 out here in Manteca." },
     { from: 'ai' as const, text: "I'm sorry to hear that — let me get you taken care of. Can I get your name?" },
     { from: 'caller' as const, text: 'Mike Torres.' },
@@ -590,7 +591,7 @@ function VoiceDemo() {
             >
               {m.from !== 'system' && (
                 <span className={`block text-[10px] font-mono uppercase tracking-wider mb-1 ${m.from === 'ai' ? 'text-voice' : 'text-muted-foreground/50'}`}>
-                  {m.from === 'ai' ? 'Vox Agent' : 'Caller'}
+                  {m.from === 'ai' ? 'Phone agent' : 'Caller'}
                 </span>
               )}
               {m.text}
@@ -602,41 +603,29 @@ function VoiceDemo() {
   )
 }
 
-function chatBotReply(input: string): string {
-  const t = input.toLowerCase()
-  if (/\b(\d{3}[-.\s]?\d{3}[-.\s]?\d{4}|\d{10})\b/.test(t)) {
-    return "Got it — I've saved that number. Want morning or afternoon for the tech visit?"
-  }
-  if (/\b(schedule|book|appointment|repair|fix|broken|not working|ac|furnace|leak)\b/.test(t)) {
-    return "I can get that on the calendar. What needs service — AC, heating, or plumbing/electrical? And what's the best phone number to reach you?"
-  }
-  if (/\b(quote|price|cost|how much|estimate|pricing)\b/.test(t)) {
-    return "Happy to help with pricing. For a solid range I need: (1) install, repair, or maintenance, (2) system type/age if you know it, (3) zip code. What are we looking at?"
-  }
-  if (/\b(area|serve|service area|manteca|turlock|modesto|stockton|tracy|lathrop|ripon)\b/.test(t)) {
-    return 'We cover the 209 corridor — Manteca, Stockton, Tracy, Modesto, Turlock, Lathrop, Ripon, and nearby. Same-day often available. Need to book something?'
-  }
-  if (/\b(review|google|rating)\b/.test(t)) {
-    return "After every job we text a one-tap Google review link (with a private path if something went wrong). Want to see how that works, or book a service?"
-  }
-  if (/\b(hello|hi|hey|howdy)\b/.test(t)) {
-    return "Hey! I'm the AI assistant for Valley Air Pros. I can schedule repairs, rough out quotes, or tell you where we serve — what do you need?"
-  }
-  if (/\b(human|person|tech|owner|call me)\b/.test(t)) {
-    return "I can have the owner call you back. Drop your name and best number, or call the shop directly — whatever's easier."
-  }
-  return "I can help with scheduling, quotes, or service areas. Try something like \"AC not cooling in Manteca\" or use a quick chip below."
-}
 
-function ChatDemo() {
-  const [messages, setMessages] = useState<Array<{ from: 'bot' | 'user'; text: string }>>([
-    { from: 'bot', text: "Hi — I'm the AI assistant for Valley Air Pros (sample business). Ask about scheduling, quotes, or service areas. Type freely or use a chip." },
+function ReceptionistDemo() {
+  const [messages, setMessages] = useState<Array<{ from: 'receptionist' | 'user'; text: string }>>([
+    {
+      from: 'receptionist',
+      text: "Hi — I'm the AI Receptionist for Valley Air Pros. I can schedule a repair, rough out a quote, or confirm service areas. What do you need?",
+    },
   ])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
+  const [step, setStep] = useState<ChatStep>('idle')
+  const [memory, setMemory] = useState<ChatMemory>({})
+  const [chips, setChips] = useState(['Schedule a repair', 'Get a quote', 'What areas do you serve?', 'My AC died — 95336'])
   const scrollRef = useRef<HTMLDivElement>(null)
+  const stepRef = useRef(step)
+  const memoryRef = useRef(memory)
 
-  const chips = ['Schedule a repair', 'Get a quote', 'What areas do you serve?', 'My AC died — 95336']
+  useEffect(() => {
+    stepRef.current = step
+  }, [step])
+  useEffect(() => {
+    memoryRef.current = memory
+  }, [memory])
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -645,13 +634,49 @@ function ChatDemo() {
   function send(text: string) {
     const trimmed = text.trim()
     if (!trimmed || typing) return
+
+    if (/^start over$/i.test(trimmed)) {
+      setMessages((m) => [...m, { from: 'user', text: trimmed }])
+      setInput('')
+      setTyping(true)
+      setTimeout(() => {
+        setTyping(false)
+        setMessages([
+          { from: 'user', text: trimmed },
+          {
+            from: 'receptionist',
+            text: "Fresh start. I can schedule a repair, rough out a quote, or confirm service areas — what do you need?",
+          },
+        ])
+        setStep('idle')
+        setMemory({})
+        setChips(['Schedule a repair', 'Get a quote', 'What areas do you serve?'])
+      }, 400)
+      return
+    }
+
     setMessages((m) => [...m, { from: 'user', text: trimmed }])
     setInput('')
     setTyping(true)
-    const delay = 700 + Math.min(trimmed.length * 12, 900)
+
+    const delay = 550 + Math.min(trimmed.length * 8, 600)
     setTimeout(() => {
+      if (/^book another$/i.test(trimmed) || (/yes.*book/i.test(trimmed) && stepRef.current === 'complete')) {
+        const result = advanceReceptionist('schedule a repair', 'idle', {})
+        setTyping(false)
+        setMessages((m) => [...m, { from: 'receptionist', text: result.reply }])
+        setStep(result.step)
+        setMemory(result.memory)
+        setChips(result.chips)
+        return
+      }
+
+      const result = advanceReceptionist(trimmed, stepRef.current, memoryRef.current)
       setTyping(false)
-      setMessages((m) => [...m, { from: 'bot', text: chatBotReply(trimmed) }])
+      setMessages((m) => [...m, { from: 'receptionist', text: result.reply }])
+      setStep(result.step)
+      setMemory(result.memory)
+      setChips(result.chips)
     }, delay)
   }
 
@@ -659,19 +684,22 @@ function ChatDemo() {
     <div className="flex flex-col h-[420px]">
       <div className="flex items-center gap-2 mb-3 pb-3 border-b border-border/50">
         <span className="w-2 h-2 rounded-full bg-chat" />
-        <span className="font-mono text-[11px] uppercase tracking-wider text-chat">Live widget PoC</span>
-        <span className="text-[11px] text-muted-foreground/60">· type anything</span>
+        <span className="font-mono text-[11px] uppercase tracking-wider text-chat">AI Receptionist</span>
+        <span className="text-[11px] text-muted-foreground/60">· guided demo</span>
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 mb-3 pr-1">
         {messages.map((m, i) => (
           <div key={i} className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div
               className={`max-w-[85%] px-4 py-2.5 rounded-lg text-sm ${
-                m.from === 'bot'
+                m.from === 'receptionist'
                   ? 'bg-chat/10 text-foreground border border-chat/20'
                   : 'bg-muted text-muted-foreground border border-border'
               }`}
             >
+              {m.from === 'receptionist' && (
+                <span className="block text-[10px] font-mono uppercase tracking-wider mb-1 text-chat">Receptionist</span>
+              )}
               {m.text}
             </div>
           </div>
@@ -684,18 +712,21 @@ function ChatDemo() {
           </div>
         )}
       </div>
-      <div className="flex flex-wrap gap-1.5 mb-2">
-        {chips.map((opt) => (
-          <button
-            key={opt}
-            type="button"
-            onClick={() => send(opt)}
-            className="px-2.5 py-1 rounded-md border border-chat/30 text-chat text-[11px] font-medium hover:bg-chat/10 transition-colors"
-          >
-            {opt}
-          </button>
-        ))}
-      </div>
+      {chips.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-2">
+          {chips.map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => send(opt)}
+              disabled={typing}
+              className="px-2.5 py-1 rounded-md border border-chat/30 text-chat text-[11px] font-medium hover:bg-chat/10 transition-colors disabled:opacity-40"
+            >
+              {opt}
+            </button>
+          ))}
+        </div>
+      )}
       <form
         className="flex gap-2"
         onSubmit={(e) => {
@@ -707,7 +738,7 @@ function ChatDemo() {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type a message…"
+          placeholder="Ask the receptionist…"
           className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-chat/50"
         />
         <button
@@ -722,36 +753,177 @@ function ChatDemo() {
   )
 }
 
-function ReviewDemo() {
-  type Phase = 'job' | 'rating' | 'result'
-  const [phase, setPhase] = useState<Phase>('job')
-  const [rating, setRating] = useState<number | null>(null)
+type ReviewMsg = {
+  from: 'system' | 'customer' | 'owner' | 'status'
+  text: string
+}
 
-  function reset() {
-    setPhase('job')
-    setRating(null)
+function ReviewTyping({ side = 'left' }: { side?: 'left' | 'right' }) {
+  return (
+    <div className={`flex ${side === 'right' ? 'justify-end' : 'justify-start'} vox-fadein`}>
+      <div
+        className={`px-4 py-3 rounded-2xl border ${
+          side === 'right'
+            ? 'bg-muted border-border rounded-br-md'
+            : 'bg-review/10 border-review/20 rounded-bl-md'
+        }`}
+      >
+        <TypingDots />
+      </div>
+    </div>
+  )
+}
+
+function ReviewDemo() {
+  type Phase = 'job' | 'thread'
+  const [phase, setPhase] = useState<Phase>('job')
+  const [messages, setMessages] = useState<ReviewMsg[]>([])
+  const [typing, setTyping] = useState<'left' | 'right' | null>(null)
+  const [awaitingRating, setAwaitingRating] = useState(false)
+  const [rating, setRating] = useState<number | null>(null)
+  const [done, setDone] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+  }, [messages, typing, awaitingRating, done])
+
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach(clearTimeout)
+    }
+  }, [])
+
+  function clearTimers() {
+    timersRef.current.forEach(clearTimeout)
+    timersRef.current = []
   }
 
-  const positive = rating !== null && rating >= 4
+  function later(ms: number, fn: () => void) {
+    const id = setTimeout(fn, ms)
+    timersRef.current.push(id)
+  }
 
-  const steps =
-    phase === 'result' && rating !== null
-      ? positive
-        ? [
-            { time: '2:00 PM', label: 'Job complete', desc: 'Tech marks AC repair done for Mike Torres · Manteca', active: true },
-            { time: '+2 hrs', label: 'Satisfaction check', desc: `Customer replied ${rating}/5 — route to public review`, active: true },
-            { time: '+2 hrs', label: 'Google review text', desc: '"Hi Mike, glad the AC is running again. 30 seconds for a Google review? [one-tap link]"', active: true },
-            { time: '+2 min', label: 'Review submitted', desc: '5-star review lands on Google Business Profile', active: true },
-            { time: '+48 hrs', label: 'Follow-up', desc: 'Skipped — review already received', active: false },
-          ]
-        : [
-            { time: '2:00 PM', label: 'Job complete', desc: 'Tech marks AC repair done for Mike Torres · Manteca', active: true },
-            { time: '+2 hrs', label: 'Satisfaction check', desc: `Customer replied ${rating}/5 — do NOT send Google link`, active: true },
-            { time: 'Instant', label: 'Private owner alert', desc: 'You get SMS: "Mike Torres rated 2/5 — call before it hits Google"', active: true },
-            { time: 'You', label: 'Resolve offline', desc: 'Fix the issue, then optionally re-invite to review later', active: true },
-            { time: 'Public', label: 'Google profile', desc: 'Protected — unhappy path never reached the public review page', active: true },
-          ]
-      : []
+  function reset() {
+    clearTimers()
+    setPhase('job')
+    setMessages([])
+    setTyping(null)
+    setAwaitingRating(false)
+    setRating(null)
+    setDone(false)
+  }
+
+  function startThread() {
+    clearTimers()
+    setPhase('thread')
+    setMessages([])
+    setRating(null)
+    setDone(false)
+    setAwaitingRating(false)
+    setTyping('left')
+
+    later(900, () => {
+      setTyping(null)
+      setMessages([
+        {
+          from: 'status',
+          text: 'Job complete · Mike Torres · AC repair · Manteca · +2 hrs',
+        },
+      ])
+      setTyping('left')
+    })
+
+    later(1800, () => {
+      setTyping(null)
+      setMessages((m) => [
+        ...m,
+        {
+          from: 'system',
+          text: 'Hi Mike! How was your service with Valley Air Pros today? Reply with a number 1–5.',
+        },
+      ])
+      setAwaitingRating(true)
+    })
+  }
+
+  function pickRating(n: number) {
+    if (!awaitingRating || typing) return
+    setAwaitingRating(false)
+    setRating(n)
+    const positive = n >= 4
+
+    setMessages((m) => [...m, { from: 'customer', text: String(n) }])
+    setTyping('left')
+
+    if (positive) {
+      later(1100, () => {
+        setTyping(null)
+        setMessages((m) => [
+          ...m,
+          {
+            from: 'system',
+            text: 'Thanks Mike — glad it went well. Mind a 30-second Google review? One-tap link: https://g.page/r/valley-air-demo',
+          },
+        ])
+        setTyping('right')
+      })
+      later(2400, () => {
+        setTyping(null)
+        setMessages((m) => [
+          ...m,
+          { from: 'customer', text: 'Done ⭐⭐⭐⭐⭐' },
+        ])
+        setTyping('left')
+      })
+      later(3400, () => {
+        setTyping(null)
+        setMessages((m) => [
+          ...m,
+          {
+            from: 'status',
+            text: '5-star review on Google · 48hr follow-up skipped · map pack signal +1',
+          },
+        ])
+        setDone(true)
+      })
+    } else {
+      later(1100, () => {
+        setTyping(null)
+        setMessages((m) => [
+          ...m,
+          {
+            from: 'system',
+            text: "Sorry it wasn't a 5. We're not sending a public review link — the owner will reach out shortly.",
+          },
+        ])
+        setTyping('left')
+      })
+      later(2400, () => {
+        setTyping(null)
+        setMessages((m) => [
+          ...m,
+          {
+            from: 'owner',
+            text: `Owner alert: Mike Torres rated ${n}/5 after AC repair in Manteca. Call before this becomes a public review.`,
+          },
+        ])
+        setTyping('left')
+      })
+      later(3600, () => {
+        setTyping(null)
+        setMessages((m) => [
+          ...m,
+          {
+            from: 'status',
+            text: 'Google link blocked · private recovery path · public profile protected',
+          },
+        ])
+        setDone(true)
+      })
+    }
+  }
 
   return (
     <div className="flex flex-col h-[420px]">
@@ -759,6 +931,7 @@ function ReviewDemo() {
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-review" />
           <span className="font-mono text-[11px] uppercase tracking-wider text-review">Review flow PoC</span>
+          <span className="text-[11px] text-muted-foreground/60">· SMS thread</span>
         </div>
         {phase !== 'job' && (
           <button type="button" onClick={reset} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
@@ -775,62 +948,91 @@ function ReviewDemo() {
             <p className="text-xs text-muted-foreground mt-1">1247 Oakwood Dr, Manteca · marked done 2:00 PM</p>
           </div>
           <p className="text-sm text-muted-foreground mb-4 leading-relaxed">
-            Two hours later the system texts a satisfaction check — not a blind Google link. Choose how the customer responds:
+            Two hours later the system opens an SMS thread — satisfaction first, Google link only if they score high.
           </p>
           <button
             type="button"
-            onClick={() => setPhase('rating')}
+            onClick={startThread}
             className="w-full py-2.5 rounded-lg bg-review/15 border border-review/30 text-review text-sm font-semibold hover:bg-review/25 transition-colors"
           >
-            Simulate customer reply →
+            Play SMS flow →
           </button>
         </div>
       )}
 
-      {phase === 'rating' && (
-        <div className="flex-1 flex flex-col justify-center">
-          <p className="text-sm text-foreground font-medium mb-1 text-center">How was your service today?</p>
-          <p className="text-xs text-muted-foreground mb-6 text-center">Customer taps a score in the SMS flow</p>
-          <div className="flex justify-center gap-2 mb-6">
-            {[1, 2, 3, 4, 5].map((n) => (
-              <button
-                key={n}
-                type="button"
-                onClick={() => {
-                  setRating(n)
-                  setPhase('result')
-                }}
-                className="w-11 h-11 rounded-xl border border-border/60 bg-card text-sm font-bold text-foreground hover:border-review hover:bg-review/10 transition-colors"
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-          <p className="text-[11px] text-muted-foreground text-center">1–3 → private alert · 4–5 → Google review link</p>
-        </div>
-      )}
-
-      {phase === 'result' && (
-        <div className="flex-1 overflow-y-auto relative pl-6 pr-1">
-          <div className={`mb-4 rounded-lg px-3 py-2 text-xs font-medium border ${positive ? 'bg-primary/10 text-primary border-primary/20' : 'bg-destructive/10 text-destructive border-destructive/20'}`}>
-            {positive ? 'Positive path — public review request sent' : 'Negative path — Google link blocked, owner alerted'}
-          </div>
-          <div className="absolute left-[11px] top-14 bottom-3 w-px bg-input" />
-          <div className="space-y-5">
-            {steps.map((s, i) => (
-              <div key={i} className="relative flex gap-4">
-                <div className={`absolute left-[-17px] w-3 h-3 rounded-full border-2 ${s.active ? 'border-review bg-review/30' : 'border-input bg-card'}`} />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-2 mb-0.5 flex-wrap">
-                    <span className="font-mono text-xs text-review">{s.time}</span>
-                    <span className="text-sm font-semibold text-foreground">{s.label}</span>
+      {phase === 'thread' && (
+        <>
+          <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 pr-1 mb-3">
+            {messages.map((m, i) => {
+              if (m.from === 'status') {
+                return (
+                  <div key={i} className="flex justify-center vox-fadein">
+                    <span className="max-w-[95%] px-3 py-1.5 rounded-full bg-muted/80 border border-border/50 font-mono text-[10px] text-muted-foreground text-center leading-snug">
+                      {m.text}
+                    </span>
                   </div>
-                  <p className="text-sm text-muted-foreground">{s.desc}</p>
+                )
+              }
+              const isCustomer = m.from === 'customer'
+              const isOwner = m.from === 'owner'
+              return (
+                <div key={i} className={`flex ${isCustomer ? 'justify-end' : 'justify-start'} vox-fadein`}>
+                  <div
+                    className={`max-w-[85%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                      isCustomer
+                        ? 'bg-muted text-foreground border border-border rounded-br-md'
+                        : isOwner
+                          ? 'bg-destructive/10 text-foreground border border-destructive/25 rounded-bl-md'
+                          : 'bg-review/10 text-foreground border border-review/20 rounded-bl-md'
+                    }`}
+                  >
+                    <span
+                      className={`block text-[10px] font-mono uppercase tracking-wider mb-1 ${
+                        isCustomer ? 'text-muted-foreground/50' : isOwner ? 'text-destructive/80' : 'text-review'
+                      }`}
+                    >
+                      {isCustomer ? 'Mike (customer)' : isOwner ? 'Owner SMS' : 'Review agent'}
+                    </span>
+                    {m.text}
+                  </div>
                 </div>
+              )
+            })}
+            {typing && <ReviewTyping side={typing} />}
+            {done && rating !== null && (
+              <div className="flex justify-center vox-fadein pt-1">
+                <span
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-medium border ${
+                    rating >= 4
+                      ? 'bg-primary/10 text-primary border-primary/20'
+                      : 'bg-destructive/10 text-destructive border-destructive/20'
+                  }`}
+                >
+                  {rating >= 4 ? 'Positive path complete' : 'Negative path complete — public profile protected'}
+                </span>
               </div>
-            ))}
+            )}
           </div>
-        </div>
+
+          {awaitingRating && (
+            <div className="pt-1 border-t border-border/40">
+              <p className="text-[11px] text-muted-foreground text-center mb-2">Customer replies with a score</p>
+              <div className="flex justify-center gap-2">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    onClick={() => pickRating(n)}
+                    className="w-10 h-10 rounded-xl border border-review/30 bg-card text-sm font-bold text-foreground hover:border-review hover:bg-review/10 active:scale-95 transition-all"
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[10px] text-muted-foreground/60 text-center mt-2">1–3 private · 4–5 Google link</p>
+            </div>
+          )}
+        </>
       )}
     </div>
   )
@@ -840,9 +1042,9 @@ function Demos() {
   const [activeTab, setActiveTab] = useState<'voice' | 'chat' | 'review'>('chat')
 
   const tabs = [
-    { id: 'chat' as const, label: 'AI Chatbot', desc: 'Type freely — this is the live widget PoC. Captures intent the way a visitor on a contractor site would.' },
+    { id: 'chat' as const, label: 'AI Receptionist', desc: 'Guided demo for Valley Air Pros — schedules, quotes, and service areas through a full booking path.' },
     { id: 'review' as const, label: 'AI Review Agent', desc: 'Walk the real branch: satisfaction score → Google link or private owner alert. No blind review spam.' },
-    { id: 'voice' as const, label: 'AI Phone Agent', desc: 'Constrained call playback — qualify, book, notify. Full telephony ships once the voice path is solid.' },
+    { id: 'voice' as const, label: 'AI Phone Agent', desc: 'Call playback — qualify, book, notify. Live telephony comes with the real proof-of-concept build.' },
   ]
 
   useEffect(() => {
@@ -901,7 +1103,7 @@ function Demos() {
           </div>
           <div className="rounded-2xl border border-border/60 bg-card p-6 sm:p-8 shadow-md">
             {activeTab === 'voice' && <VoiceDemo />}
-            {activeTab === 'chat' && <ChatDemo />}
+            {activeTab === 'chat' && <ReceptionistDemo />}
             {activeTab === 'review' && <ReviewDemo />}
           </div>
         </div>
@@ -959,7 +1161,7 @@ function BuiltFor() {
             We know your business
           </h2>
           <p className="text-muted-foreground leading-relaxed max-w-xl mx-auto">
-            Not a generic AI receptionist. Vox is trained on the language, workflows, and urgency of the trades.
+            Not a generic AI receptionist. Trained on the language, workflows, and urgency of the trades.
           </p>
         </div>
         <div className="grid sm:grid-cols-3 gap-6">
@@ -1064,7 +1266,7 @@ function Contact() {
               >
                 <option value="">Which service?</option>
                 <option value="voice">AI Phone Agent</option>
-                <option value="chat">AI Chatbot</option>
+                <option value="chat">AI Receptionist</option>
                 <option value="reviews">AI Review Agent</option>
                 <option value="bundle">All Three</option>
               </select>
