@@ -30,7 +30,7 @@ const categories = [
       {
         id: 'technical-skills',
         q: 'Do I need any technical skills to use Vox.chat?',
-        a: 'None at all. We handle the entire setup, including phone forwarding, chat widget installation, and review automation configuration. You just run your business. If you can answer a few questions about your services, you\'re ready.',
+        a: 'None at all. We handle the entire setup, including phone forwarding, chat widget installation, and AI review agent configuration. You just run your business. If you can answer a few questions about your services, you\'re ready.',
       },
       {
         id: 'onboarding',
@@ -67,7 +67,7 @@ const categories = [
   },
   {
     id: 'chatbot',
-    label: 'Website Chatbot',
+    label: 'AI Chatbot',
     questions: [
       {
         id: 'custom-training',
@@ -88,11 +88,11 @@ const categories = [
   },
   {
     id: 'reviews',
-    label: 'Review Automation',
+    label: 'AI Review Agent',
     questions: [
       {
         id: 'negative-reviews',
-        q: 'How does the review automation prevent negative reviews?',
+        q: 'How does the AI review agent prevent negative reviews?',
         a: 'The system sends a private satisfaction check first. Happy customers get directed to Google Reviews. Unhappy customers are routed to you privately so you can resolve the issue before it becomes public. This filters negative sentiment before it hits your profile.',
       },
       {

@@ -130,7 +130,7 @@ export default function LegalPage() {
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Services</h3>
-                <p>Vox.chat provides AI-powered voice agents, website chatbots, and review automation services for local service businesses. Services are delivered on a subscription basis with no long-term contracts. We reserve the right to modify or discontinue services with reasonable notice.</p>
+                <p>Vox.chat provides AI-powered voice agents, AI chatbots, and AI review agent services for local service businesses. Services are delivered on a subscription basis with no long-term contracts. We reserve the right to modify or discontinue services with reasonable notice.</p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Your Responsibilities</h3>

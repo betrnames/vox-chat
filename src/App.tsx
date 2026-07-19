@@ -102,7 +102,7 @@ function Hero() {
               <span className="text-primary">Never offline.</span>
             </h1>
             <p className="text-muted-foreground text-lg max-w-lg leading-relaxed mb-8 mx-auto lg:mx-0">
-              AI voice agents, website chatbots, and review automation built for contractors. Answer every call, capture every lead, and grow your reputation — 24/7.
+              AI voice agents, AI chatbots, and AI review agents built for contractors. Answer every call, capture every lead, and grow your reputation — 24/7.
             </p>
             <a
               href="#demos"
@@ -177,8 +177,8 @@ function Hero() {
                 >
                   <option value="">Which service?</option>
                   <option value="voice">AI Phone Agent</option>
-                  <option value="chat">Website Chatbot</option>
-                  <option value="reviews">Review Automation</option>
+                  <option value="chat">AI Chatbot</option>
+                  <option value="reviews">AI Review Agent</option>
                   <option value="bundle">All Three</option>
                 </select>
               </div>
@@ -297,7 +297,7 @@ const services = [
   },
   {
     name: 'Vox Chat',
-    tagline: 'Website Chatbot',
+    tagline: 'AI Chatbot',
     color: 'chat' as const,
     popular: true,
     features: [
@@ -310,7 +310,7 @@ const services = [
   },
   {
     name: 'Vox Reviews',
-    tagline: 'Review Automation',
+    tagline: 'AI Review Agent',
     color: 'review' as const,
     popular: false,
     features: [
@@ -757,8 +757,8 @@ function Contact() {
               >
                 <option value="">Which service?</option>
                 <option value="voice">AI Phone Agent</option>
-                <option value="chat">Website Chatbot</option>
-                <option value="reviews">Review Automation</option>
+                <option value="chat">AI Chatbot</option>
+                <option value="reviews">AI Review Agent</option>
                 <option value="bundle">All Three</option>
               </select>
             </div>
