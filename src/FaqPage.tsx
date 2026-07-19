@@ -25,7 +25,7 @@ const categories = [
       {
         id: 'setup-time',
         q: 'How quickly can I get set up with Vox.chat?',
-        a: 'Most businesses are live within 48 hours. We handle all the setup — you just share your services, pricing, and preferences, and we build your custom AI agent. There\'s no software to install, no code to write, and no hardware to buy.',
+        a: 'We handle all the setup — you just share your services, pricing, and preferences, and we build your custom AI agent. There\'s no software to install, no code to write, and no hardware to buy.',
       },
       {
         id: 'technical-skills',
@@ -35,7 +35,7 @@ const categories = [
       {
         id: 'onboarding',
         q: 'What does the onboarding process look like?',
-        a: 'Step 1: You tell us about your business — services offered, service area, hours, and how you want calls handled. Step 2: We build and train your custom AI agent (typically 24–48 hours). Step 3: We activate call forwarding and/or install your chat widget. You get a notification the moment your first lead comes in.',
+        a: 'Step 1: You tell us about your business — services offered, service area, hours, and how you want calls handled. Step 2: We build and train your custom AI agent. Step 3: We activate call forwarding and/or install your chat widget. You get a notification the moment your first customer reaches out.',
       },
     ],
   },
@@ -56,7 +56,7 @@ const categories = [
       {
         id: 'cant-answer',
         q: 'What happens if the AI can\'t answer a question?',
-        a: 'The AI captures the caller\'s information and immediately notifies you via text and email so you can follow up personally. No lead is ever lost. For complex questions outside its training, it offers to schedule a callback with your team.',
+        a: 'The AI captures the caller\'s information and immediately notifies you via text and email so you can follow up personally. No customer is ever missed. For complex questions outside its training, it offers to schedule a callback with your team.',
       },
       {
         id: 'call-volume',
@@ -80,9 +80,9 @@ const categories = [
         a: 'Yes. The chatbot can communicate in English and Spanish out of the box. This is especially valuable for service businesses in bilingual markets — your Spanish-speaking customers get the same quality experience as English speakers.',
       },
       {
-        id: 'chatbot-leads',
-        q: 'How are chatbot leads delivered to me?',
-        a: 'Leads are sent instantly via your choice of email, SMS, or directly into your CRM (ServiceTitan, Housecall Pro, Jobber, etc.). You get the customer\'s name, phone number, service needed, and preferred appointment time — all captured automatically.',
+        id: 'chatbot-notifications',
+        q: 'How do I get notified when the chatbot books a customer?',
+        a: 'Notifications are sent instantly via your choice of email, SMS, or directly into your CRM (ServiceTitan, Housecall Pro, Jobber, etc.). You get the customer\'s name, phone number, service needed, and preferred appointment time — all handled automatically.',
       },
     ],
   },
@@ -114,7 +114,12 @@ const categories = [
       {
         id: 'business-types',
         q: 'What types of businesses use Vox.chat?',
-        a: 'We serve local service businesses — HVAC contractors, plumbers, electricians, roofers, landscapers, auto repair shops, pest control, cleaning services, and any business that relies on phone calls and online leads. If customers call you to book work, we can help.',
+        a: 'We serve local service businesses — HVAC contractors, plumbers, electricians, roofers, landscapers, auto repair shops, pest control, cleaning services, and any business that relies on phone calls and online customers. If people call you to book work, we can help.',
+      },
+      {
+        id: 'not-lead-gen',
+        q: 'Is Vox.chat a lead generation service?',
+        a: 'No. Vox.chat is AI automation for your business operations — we automate the calls, chats, and review follow-ups you\'re already getting so nothing falls through the cracks. We don\'t generate leads. We make sure the customers already trying to reach you get answered, booked, and followed up with — automatically. That\'s where your ROI comes from.',
       },
       {
         id: 'cancel',
@@ -124,12 +129,12 @@ const categories = [
       {
         id: 'roi',
         q: 'What\'s the ROI for a typical service business?',
-        a: 'Most service businesses see 300%+ ROI within the first month. The average HVAC company misses $2,500/week in calls alone. Capturing even half those leads typically pays for the entire subscription many times over.',
+        a: 'Most service businesses see 300%+ ROI within the first month. The average HVAC company misses $2,500/week in calls alone. Answering even half those calls typically pays for the entire subscription many times over.',
       },
       {
         id: 'integrations',
         q: 'Do you integrate with my existing CRM or scheduling software?',
-        a: 'Yes. We integrate with most popular CRMs (ServiceTitan, Housecall Pro, Jobber, etc.) and scheduling tools. Leads flow directly into your existing workflow — no manual data entry required.',
+        a: 'Yes. We integrate with most popular CRMs (ServiceTitan, Housecall Pro, Jobber, etc.) and scheduling tools. Customer info flows directly into your existing workflow — no manual data entry required.',
       },
       {
         id: 'service-area',
@@ -169,8 +174,10 @@ export default function FaqPage() {
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
-          <a href="/" className="font-mono text-lg tracking-tight text-foreground">
-            vox<span className="text-primary">.</span>chat
+          <a href="/" className="inline-flex items-center gap-1.5" aria-label="Vox.chat">
+            <span className="w-2.5 h-2.5 rounded-full bg-voice" />
+            <span className="w-2.5 h-2.5 rounded-full bg-chat" />
+            <span className="w-2.5 h-2.5 rounded-full bg-review" />
           </a>
           <div className="flex items-center gap-3">
             <button
@@ -290,9 +297,11 @@ export default function FaqPage() {
       {/* Footer */}
       <footer className="border-t border-border py-10 px-5">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <a href="/" className="font-mono text-sm text-muted-foreground/50">
-            vox<span className="text-primary">.</span>chat
-          </a>
+          <div className="inline-flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-voice" />
+            <span className="w-2.5 h-2.5 rounded-full bg-chat" />
+            <span className="w-2.5 h-2.5 rounded-full bg-review" />
+          </div>
           <div className="flex items-center gap-6 text-sm text-muted-foreground/50">
             <a href="/#services" className="hover:text-foreground transition-colors">Services</a>
             <a href="/#demos" className="hover:text-foreground transition-colors">Demos</a>
@@ -300,8 +309,13 @@ export default function FaqPage() {
             <a href="/#contact" className="hover:text-foreground transition-colors">Contact</a>
             <a href="/legal.html" className="hover:text-foreground transition-colors">Legal</a>
           </div>
-          <div className="font-mono text-xs text-muted-foreground/50">
-            &copy; {new Date().getFullYear()} Vox.chat
+          <div className="flex items-center gap-3">
+            <a href="mailto:email@vox.chat" aria-label="Email us" className="text-muted-foreground/50 hover:text-foreground transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </a>
+            <span className="font-mono text-xs text-muted-foreground/50">&copy; {new Date().getFullYear()} Vox.chat</span>
           </div>
         </div>
       </footer>

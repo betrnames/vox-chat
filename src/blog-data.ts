@@ -1,5 +1,35 @@
 export const blogPosts = [
   {
+    slug: 'automation-roi',
+    title: 'You\'re Paying for Leads — AI Automation Makes Sure You Actually Close Them',
+    excerpt: 'Most contractors spend $1,500–$5,000/month on ads. But when 40% of those calls go to voicemail, you\'re paying for customers you never talk to. Automation fixes the back end.',
+    date: 'Jul 15, 2026',
+    readTime: '5 min read',
+    tag: 'ROI',
+    content: [
+      {
+        heading: 'The lead gen spending problem no one talks about',
+        body: 'Service businesses pour money into Google Ads, LSAs, Angi, HomeAdvisor, and SEO. The average HVAC company spends $2,000–$4,000/month on digital advertising alone. That spend generates calls and form submissions — but what happens next? If your phone rings and nobody picks up, or a form sits unanswered for 4 hours, that ad dollar is wasted. You already paid for the customer. You just didn\'t answer.',
+      },
+      {
+        heading: 'Lead gen is the top of the funnel — automation is the rest',
+        body: 'Lead generation gets the phone to ring. Automation makes sure every ring turns into a booked appointment. These are two completely different problems. You can double your ad budget and still lose revenue if your phones go to voicemail after 5 PM. Conversely, a contractor who answers every call, responds to every chat, and follows up on every job with a review request will outperform a competitor spending twice as much on ads.',
+      },
+      {
+        heading: 'The real ROI math',
+        body: 'Say you spend $3,000/month on ads and generate 150 calls. If you answer 60% of them (90 calls) and book 50% of those (45 jobs) at $400 average, that\'s $18,000 in revenue. Now automate the other 40% — those 60 missed calls. Even converting half of them adds 30 more jobs: $12,000 in revenue you were already paying for. Your ad spend didn\'t change. Your revenue jumped 67%. That\'s the automation ROI.',
+      },
+      {
+        heading: 'Why this isn\'t lead gen',
+        body: 'AI automation doesn\'t find you new customers — your marketing does that. Automation makes sure the customers who are already trying to reach you actually get through. It answers your phone at 2 AM, chats with the visitor on your website at 11 PM, and texts your customer 2 hours after the job for a review. It\'s operational infrastructure, not a marketing channel.',
+      },
+      {
+        heading: 'What happens when you automate the back end',
+        body: 'Contractors who add AI automation to their existing marketing see three things happen: call answer rate goes to 100%, average response time drops to zero, and review volume triples. None of that required more ad spend. The same budget, the same ads, the same keywords — just nothing falling through the cracks anymore. That\'s the difference between paying for attention and actually converting it.',
+      },
+    ],
+  },
+  {
     slug: 'missed-calls',
     title: 'Why HVAC Companies Are Losing $2,500/Week to Missed Calls',
     excerpt: 'The average service business misses 40% of incoming calls. During peak summer months, that number climbs to 60%. Every missed call is a job that goes to your competitor.',

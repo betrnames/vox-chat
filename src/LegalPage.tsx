@@ -25,8 +25,10 @@ export default function LegalPage() {
       {/* Nav */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
-          <a href="/" className="font-mono text-lg tracking-tight text-foreground">
-            vox<span className="text-primary">.</span>chat
+          <a href="/" className="inline-flex items-center gap-1.5" aria-label="Vox.chat">
+            <span className="w-2.5 h-2.5 rounded-full bg-voice" />
+            <span className="w-2.5 h-2.5 rounded-full bg-chat" />
+            <span className="w-2.5 h-2.5 rounded-full bg-review" />
           </a>
           <div className="flex items-center gap-3">
             <button
@@ -142,7 +144,7 @@ export default function LegalPage() {
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Limitation of Liability</h3>
-                <p>Vox.chat is not liable for lost revenue, missed leads, or business outcomes resulting from AI agent performance, service interruptions, or technical issues. Our services are provided "as is" and we make no guarantees regarding specific business results.</p>
+                <p>Vox.chat is not liable for lost revenue, missed calls, or business outcomes resulting from AI agent performance, service interruptions, or technical issues. Our services are provided "as is" and we make no guarantees regarding specific business results.</p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Cancellation</h3>
@@ -186,9 +188,11 @@ export default function LegalPage() {
       {/* Footer */}
       <footer className="border-t border-border py-10 px-5">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <a href="/" className="font-mono text-sm text-muted-foreground/50">
-            vox<span className="text-primary">.</span>chat
-          </a>
+          <div className="inline-flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-voice" />
+            <span className="w-2.5 h-2.5 rounded-full bg-chat" />
+            <span className="w-2.5 h-2.5 rounded-full bg-review" />
+          </div>
           <div className="flex items-center gap-6 text-sm text-muted-foreground/50">
             <a href="/#services" className="hover:text-foreground transition-colors">Services</a>
             <a href="/#demos" className="hover:text-foreground transition-colors">Demos</a>
@@ -196,8 +200,13 @@ export default function LegalPage() {
             <a href="/faq.html" className="hover:text-foreground transition-colors">FAQ</a>
             <a href="/legal.html" className="text-foreground">Legal</a>
           </div>
-          <div className="font-mono text-xs text-muted-foreground/50">
-            &copy; {new Date().getFullYear()} Vox.chat
+          <div className="flex items-center gap-3">
+            <a href="mailto:email@vox.chat" aria-label="Email us" className="text-muted-foreground/50 hover:text-foreground transition-colors">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </a>
+            <span className="font-mono text-xs text-muted-foreground/50">&copy; {new Date().getFullYear()} Vox.chat</span>
           </div>
         </div>
       </footer>

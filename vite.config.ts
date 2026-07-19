@@ -11,6 +11,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         faq: resolve(__dirname, 'faq.html'),
         blog: resolve(__dirname, 'blog.html'),
+        'blog-automation-roi': resolve(__dirname, 'blog/automation-roi.html'),
         'blog-missed-calls': resolve(__dirname, 'blog/missed-calls.html'),
         'blog-chatbots-vs-forms': resolve(__dirname, 'blog/chatbots-vs-forms.html'),
         'blog-google-reviews': resolve(__dirname, 'blog/google-reviews.html'),

@@ -205,3 +205,13 @@
 .vox-fadein {
   animation: vox-fadein 0.4s ease-out;
 }
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (max-width: 639px) {
+  footer {
+    padding-bottom: 4rem;
+  }
+}
