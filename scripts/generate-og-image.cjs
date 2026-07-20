@@ -22,7 +22,7 @@ const colors = {
   review: '#FFB84A',
 }
 
-// Single continuous background — no warm band (was clashing with cool gray)
+// Single continuous background — no warm band
 ctx.fillStyle = colors.bg
 ctx.fillRect(0, 0, W, H)
 
@@ -58,14 +58,18 @@ wave(300, colors.review, 20, 2.4)
 ctx.textAlign = 'left'
 ctx.textBaseline = 'alphabetic'
 ctx.fillStyle = colors.text
-ctx.font = '700 52px Georgia, "Times New Roman", serif'
-ctx.fillText('Your business.', 80, 260)
+// One-line hero (matches site); slightly smaller so it fits 1200px
+ctx.font = '700 44px Georgia, "Times New Roman", serif'
+ctx.fillText('Never miss a call, lead, ', 80, 270)
+const line1 = 'Never miss a call, lead, '
+const w1 = ctx.measureText(line1).width
 ctx.fillStyle = colors.accent
-ctx.fillText('Never offline.', 80, 325)
+ctx.fillText('or review.', 80 + w1, 270)
 
 ctx.fillStyle = colors.muted
-ctx.font = '400 18px ui-monospace, "Cascadia Mono", monospace'
-ctx.fillText('AI automation for HVAC, plumbing & electrical', 82, 385)
+ctx.font = '400 17px ui-monospace, "Cascadia Mono", monospace'
+ctx.fillText('AI answers your phone, captures website leads,', 82, 330)
+ctx.fillText('and gets you more Google reviews — 24/7.', 82, 356)
 
 function roundRect(x, y, w, h, r) {
   ctx.beginPath()
@@ -108,7 +112,7 @@ ctx.fillStyle = colors.muted
 ctx.globalAlpha = 0.5
 ctx.font = '400 14px ui-monospace, "Cascadia Mono", monospace'
 ctx.textBaseline = 'alphabetic'
-ctx.fillText('vox.chat', 82, 490)
+ctx.fillText('vox.chat', 82, 520)
 ctx.globalAlpha = 1
 
 const out = path.join(__dirname, '..', 'public', 'og-image.png')

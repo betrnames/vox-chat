@@ -1,5 +1,5 @@
 /**
- * Generate X.com profile header (1500×500) with current service names.
+ * Generate X.com profile header (1500×500) with current hero messaging.
  * Run: node scripts/generate-x-header.cjs
  */
 const { createCanvas } = require('canvas')
@@ -13,7 +13,6 @@ const ctx = canvas.getContext('2d')
 
 const colors = {
   bg: '#E2E3E8',
-  warm: '#EDE4DC',
   line: '#D2D3D9',
   text: '#2E2E2E',
   accent: '#C45A30',
@@ -21,24 +20,12 @@ const colors = {
   voice: '#FF6B4A',
   chat: '#4A9EFF',
   review: '#FFB84A',
-  white: '#FFFFFF',
 }
 
-// Background
+// Solid background — no warm band
 ctx.fillStyle = colors.bg
 ctx.fillRect(0, 0, W, H)
 
-// Warm band bottom
-ctx.fillStyle = colors.warm
-ctx.fillRect(0, 400, W, 100)
-ctx.strokeStyle = colors.line
-ctx.lineWidth = 1
-ctx.beginPath()
-ctx.moveTo(0, 400)
-ctx.lineTo(W, 400)
-ctx.stroke()
-
-// Subtle wave lines
 function wave(yBase, color, amp, phase) {
   ctx.beginPath()
   ctx.strokeStyle = color
@@ -46,30 +33,45 @@ function wave(yBase, color, amp, phase) {
   ctx.lineWidth = 1.8
   ctx.lineCap = 'round'
   for (let x = 0; x <= W; x += 2) {
-    const y = yBase + Math.sin((x / W) * Math.PI * 3 + phase) * amp + Math.sin((x / W) * Math.PI * 7 + phase * 1.3) * (amp * 0.35)
+    const y =
+      yBase +
+      Math.sin((x / W) * Math.PI * 3 + phase) * amp +
+      Math.sin((x / W) * Math.PI * 7 + phase * 1.3) * (amp * 0.35)
     if (x === 0) ctx.moveTo(x, y)
     else ctx.lineTo(x, y)
   }
   ctx.stroke()
   ctx.globalAlpha = 1
 }
-wave(210, colors.voice, 28, 0)
-wave(200, colors.chat, 32, 1.2)
-wave(225, colors.review, 26, 2.4)
+wave(200, colors.voice, 28, 0)
+wave(190, colors.chat, 32, 1.2)
+wave(215, colors.review, 26, 2.4)
 
-// Centered headline
+// Centered headline — one line with accent on "or review."
 ctx.textAlign = 'center'
 ctx.textBaseline = 'middle'
+ctx.font = '700 56px Georgia, "Times New Roman", serif'
+
+const part1 = 'Never miss a call, lead, '
+const part2 = 'or review.'
+const full = part1 + part2
+const fullW = ctx.measureText(full).width
+const startX = W / 2 - fullW / 2
+const y = 175
+
+ctx.textAlign = 'left'
 ctx.fillStyle = colors.text
-ctx.font = '700 72px Georgia, "Times New Roman", serif'
-ctx.fillText('Your business.', W / 2, 160)
+ctx.fillText(part1, startX, y)
+const p1w = ctx.measureText(part1).width
 ctx.fillStyle = colors.accent
-ctx.fillText('Never offline.', W / 2, 245)
+ctx.fillText(part2, startX + p1w, y)
 
 // Subtext
+ctx.textAlign = 'center'
 ctx.fillStyle = colors.muted
-ctx.font = '400 22px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace'
-ctx.fillText('AI automation for HVAC, plumbing & electrical', W / 2, 305)
+ctx.font = '400 20px ui-monospace, "Cascadia Mono", "Segoe UI Mono", monospace'
+ctx.fillText('AI answers your phone, captures website leads,', W / 2, 250)
+ctx.fillText('and gets you more Google reviews — 24/7. Built for contractors.', W / 2, 280)
 
 // Service pills — centered
 const pills = [
@@ -88,7 +90,6 @@ ctx.textAlign = 'left'
 ctx.textBaseline = 'middle'
 
 for (const p of pills) {
-  // pill bg
   roundRect(ctx, x, py, p.w, ph, 10)
   ctx.fillStyle = 'rgba(255,255,255,0.65)'
   ctx.fill()
@@ -96,13 +97,11 @@ for (const p of pills) {
   ctx.lineWidth = 1
   ctx.stroke()
 
-  // dot
   ctx.beginPath()
   ctx.arc(x + 22, py + ph / 2, 5, 0, Math.PI * 2)
   ctx.fillStyle = p.color
   ctx.fill()
 
-  // label
   ctx.fillStyle = colors.text
   ctx.fillText(p.label, x + 36, py + ph / 2 + 0.5)
 
@@ -120,5 +119,6 @@ function roundRect(c, rx, ry, rw, rh, r) {
 }
 
 const out = path.join(__dirname, '..', 'assets', 'vox-header.png')
+fs.mkdirSync(path.dirname(out), { recursive: true })
 fs.writeFileSync(out, canvas.toBuffer('image/png'))
 console.log('wrote', out, `(${W}x${H})`)
