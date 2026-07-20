@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Vercel serverless â€” POST /api/receptionist
  * CommonJS (no package "type":"module" issues). Self-contained.
  */

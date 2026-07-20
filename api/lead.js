@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Vercel serverless â€” POST /api/lead
  * CommonJS, self-contained.
  */

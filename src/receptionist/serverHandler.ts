@@ -39,7 +39,9 @@ export async function runReceptionist(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: process.env.XAI_MODEL || 'grok-3-mini',
+        model:
+          (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env
+            ?.XAI_MODEL || 'grok-3-mini',
         temperature: mode === 'live' ? 0.4 : 0.5,
         max_tokens: 450,
         messages: [{ role: 'system', content: systemFor(mode) }, ...trimmed],
