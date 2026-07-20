@@ -35,7 +35,9 @@ export async function notifyLead(lead: CapturedLead): Promise<{ ok: boolean; cha
     notes: clean(lead.notes, 500),
     source: clean(lead.source, 80) || 'live-receptionist',
     site: 'vox.chat',
-    _subject: `[Vox Lead] ${clean(lead.interest) || 'Receptionist'} — ${clean(lead.name) || clean(lead.phone) || 'new'}`,
+    _subject: `Vox.chat lead: ${clean(lead.interest) || 'Receptionist'} - ${clean(lead.name) || clean(lead.phone) || 'new'}`,
+    _replyto: clean(lead.email, 120) || 'email@vox.chat',
+    _format: 'plain',
   }
 
   if (!payload.phone && !payload.email) {
