@@ -25,7 +25,8 @@
 2. SEO SSG/prerender · og image · Formspree + Google Sheet leads  
 3. Live Reviews POC: Twilio trial templates (`TWILIO_TRIAL=true`), webhook inbound 1–5  
 4. Live Reviews UI **hidden** after successful test  
-5. Theme: pill **switch** site-wide (`src/theme.tsx`)
+5. Theme: pill **switch** site-wide (`src/theme.tsx`); mobile switch in hamburger  
+6. Lean trust pack: Legal SMS/TCPA + recording · form consent · hero trust strip
 
 ---
 

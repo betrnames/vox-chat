@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import './index.css'
 import { useTheme, ThemeSwitch } from './theme'
+import ConsentNote from './ConsentNote'
 
 function param(name: string): string {
   if (typeof window === 'undefined') return ''
@@ -301,6 +302,7 @@ export default function SetupPage() {
                 >
                   Submit setup form
                 </button>
+                <ConsentNote />
                 <p className="text-[11px] text-muted-foreground/70 text-center leading-relaxed">
                   Private link for invited leads only. Configuration starts after payment clears.
                 </p>

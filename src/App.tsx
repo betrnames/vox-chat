@@ -4,6 +4,7 @@ import { advanceReceptionist, type ChatMemory, type ChatStep } from './reception
 import { TypingDots } from './TypingDots'
 import LiveReceptionistWidget from './LiveReceptionistWidget'
 import { useTheme, ThemeSwitch } from './theme'
+import ConsentNote from './ConsentNote'
 
 function HeroWaves() {
   return (
@@ -109,6 +110,28 @@ function Hero() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </a>
+
+            {/* Trust strip — local proof, no generic badges */}
+            <ul className="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-[11px] sm:text-xs font-mono text-muted-foreground/80">
+              <li className="inline-flex items-center gap-1.5">
+                <span className="w-1 h-1 rounded-full bg-primary shrink-0" aria-hidden />
+                Turlock · 209 corridor
+              </li>
+              <li className="inline-flex items-center gap-1.5">
+                <span className="w-1 h-1 rounded-full bg-primary shrink-0" aria-hidden />
+                Month-to-month
+              </li>
+              <li className="inline-flex items-center gap-1.5">
+                <span className="w-1 h-1 rounded-full bg-chat shrink-0" aria-hidden />
+                Live AI Receptionist
+              </li>
+              <li className="inline-flex items-center gap-1.5">
+                <span className="w-1 h-1 rounded-full bg-voice shrink-0" aria-hidden />
+                <a href="tel:+12099967102" className="hover:text-foreground transition-colors">
+                  (209) 996-7102
+                </a>
+              </li>
+            </ul>
           </div>
 
           {/* Right — contact form */}
@@ -184,6 +207,7 @@ function Hero() {
               >
                 Get started free
               </button>
+              <ConsentNote />
             </form>
           </div>
         </div>
@@ -1239,6 +1263,7 @@ function Contact() {
             >
               Book free consultation
             </button>
+            <ConsentNote />
           </form>
         </div>
       </div>

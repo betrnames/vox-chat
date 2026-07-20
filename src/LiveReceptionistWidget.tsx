@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { TypingDots } from './TypingDots'
+import ConsentNote from './ConsentNote'
 
 type Msg = { role: 'user' | 'assistant'; content: string }
 
@@ -325,6 +326,7 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
                 >
                   Talk to receptionist
                 </button>
+                <ConsentNote />
               </form>
               <p className="mt-4 text-[11px] text-muted-foreground/70 font-mono text-center">
                 Or call (209) 996-7102

@@ -52,6 +52,8 @@ export default function LegalPage() {
             <nav className="sticky top-24 space-y-1">
               <a href="#privacy" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Privacy Policy</a>
               <a href="#terms" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Terms of Service</a>
+              <a href="#sms" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">SMS &amp; TCPA</a>
+              <a href="#recording" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Call &amp; chat recording</a>
               <a href="#disclaimer" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Disclaimer</a>
             </nav>
           </aside>
@@ -62,15 +64,15 @@ export default function LegalPage() {
           {/* Privacy Policy */}
           <section id="privacy" className="scroll-mt-24">
             <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">Privacy Policy</h2>
-            <p className="text-xs text-muted-foreground mb-6">Last updated: July 18, 2026</p>
+            <p className="text-xs text-muted-foreground mb-6">Last updated: July 20, 2026</p>
             <div className="space-y-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Information We Collect</h3>
-                <p>When you submit a form on vox.chat, we collect the information you provide: your name, business name, phone number, email address, and any message you include. We do not collect information passively beyond standard server logs (IP address, browser type, pages visited).</p>
+                <p>When you submit a form on vox.chat, start an AI Receptionist conversation, or otherwise contact us, we collect the information you provide: your name, business name, phone number, email address, and any message you include. We may also process call or chat content when you use our demos or services. We do not collect information passively beyond standard server logs (IP address, browser type, pages visited) and analytics in aggregate.</p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">How We Use Your Information</h3>
-                <p>We use the information you submit solely to respond to your inquiry, provide a consultation, and deliver our AI automation services. We do not sell, rent, or share your personal information with third parties for marketing purposes.</p>
+                <p>We use the information you submit to respond to your inquiry, provide a consultation, deliver AI automation services, send transactional texts or emails related to your request, and improve our product. We do not sell, rent, or share your personal information with third parties for their marketing purposes.</p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Third-Party Services</h3>
@@ -94,7 +96,7 @@ export default function LegalPage() {
           {/* Terms of Service */}
           <section id="terms" className="scroll-mt-24">
             <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">Terms of Service</h2>
-            <p className="text-xs text-muted-foreground mb-6">Last updated: July 18, 2026</p>
+            <p className="text-xs text-muted-foreground mb-6">Last updated: July 20, 2026</p>
             <div className="space-y-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Agreement</h3>
@@ -106,7 +108,7 @@ export default function LegalPage() {
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Your Responsibilities</h3>
-                <p>You are responsible for providing accurate business information for AI agent training, maintaining the accuracy of your service offerings and pricing, and ensuring compliance with your own industry regulations regarding automated communications.</p>
+                <p>You are responsible for providing accurate business information for AI agent training, maintaining the accuracy of your service offerings and pricing, and ensuring compliance with your own industry regulations regarding automated communications. If you use Vox to text or call your customers (for example review requests or appointment confirmations), you represent that you have obtained all required consent under the TCPA, state mini-TCPA laws, and carrier rules, and that you will honor opt-outs. You are solely responsible for the content of customer-facing messages sent on your behalf once configured.</p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">AI Disclosure</h3>
@@ -127,10 +129,96 @@ export default function LegalPage() {
             </div>
           </section>
 
+          {/* SMS & TCPA */}
+          <section id="sms" className="scroll-mt-24">
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">SMS messaging &amp; TCPA</h2>
+            <p className="text-xs text-muted-foreground mb-6">Last updated: July 20, 2026</p>
+            <div className="space-y-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">When we text you</h3>
+                <p>
+                  If you provide a mobile number on vox.chat (contact forms, setup, demos, or AI Receptionist), you consent to receive transactional
+                  texts from Vox.chat related to your inquiry or service — for example confirmations, follow-ups, and support. Message frequency varies.
+                  Message and data rates may apply. Carriers are not liable for delayed or undelivered messages.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Opt out</h3>
+                <p>
+                  Reply <strong className="text-foreground">STOP</strong> to any Vox text to opt out of further SMS from that program. Reply{' '}
+                  <strong className="text-foreground">HELP</strong> for help, or email{' '}
+                  <a href="mailto:email@vox.chat" className="text-primary hover:underline">
+                    email@vox.chat
+                  </a>
+                  . You may still receive emails or calls related to an open service relationship unless you request otherwise.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Texts to your customers (client responsibility)</h3>
+                <p>
+                  When Vox automates SMS for your business (review requests, appointment reminders, etc.), those messages are sent on your behalf as the
+                  business. You must have a lawful basis to contact each recipient (including prior express written consent where required under the
+                  Telephone Consumer Protection Act and applicable state law). You must maintain opt-out processes and honor STOP requests. Vox provides
+                  the tooling; you remain the sender of record for compliance purposes unless we agree otherwise in writing.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">No marketing spam</h3>
+                <p>
+                  We do not sell your number. We do not use your contact details for unrelated third-party marketing lists. Program descriptions and
+                  consent language on our forms are part of this policy.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* Call & chat recording */}
+          <section id="recording" className="scroll-mt-24">
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">Call &amp; chat recording</h2>
+            <p className="text-xs text-muted-foreground mb-6">Last updated: July 20, 2026</p>
+            <div className="space-y-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">What we record</h3>
+                <p>
+                  Voice agent calls and AI Receptionist conversations may be recorded and/or transcribed for quality assurance, training, dispute
+                  resolution, and to deliver summaries, bookings, and notifications to the business owner. Demo interactions on vox.chat may also be
+                  logged for product improvement and lead follow-up.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Notice &amp; consent</h3>
+                <p>
+                  Where required by law, callers or chat participants will be notified that the interaction may be recorded (for example via an automated
+                  disclosure at the start of a call). You acknowledge that California and some other states require consent of all parties for certain
+                  recordings; as a Vox client you agree to configure scripts and disclosures appropriate to your service area and to obtain any consent
+                  your jurisdiction requires.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Access &amp; retention</h3>
+                <p>
+                  Recordings and transcripts are shared with the subscribing business and may be stored by Vox and its infrastructure providers for a
+                  limited period. Request deletion by contacting{' '}
+                  <a href="mailto:email@vox.chat" className="text-primary hover:underline">
+                    email@vox.chat
+                  </a>
+                  , subject to legal hold and operational needs.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">AI systems</h3>
+                <p>
+                  Recordings may be processed by AI models to generate transcripts, extract lead fields, and improve agent quality. Automated systems are
+                  not a substitute for legal advice or human judgment in regulated situations.
+                </p>
+              </div>
+            </div>
+          </section>
+
           {/* Disclaimer */}
           <section id="disclaimer" className="scroll-mt-24">
             <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">Disclaimer</h2>
-            <p className="text-xs text-muted-foreground mb-6">Last updated: July 18, 2026</p>
+            <p className="text-xs text-muted-foreground mb-6">Last updated: July 20, 2026</p>
             <div className="space-y-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Results Disclaimer</h3>
