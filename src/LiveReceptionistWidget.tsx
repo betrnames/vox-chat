@@ -14,6 +14,12 @@ const CHIPS = [
 ]
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const RATE_LIMIT_MSG = 'Too many messages. Call or text (209) 996-7102 to talk now.'
+
+export type LiveReceptionistWidgetProps = {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
 
 function BrandDots({ size = 'sm' }: { size?: 'sm' | 'md' }) {
   const d = size === 'md' ? 'w-2 h-2' : 'w-1.5 h-1.5'
@@ -25,8 +31,6 @@ function BrandDots({ size = 'sm' }: { size?: 'sm' | 'md' }) {
     </span>
   )
 }
-
-const RATE_LIMIT_MSG = 'Too many messages. Call or text (209) 996-7102 to talk now.'
 
 async function chat(
   messages: Msg[],
@@ -51,10 +55,7 @@ async function chat(
       code?: string
     }
     if (res.status === 429 || data.code === 'rate_limit') {
-      return {
-        error: data.error || RATE_LIMIT_MSG,
-        code: 'rate_limit',
-      }
+      return { error: data.error || RATE_LIMIT_MSG, code: 'rate_limit' }
     }
     if (!res.ok || !data.reply) {
       return { error: data.error || 'unavailable', code: data.code }
@@ -91,8 +92,7 @@ function StatusPill({ online, compact = false }: { online: boolean; compact?: bo
   )
 }
 
-export default function LiveReceptionistWidget() {
-  const [open, setOpen] = useState(false)
+export default function LiveReceptionistWidget({ open, onOpenChange }: LiveReceptionistWidgetProps) {
   const [gatePassed, setGatePassed] = useState(false)
   const [gateEmail, setGateEmail] = useState('')
   const [gateError, setGateError] = useState('')
@@ -124,6 +124,16 @@ export default function LiveReceptionistWidget() {
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [messages, typing, open, gatePassed])
+
+  // Lock body scroll when chat is open on mobile
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [open])
 
   function lockInputFor60s() {
     setInputLocked(true)
@@ -176,13 +186,7 @@ export default function LiveReceptionistWidget() {
 
     if ('error' in result) {
       if (result.code === 'rate_limit') {
-        setMessages((m) => [
-          ...m,
-          {
-            role: 'assistant',
-            content: result.error || RATE_LIMIT_MSG,
-          },
-        ])
+        setMessages((m) => [...m, { role: 'assistant', content: result.error || RATE_LIMIT_MSG }])
         lockInputFor60s()
         return
       }
@@ -211,10 +215,11 @@ export default function LiveReceptionistWidget() {
 
   return (
     <>
+      {/* Desktop floating launcher only — mobile uses bottom bar */}
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="fixed z-[60] bottom-20 sm:bottom-6 right-4 sm:right-6 flex items-center gap-2.5 rounded-full border border-border/60 bg-background/95 backdrop-blur-xl text-foreground shadow-lg shadow-black/10 dark:shadow-black/40 px-4 py-3 text-sm font-semibold hover:border-primary/40 hover:bg-muted active:scale-[0.98] transition-all"
+        onClick={() => onOpenChange(!open)}
+        className="hidden sm:flex fixed z-[60] bottom-6 right-6 items-center gap-2.5 rounded-full border border-border/60 bg-background/95 backdrop-blur-xl text-foreground shadow-lg shadow-black/10 dark:shadow-black/40 px-4 py-3 text-sm font-semibold hover:border-primary/40 hover:bg-muted active:scale-[0.98] transition-all"
         aria-expanded={open}
         aria-controls="vox-live-receptionist"
       >
@@ -229,23 +234,39 @@ export default function LiveReceptionistWidget() {
           <>
             <BrandDots size="md" />
             <span className="font-medium">Chat with AI</span>
-            <span className="hidden sm:inline ml-0.5">
+            <span className="ml-0.5">
               <StatusPill online={online} compact />
             </span>
           </>
         )}
       </button>
 
+      {/* Mobile backdrop when open */}
+      {open && (
+        <button
+          type="button"
+          aria-label="Close chat"
+          className="sm:hidden fixed inset-0 z-[55] bg-background/60 backdrop-blur-[2px]"
+          onClick={() => onOpenChange(false)}
+        />
+      )}
+
       {open && (
         <div
           id="vox-live-receptionist"
-          className="fixed z-[60] bottom-36 sm:bottom-24 right-4 sm:right-6 w-[min(100vw-2rem,380px)] h-[min(70vh,520px)] flex flex-col rounded-2xl border border-border/60 bg-card shadow-2xl shadow-black/15 dark:shadow-black/50 overflow-hidden"
+          className="fixed z-[60] flex flex-col overflow-hidden bg-card shadow-2xl shadow-black/20 dark:shadow-black/50 border border-border/60
+            /* mobile: full width above bottom bar */
+            left-0 right-0 bottom-14 top-auto h-[min(78dvh,560px)] rounded-t-2xl border-b-0
+            /* desktop: floating card */
+            sm:left-auto sm:right-6 sm:bottom-24 sm:top-auto sm:w-[min(100vw-2rem,380px)] sm:h-[min(70vh,520px)] sm:rounded-2xl sm:border-b"
           role="dialog"
           aria-label="Vox AI Receptionist"
         >
-          <div className="flex items-center gap-3 px-4 py-3 border-b border-border/50 bg-background/80 backdrop-blur-sm">
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-border/50 bg-background/80 backdrop-blur-sm shrink-0">
+            {/* drag hint on mobile */}
+            <div className="sm:hidden absolute left-1/2 -translate-x-1/2 top-1.5 w-10 h-1 rounded-full bg-border" aria-hidden />
             <BrandDots size="md" />
-            <div className="min-w-0 flex-1">
+            <div className="min-w-0 flex-1 pt-1 sm:pt-0">
               <p className="text-sm font-semibold text-foreground leading-tight tracking-tight">
                 AI Receptionist
               </p>
@@ -258,10 +279,20 @@ export default function LiveReceptionistWidget() {
             ) : (
               <StatusPill online={online} />
             )}
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="sm:hidden p-2 -mr-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              aria-label="Close chat"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
 
           {!gatePassed ? (
-            <div className="flex-1 flex flex-col justify-center p-5 bg-background/40">
+            <div className="flex-1 flex flex-col justify-center p-5 bg-background/40 min-h-0 overflow-y-auto">
               <p className="text-sm font-semibold text-foreground mb-1">Start the conversation</p>
               <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                 Drop your email so we can follow up — then the AI opens. No spam, no contracts.
@@ -277,6 +308,7 @@ export default function LiveReceptionistWidget() {
                     required
                     autoFocus
                     autoComplete="email"
+                    inputMode="email"
                     value={gateEmail}
                     onChange={(e) => {
                       setGateEmail(e.target.value)
@@ -285,9 +317,7 @@ export default function LiveReceptionistWidget() {
                     placeholder="you@company.com"
                     className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-foreground text-base placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 transition-colors"
                   />
-                  {gateError && (
-                    <p className="mt-1.5 text-xs text-destructive">{gateError}</p>
-                  )}
+                  {gateError && <p className="mt-1.5 text-xs text-destructive">{gateError}</p>}
                 </div>
                 <button
                   type="submit"
@@ -302,7 +332,7 @@ export default function LiveReceptionistWidget() {
             </div>
           ) : (
             <>
-              <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 p-3 bg-background/40">
+              <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-contain space-y-3 p-3 bg-background/40 min-h-0">
                 {messages.map((m, i) => (
                   <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div
@@ -334,14 +364,14 @@ export default function LiveReceptionistWidget() {
               </div>
 
               {messages.length <= 2 && (
-                <div className="flex flex-wrap gap-1.5 px-3 pb-2 bg-background/40">
+                <div className="flex flex-wrap gap-1.5 px-3 pb-2 bg-background/40 shrink-0">
                   {CHIPS.map((c) => (
                     <button
                       key={c}
                       type="button"
                       disabled={controlsDisabled}
                       onClick={() => send(c)}
-                      className="px-2.5 py-1 rounded-md border border-border bg-card text-muted-foreground text-[11px] font-medium hover:border-primary/40 hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40"
+                      className="px-2.5 py-1.5 rounded-md border border-border bg-card text-muted-foreground text-[11px] font-medium hover:border-primary/40 hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40"
                     >
                       {c}
                     </button>
@@ -350,7 +380,7 @@ export default function LiveReceptionistWidget() {
               )}
 
               <form
-                className="flex gap-2 p-3 border-t border-border/50 bg-card"
+                className="flex gap-2 p-3 border-t border-border/50 bg-card shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-3"
                 onSubmit={(e) => {
                   e.preventDefault()
                   send(input)
@@ -362,13 +392,13 @@ export default function LiveReceptionistWidget() {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder={inputLocked ? 'Please wait 60 seconds…' : 'Type a message…'}
                   disabled={controlsDisabled}
-                  className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-input bg-background text-foreground text-base placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                  className="flex-1 min-w-0 px-3 py-2.5 rounded-lg border border-input bg-background text-foreground text-base placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
                   autoComplete="off"
                 />
                 <button
                   type="submit"
                   disabled={!input.trim() || controlsDisabled}
-                  className="px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 disabled:opacity-40 transition-colors"
+                  className="px-3.5 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 disabled:opacity-40 transition-colors"
                 >
                   Send
                 </button>

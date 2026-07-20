@@ -1309,11 +1309,16 @@ function Footer() {
   )
 }
 
-function MobileBottomBar() {
+function MobileBottomBar({
+  chatOpen,
+  onChatToggle,
+}: {
+  chatOpen: boolean
+  onChatToggle: () => void
+}) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 sm:hidden border-t border-border bg-background/95 backdrop-blur-xl safe-area-bottom">
-      <div className="flex items-center justify-between h-14 px-4 max-w-lg mx-auto gap-2">
-        {/* Showroom — not a product dock */}
+    <div className="fixed bottom-0 left-0 right-0 z-[65] sm:hidden border-t border-border bg-background/95 backdrop-blur-xl safe-area-bottom">
+      <div className="flex items-center justify-between h-14 px-2 max-w-lg mx-auto gap-1">
         <a
           href="#demos"
           className="flex flex-1 flex-col items-center justify-center gap-0.5 min-h-11 text-muted-foreground/40 active:text-muted-foreground transition-colors"
@@ -1325,10 +1330,9 @@ function MobileBottomBar() {
           <span className="text-[10px] font-medium text-muted-foreground/30">Demos</span>
         </a>
 
-        {/* Primary conversion */}
         <a
           href="tel:+12099967102"
-          className="flex items-center justify-center w-14 h-14 -mt-3 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 active:scale-95 transition-transform"
+          className="flex items-center justify-center w-14 h-14 -mt-3 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 active:scale-95 transition-transform shrink-0"
           aria-label="Call Vox.chat"
         >
           <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
@@ -1336,24 +1340,37 @@ function MobileBottomBar() {
           </svg>
         </a>
 
-        {/* Structured lead — power/start icon */}
-        <a
-          href="#contact"
-          className="flex flex-1 flex-col items-center justify-center gap-0.5 min-h-11 text-muted-foreground/40 active:text-muted-foreground transition-colors"
-          aria-label="Get started"
+        <button
+          type="button"
+          onClick={onChatToggle}
+          aria-expanded={chatOpen}
+          aria-controls="vox-live-receptionist"
+          className={`flex flex-1 flex-col items-center justify-center gap-0.5 min-h-11 transition-colors ${
+            chatOpen
+              ? 'text-primary'
+              : 'text-muted-foreground/40 active:text-muted-foreground'
+          }`}
+          aria-label={chatOpen ? 'Close chat' : 'Chat with AI'}
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 3v9" />
-            <path d="M5.64 6.64a8 8 0 1012.72 0" />
-          </svg>
-          <span className="text-[10px] font-medium text-muted-foreground/30">Start</span>
-        </a>
+          <span className="relative inline-flex items-center justify-center w-5 h-5">
+            <span className="inline-flex items-center gap-0.5" aria-hidden="true">
+              <span className="w-1.5 h-1.5 rounded-full bg-voice" />
+              <span className="w-1.5 h-1.5 rounded-full bg-chat" />
+              <span className="w-1.5 h-1.5 rounded-full bg-review" />
+            </span>
+          </span>
+          <span className={`text-[10px] font-medium ${chatOpen ? 'text-primary/80' : 'text-muted-foreground/30'}`}>
+            {chatOpen ? 'Close' : 'Chat'}
+          </span>
+        </button>
       </div>
     </div>
   )
 }
 
 export default function App() {
+  const [chatOpen, setChatOpen] = useState(false)
+
   return (
     <>
       <Nav />
@@ -1365,8 +1382,8 @@ export default function App() {
       <BuiltFor />
       <Contact />
       <Footer />
-      <MobileBottomBar />
-      <LiveReceptionistWidget />
+      <MobileBottomBar chatOpen={chatOpen} onChatToggle={() => setChatOpen((o) => !o)} />
+      <LiveReceptionistWidget open={chatOpen} onOpenChange={setChatOpen} />
     </>
   )
 }
