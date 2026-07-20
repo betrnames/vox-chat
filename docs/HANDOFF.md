@@ -12,7 +12,7 @@
 > Resume vox.chat from `docs/HANDOFF.md`.  
 > Public live POC = **AI Receptionist only**. Reviews SMS built but UI hidden until Twilio upgrade.  
 > Next product build = **Voice POC (Vapi + Grok + Twilio notify)**.  
-> Pricing/objections locked in `docs/pricing-and-objections.md` — review before sales calls.  
+> Pricing in `docs/pricing.md` · objections in `docs/objections.md` — review before sales calls.  
 > Contact: **support@vox.chat** · ops: **email@vox.chat**.
 
 ---
@@ -29,9 +29,13 @@
 
 ---
 
-## Pricing source of truth
+## Pricing & sales docs
 
-**→ `docs/pricing-and-objections.md`** (read before every audit/close)
+| Doc | Use |
+|-----|-----|
+| **`docs/pricing.md`** | List prices, floors, setup, margins, close checklist |
+| **`docs/objections.md`** | Hard nos, scripts, “too expensive” |
+| **`docs/gtm-playbook.md`** | ICP, BNI, audit flow, pay-then-setup |
 
 | SKU | List (quote) | Floor |
 |-----|--------------|-------|
@@ -41,10 +45,7 @@
 | Bundle | **$1,500/mo** | **$1,500 (no discount)** |
 
 - **Setup fee:** $0 listed — included; **first month paid in advance** unlocks setup  
-- **Default close:** Bundle · budget path: Reviews → add Voice in 30–60 days  
-- **Hard nos:** free product trial, Net 30, custom RFP, free website/ads  
-
-Also: GTM narrative in `docs/gtm-playbook.md` (triangle, BNI, pay-then-setup).
+- **Default close:** Bundle · budget path: Reviews → add Voice in 30–60 days
 
 ---
 
@@ -90,7 +91,7 @@ Thin dial-in POC ~**2–5 days** · sellable after-hours MVP ~**1–2 weeks**.
 
 ### 2. Sales hygiene (no code)
 - Create Stripe Payment Links at **list** prices  
-- Drill `docs/pricing-and-objections.md`  
+- Drill `docs/pricing.md` + `docs/objections.md`  
 - Run Missed Call Audits in Turlock / Modesto / Manteca  
 
 ### 3. Reviews (after Twilio upgrade)
@@ -106,7 +107,8 @@ Thin dial-in POC ~**2–5 days** · sellable after-hours MVP ~**1–2 weeks**.
 | Path | Purpose |
 |------|---------|
 | `docs/HANDOFF.md` | This file |
-| `docs/pricing-and-objections.md` | **Prices, floors, setup, rejections** |
+| `docs/pricing.md` | **Prices, floors, setup, margins** |
+| `docs/objections.md` | **Hard nos, scripts** |
 | `docs/gtm-playbook.md` | ICP, scripts, audit flow |
 | `docs/poc-receptionist.md` / `poc-reviews.md` | POC setup |
 | `src/App.tsx` · `LiveReceptionistWidget.tsx` | Site + live chat |
