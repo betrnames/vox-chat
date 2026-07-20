@@ -378,8 +378,7 @@ function Services() {
                     <span className={`w-2 h-2 rounded-full ${c.dot}`} />
                     <span className={`font-mono text-xs ${c.text}`}>{s.tagline}</span>
                   </div>
-                  <h3 className="text-xl font-bold mb-1">{s.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-5">Custom-built for your business</p>
+                  <h3 className="text-xl font-bold mb-5">{s.name}</h3>
                   <div className="border-t border-border/60 pt-5">
                     <ul className="space-y-3">
                       {s.features.map((f) => (
