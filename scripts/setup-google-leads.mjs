@@ -1,10 +1,14 @@
 /**
- * Automate Google Sheet lead capture for Vox.chat
+ * Wire Google Sheet lead capture for Vox.chat
  *
- * ONE-TIME (you): create a free Google Cloud service account JSON (3 min)
- * THEN (this script): creates the sheet, shares it, wires .env + Vercel
+ * Free Google accounts: service accounts CANNOT create files (0 Drive quota).
+ * So you create the sheet once, share it with the SA, then this script finishes setup.
  *
- *   node scripts/setup-google-leads.mjs you@gmail.com
+ * Usage:
+ *   node scripts/setup-google-leads.mjs email@vox.chat --sheet=SHEET_ID_OR_URL
+ *
+ * Example:
+ *   node scripts/setup-google-leads.mjs email@vox.chat --sheet=https://docs.google.com/spreadsheets/d/1abc.../edit
  */
 
 import fs from 'node:fs'
@@ -74,37 +78,49 @@ function vercelSet(key, value) {
   return r.status === 0
 }
 
+function parseSheetId(input) {
+  if (!input) return null
+  const m = String(input).match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)
+  if (m) return m[1]
+  if (/^[a-zA-Z0-9-_]{20,}$/.test(input)) return input
+  return null
+}
+
+function printHelp(saEmail) {
+  console.log(`
+Vox.chat — Google Sheet leads (free Google accounts)
+====================================================
+
+Service accounts have **no Drive storage**, so they cannot *create* a sheet.
+You create it in 30 seconds; the script wires headers + Vercel.
+
+STEP 1 — Create a blank sheet while logged into Google as email@vox.chat
+  https://sheets.google.com/create
+
+STEP 2 — Name it "Vox Leads"
+
+STEP 3 — Share the sheet with this service account as **Editor**:
+  ${saEmail || '(from google-service-account.json)'}
+
+  Share button → paste that email → Editor → Send
+  (Uncheck "Notify people" if you want)
+
+STEP 4 — Copy the sheet URL from the browser, then run:
+
+  node scripts/setup-google-leads.mjs email@vox.chat --sheet=PASTE_URL_HERE
+
+Example:
+  node scripts/setup-google-leads.mjs email@vox.chat --sheet=https://docs.google.com/spreadsheets/d/1AbC.../edit
+`)
+}
+
 async function main() {
   const shareWith = process.argv[2]
-  if (!shareWith || !shareWith.includes('@')) {
-    console.log(`
-Vox.chat — automated Google Sheet leads
-========================================
-
-I can create the sheet and wire production once you drop a free
-Google Cloud service account key in the project (one-time, ~3 min).
-
-STEP A — Create the key (browser)
-  1. https://console.cloud.google.com/projectcreate
-     (name it "vox-leads" or use any project)
-  2. Enable these APIs:
-     https://console.cloud.google.com/apis/library/sheets.googleapis.com
-     https://console.cloud.google.com/apis/library/drive.googleapis.com
-  3. https://console.cloud.google.com/iam-admin/serviceaccounts
-     → Create service account → name "vox-leads"
-     → Keys → Add key → Create new key → JSON
-  4. Save the downloaded file as:
-     ${keyPath}
-
-STEP B — Run this again with YOUR Google email (to get editor access)
-  node scripts/setup-google-leads.mjs you@gmail.com
-`)
-    process.exit(shareWith ? 1 : 0)
-  }
+  const sheetArg = process.argv.find((a) => a.startsWith('--sheet='))
+  const sheetId = parseSheetId(sheetArg ? sheetArg.slice('--sheet='.length) : null)
 
   if (!fs.existsSync(keyPath)) {
-    console.error(`\nMissing key file:\n  ${keyPath}\n`)
-    console.error('Complete STEP A above, then re-run.\n')
+    console.error(`Missing ${keyPath}`)
     process.exit(1)
   }
 
@@ -114,82 +130,108 @@ STEP B — Run this again with YOUR Google email (to get editor access)
     process.exit(1)
   }
 
-  console.log('Auth as', sa.client_email)
-  const token = await getToken(sa.client_email, sa.private_key, [
-    'https://www.googleapis.com/auth/spreadsheets',
-    'https://www.googleapis.com/auth/drive.file',
-  ])
-
-  console.log('Creating spreadsheet "Vox Leads"...')
-  const createRes = await fetch('https://sheets.googleapis.com/v4/spreadsheets', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      properties: { title: 'Vox Leads' },
-      sheets: [{ properties: { title: 'Leads' } }],
-    }),
-  })
-  const created = await createRes.json()
-  if (!created.spreadsheetId) {
-    throw new Error(`Create failed: ${JSON.stringify(created)}`)
+  if (!shareWith || !shareWith.includes('@') || !sheetId) {
+    printHelp(sa.client_email)
+    process.exit(sheetArg || shareWith ? 1 : 0)
   }
 
-  const sheetId = created.spreadsheetId
-  const sheetUrl =
-    created.spreadsheetUrl || `https://docs.google.com/spreadsheets/d/${sheetId}/edit`
-  console.log('Created:', sheetUrl)
+  console.log('Auth as', sa.client_email)
+  console.log('Sheet ID', sheetId)
 
-  const headers = [
-    'timestamp',
-    'name',
-    'phone',
-    'email',
-    'business',
-    'city',
-    'trade',
-    'interest',
-    'notes',
-    'source',
-    'site',
-  ]
-  await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Leads!A1:K1?valueInputOption=USER_ENTERED`,
-    {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ values: [headers] }),
-    },
+  const token = await getToken(sa.client_email, sa.private_key, [
+    'https://www.googleapis.com/auth/spreadsheets',
+  ])
+
+  // Read spreadsheet metadata
+  const metaRes = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?fields=spreadsheetId,properties.title,sheets.properties`,
+    { headers: { Authorization: `Bearer ${token}` } },
   )
-  console.log('Headers written on tab "Leads"')
+  const meta = await metaRes.json()
+  if (!metaRes.ok) {
+    console.error(`
+Cannot access sheet (${metaRes.status}): ${meta.error?.message || JSON.stringify(meta)}
 
-  console.log('Sharing editor access with', shareWith)
-  const shareRes = await fetch(
-    `https://www.googleapis.com/drive/v3/files/${sheetId}/permissions?sendNotificationEmail=true`,
-    {
+Make sure you shared the sheet with this address as Editor:
+  ${sa.client_email}
+`)
+    process.exit(1)
+  }
+  console.log('Opened sheet:', meta.properties?.title)
+
+  // Prefer a tab named Leads; otherwise first sheet, rename not required — use first title
+  let tab = 'Leads'
+  const titles = (meta.sheets || []).map((s) => s.properties?.title).filter(Boolean)
+  if (!titles.includes('Leads')) {
+    // Create Leads tab
+    const batch = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sheetId}:batchUpdate`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        type: 'user',
-        role: 'writer',
-        emailAddress: shareWith,
+        requests: [{ addSheet: { properties: { title: 'Leads' } } }],
       }),
-    },
-  )
-  if (!shareRes.ok) console.warn('Share warning:', await shareRes.text())
-  else console.log('Shared (check email / Drive shared with me)')
+    })
+    if (!batch.ok) {
+      console.warn('Could not add Leads tab, using first sheet:', titles[0])
+      tab = titles[0] || 'Sheet1'
+    } else {
+      console.log('Created tab "Leads"')
+    }
+  }
 
-  // test row
-  await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/Leads!A:K:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+  // Vox-Ops Leads headers live on row 4; do not overwrite if sheet already has them.
+  // Only write headers when row 4 is empty.
+  const peekRes = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(`${tab}!A4:O4`)}`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  )
+  const peek = await peekRes.json()
+  const existing = (peek.values && peek.values[0]) || []
+  if (existing.length === 0) {
+    const headers = [
+      'Date',
+      'Source',
+      'Name',
+      'Business',
+      'Trade',
+      'City',
+      'Phone',
+      'Email',
+      'Status',
+      'Interest',
+      'Quoted $/mo',
+      'Est. monthly leak $',
+      'Next step',
+      'Next date',
+      'Notes',
+    ]
+    const putRes = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(`${tab}!A4:O4`)}?valueInputOption=USER_ENTERED`,
+      {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ values: [headers] }),
+      },
+    )
+    if (!putRes.ok) {
+      console.error('Header write failed:', await putRes.text())
+      process.exit(1)
+    }
+    console.log(`Wrote Vox-Ops headers on ${tab}!A4:O4`)
+  } else {
+    console.log(`Keeping existing headers on ${tab}:`, existing.slice(0, 8).join(' | '), '...')
+  }
+
+  // Test row (Vox-Ops Leads columns)
+  const appendRange = `${tab}!A:O`
+  const appendRes = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(appendRange)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
     {
       method: 'POST',
       headers: {
@@ -199,53 +241,60 @@ STEP B — Run this again with YOUR Google email (to get editor access)
       body: JSON.stringify({
         values: [
           [
-            new Date().toISOString(),
+            new Date().toISOString().slice(0, 10),
+            'setup-script',
             'Setup Test',
+            'Vox.chat',
+            'other',
+            'Turlock',
             '2095550100',
             shareWith,
-            'Vox.chat',
-            'Turlock',
-            'other',
+            'New',
             'setup',
+            '',
+            '',
+            'Follow up',
+            '',
             'Automated setup — safe to delete',
-            'setup-script',
-            'vox.chat',
           ],
         ],
       }),
     },
   )
-  console.log('Test row appended')
+  if (!appendRes.ok) {
+    console.error('Test append failed:', await appendRes.text())
+    process.exit(1)
+  }
+  console.log('Test row appended (you should see "Setup Test" on the Leads tab)')
 
   const b64 = Buffer.from(JSON.stringify(sa), 'utf8').toString('base64')
   const envFile = path.join(root, '.env')
   upsertEnv(envFile, {
     GOOGLE_SHEET_ID: sheetId,
-    GOOGLE_SHEET_RANGE: 'Leads!A:K',
+    GOOGLE_SHEET_RANGE: `${tab}!A:O`,
+    GOOGLE_SHEET_FORMAT: 'vox-ops',
     GOOGLE_SERVICE_ACCOUNT_JSON_BASE64: b64,
   })
   console.log('Updated local .env')
 
   console.log('Setting Vercel Production env...')
   const ok1 = vercelSet('GOOGLE_SHEET_ID', sheetId)
-  const ok2 = vercelSet('GOOGLE_SHEET_RANGE', 'Leads!A:K')
-  const ok3 = vercelSet('GOOGLE_SERVICE_ACCOUNT_JSON_BASE64', b64)
-  console.log(ok1 && ok2 && ok3 ? 'Vercel env OK' : 'Set any failed vars manually in Vercel dashboard')
+  const ok2 = vercelSet('GOOGLE_SHEET_RANGE', `${tab}!A:O`)
+  const ok3 = vercelSet('GOOGLE_SHEET_FORMAT', 'vox-ops')
+  const ok4 = vercelSet('GOOGLE_SERVICE_ACCOUNT_JSON_BASE64', b64)
+  console.log(ok1 && ok2 && ok3 && ok4 ? 'Vercel env OK' : 'Some Vercel env vars failed — set manually if needed')
 
   console.log(`
 ========================================
-DONE — Google Sheet lead capture is live
+DONE — Google Sheet lead capture ready
 ========================================
-Sheet:  ${sheetUrl}
-Local:  .env has GOOGLE_SHEET_ID + GOOGLE_SERVICE_ACCOUNT_JSON_BASE64
+Sheet:  https://docs.google.com/spreadsheets/d/${sheetId}/edit
+Tab:    ${tab}
 
-Redeploy production so the API loads the new secrets:
+Redeploy production:
   vercel --prod
 
-After deploy, Chat with AI leads append to the "Leads" tab
-AND still email via Formspree.
-
-Keep google-service-account.json private (gitignored).
+Then Chat with AI leads will appear as new rows (plus Formspree email).
 `)
 }
 

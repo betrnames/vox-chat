@@ -85,19 +85,55 @@ async function getAccessToken(email, privateKey) {
   return data.access_token || null
 }
 
+/**
+ * Row layout for Vox-Ops.xlsx → Google Sheets tab "Leads"
+ * Headers (row 4 in workbook template):
+ * Date | Source | Name | Business | Trade | City | Phone | Email | Status |
+ * Interest | Quoted $/mo | Est. monthly leak $ | Next step | Next date | Notes
+ */
 function rowFromPayload(payload) {
+  const format = (process.env.GOOGLE_SHEET_FORMAT || 'vox-ops').toLowerCase()
+  const ts = payload.timestamp || new Date().toISOString()
+  const dateOnly = ts.slice(0, 10)
+  const source = payload.source || 'live-receptionist'
+  const interest = payload.interest || ''
+  const notes = [payload.notes, payload.site ? `site=${payload.site}` : '']
+    .filter(Boolean)
+    .join(' | ')
+
+  if (format === 'simple') {
+    return [
+      ts,
+      payload.name || '',
+      payload.phone || '',
+      payload.email || '',
+      payload.business || '',
+      payload.city || '',
+      payload.trade || '',
+      interest,
+      notes,
+      source,
+      payload.site || 'vox.chat',
+    ]
+  }
+
+  // vox-ops (default) — matches docs/Vox-Ops.xlsx Leads tab
   return [
-    payload.timestamp || new Date().toISOString(),
+    dateOnly,
+    source,
     payload.name || '',
+    payload.business || '',
+    payload.trade || '',
+    payload.city || '',
     payload.phone || '',
     payload.email || '',
-    payload.business || '',
-    payload.city || '',
-    payload.trade || '',
-    payload.interest || '',
-    payload.notes || '',
-    payload.source || '',
-    payload.site || 'vox.chat',
+    'New',
+    interest,
+    '',
+    '',
+    interest === 'audit' || interest === 'bundle' ? 'Book audit' : 'Follow up',
+    '',
+    notes,
   ]
 }
 
@@ -110,7 +146,8 @@ export async function appendLeadToGoogleSheet(payload) {
   const token = await getAccessToken(sa.email, sa.key)
   if (!token) return false
 
-  const range = process.env.GOOGLE_SHEET_RANGE || 'Leads!A:K'
+  // Vox-Ops Leads is 15 columns (A:O); header row is typically row 4 in the template
+  const range = process.env.GOOGLE_SHEET_RANGE || 'Leads!A:O'
   const url =
     `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}` +
     `/values/${encodeURIComponent(range)}:append` +
