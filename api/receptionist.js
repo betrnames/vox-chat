@@ -213,10 +213,21 @@ export default async function handler(req, res) {
         return ''
       })
       console.error('[receptionist] xAI error', upstream.status, errText.slice(0, 400))
+      var code = 'upstream'
+      if (upstream.status === 403 && /credits|licenses|permission-denied/i.test(errText)) {
+        code = 'no_credits'
+      } else if (upstream.status === 401) {
+        code = 'bad_key'
+      }
       return res.status(502).json({
-        error: 'Upstream AI error',
+        error: code === 'no_credits'
+          ? 'xAI account has no credits — add billing at console.x.ai'
+          : code === 'bad_key'
+            ? 'Invalid XAI_API_KEY'
+            : 'Upstream AI error',
         fallback: true,
         status: upstream.status,
+        code: code,
       })
     }
 

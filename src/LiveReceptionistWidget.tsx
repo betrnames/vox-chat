@@ -24,7 +24,9 @@ function BrandDots({ size = 'sm' }: { size?: 'sm' | 'md' }) {
   )
 }
 
-async function chat(messages: Msg[]): Promise<{ reply: string; notified?: string[] } | { error: string }> {
+async function chat(
+  messages: Msg[],
+): Promise<{ reply: string; notified?: string[] } | { error: string; code?: string }> {
   try {
     const res = await fetch('/api/receptionist', {
       method: 'POST',
@@ -40,13 +42,25 @@ async function chat(messages: Msg[]): Promise<{ reply: string; notified?: string
       notified?: string[]
       error?: string
       fallback?: boolean
+      code?: string
     }
     if (!res.ok || !data.reply) {
-      return { error: data.error || 'unavailable' }
+      return { error: data.error || 'unavailable', code: data.code }
     }
     return { reply: data.reply, notified: data.notified }
   } catch {
     return { error: 'network' }
+  }
+}
+
+async function probeApi(): Promise<boolean> {
+  try {
+    const res = await fetch('/api/receptionist')
+    if (!res.ok) return false
+    const data = (await res.json()) as { ok?: boolean; hasKey?: boolean }
+    return Boolean(data.ok && data.hasKey)
+  } catch {
+    return false
   }
 }
 
@@ -81,6 +95,7 @@ export default function LiveReceptionistWidget() {
     const goOffline = () => setOnline(false)
     window.addEventListener('online', goOnline)
     window.addEventListener('offline', goOffline)
+    probeApi().then(setOnline)
     return () => {
       window.removeEventListener('online', goOnline)
       window.removeEventListener('offline', goOffline)
@@ -119,13 +134,18 @@ export default function LiveReceptionistWidget() {
     setTyping(false)
 
     if ('error' in result) {
-      setOnline(false)
+      const billing =
+        result.code === 'no_credits' ||
+        /credits|billing|console\.x\.ai/i.test(result.error || '')
+      // Keep status green if API is up but xAI billing is the issue
+      if (!billing) setOnline(false)
       setMessages((m) => [
         ...m,
         {
           role: 'assistant',
-          content:
-            "I'm having trouble connecting right now. Call or text (209) 996-7102 or use the contact form — Gabe will get back to you fast.",
+          content: billing
+            ? "I'm online, but the AI provider account needs credits before I can reply. Gabe can still help — call or text (209) 996-7102 or use the contact form."
+            : "I'm having trouble connecting right now. Call or text (209) 996-7102 or use the contact form — Gabe will get back to you fast.",
         },
       ])
       return
