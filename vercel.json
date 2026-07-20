@@ -16,5 +16,10 @@
       ]
     }
   ],
-  "cleanUrls": true
+  "cleanUrls": true,
+  "functions": {
+    "api/**/*.ts": {
+      "maxDuration": 30
+    }
+  }
 }

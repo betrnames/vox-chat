@@ -39,7 +39,7 @@ export async function runReceptionist(
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'grok-4.5',
+        model: process.env.XAI_MODEL || 'grok-3-mini',
         temperature: mode === 'live' ? 0.4 : 0.5,
         max_tokens: 450,
         messages: [{ role: 'system', content: systemFor(mode) }, ...trimmed],
