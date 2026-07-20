@@ -35,9 +35,9 @@
   --sidebar-accent-foreground: oklch(0.3791 0.1378 265.5222);
   --sidebar-border: oklch(0.9276 0.0058 264.5313);
   --sidebar-ring: oklch(0.6397 0.1720 36.4421);
-  --font-sans: Inter, sans-serif;
-  --font-serif: Source Serif 4, serif;
-  --font-mono: JetBrains Mono, monospace;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-serif: 'Space Grotesk', sans-serif;
+  --font-mono: 'Space Mono', monospace;
   --radius: 0.75rem;
   --shadow-x: 0px;
   --shadow-y: 1px;
@@ -61,7 +61,7 @@
 }
 
 .dark {
-  --background: oklch(0.2598 0.0306 262.6666);
+  --background: oklch(0.13 0.004 285);
   --foreground: oklch(0.9219 0 0);
   --card: oklch(0.3106 0.0301 268.6365);
   --card-foreground: oklch(0.9219 0 0);
@@ -93,9 +93,9 @@
   --sidebar-accent-foreground: oklch(0.8823 0.0571 254.1284);
   --sidebar-border: oklch(0.3843 0.0301 269.7337);
   --sidebar-ring: oklch(0.6397 0.1720 36.4421);
-  --font-sans: Inter, sans-serif;
-  --font-serif: Source Serif 4, serif;
-  --font-mono: JetBrains Mono, monospace;
+  --font-sans: 'DM Sans', sans-serif;
+  --font-serif: 'Space Grotesk', sans-serif;
+  --font-mono: 'Space Mono', monospace;
   --radius: 0.75rem;
   --shadow-x: 0px;
   --shadow-y: 1px;
@@ -193,6 +193,14 @@
     width: 100%;
     max-width: 100vw;
     position: relative;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Space Grotesk', sans-serif;
   }
 
   ::selection {

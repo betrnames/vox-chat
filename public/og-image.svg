@@ -1,10 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" fill="none">
-  <!-- Background -->
+  <!-- Background (full bleed — no warm band) -->
   <rect width="1200" height="630" fill="#E2E3E8"/>
-
-  <!-- Warm band at bottom -->
-  <rect x="0" y="510" width="1200" height="120" fill="#EDE4DC"/>
-  <line x1="0" y1="510" x2="1200" y2="510" stroke="#D2D3D9" stroke-width="1"/>
 
   <!-- Subtle wave lines -->
   <path d="M0 280 Q150 220 300 260 T600 240 T900 270 T1200 240" stroke="#FF6B4A" stroke-width="1.5" stroke-linecap="round" opacity="0.12"/>

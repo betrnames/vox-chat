@@ -13,7 +13,6 @@ const ctx = canvas.getContext('2d')
 
 const colors = {
   bg: '#E2E3E8',
-  warm: '#EDE4DC',
   line: '#D2D3D9',
   text: '#2E2E2E',
   accent: '#C45A30',
@@ -23,17 +22,9 @@ const colors = {
   review: '#FFB84A',
 }
 
+// Single continuous background — no warm band (was clashing with cool gray)
 ctx.fillStyle = colors.bg
 ctx.fillRect(0, 0, W, H)
-
-ctx.fillStyle = colors.warm
-ctx.fillRect(0, 510, W, 120)
-ctx.strokeStyle = colors.line
-ctx.lineWidth = 1
-ctx.beginPath()
-ctx.moveTo(0, 510)
-ctx.lineTo(W, 510)
-ctx.stroke()
 
 function wave(yBase, color, amp, phase) {
   ctx.beginPath()
