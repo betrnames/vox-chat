@@ -137,6 +137,38 @@ function rowFromPayload(payload) {
   ]
 }
 
+/**
+ * Find next empty data row on Vox-Ops Leads tab.
+ * Template: headers row 4, data from row 5, "Pipeline counts" block lower down.
+ * Google append() jumps past blank rows into the summary — so we write by row index.
+ */
+async function findNextLeadRow(sheetId, token, tab) {
+  const startRow = Number(process.env.GOOGLE_SHEET_DATA_START_ROW || 5)
+  const scanEnd = Number(process.env.GOOGLE_SHEET_DATA_SCAN_END || 80)
+  const readRange = `${tab}!A${startRow}:C${scanEnd}`
+  const res = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${encodeURIComponent(readRange)}`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  )
+  if (!res.ok) {
+    console.error('[googleSheet] scan error', res.status, (await res.text()).slice(0, 300))
+    return startRow
+  }
+  const data = await res.json()
+  const rows = data.values || []
+  for (let i = 0; i < rows.length; i++) {
+    const a = (rows[i][0] || '').toString().trim()
+    const b = (rows[i][1] || '').toString().trim()
+    const c = (rows[i][2] || '').toString().trim()
+    // Stop before summary section
+    if (/^pipeline counts$/i.test(a)) break
+    // Empty lead row (no date/source/name)
+    if (!a && !b && !c) return startRow + i
+  }
+  // If no blank found in scan window, use first row after last data cell
+  return startRow + rows.length
+}
+
 /** @returns {Promise<boolean>} */
 export async function appendLeadToGoogleSheet(payload) {
   const sheetId = process.env.GOOGLE_SHEET_ID
@@ -146,15 +178,17 @@ export async function appendLeadToGoogleSheet(payload) {
   const token = await getAccessToken(sa.email, sa.key)
   if (!token) return false
 
-  // Vox-Ops Leads is 15 columns (A:O); header row is typically row 4 in the template
-  const range = process.env.GOOGLE_SHEET_RANGE || 'Leads!A:O'
+  // Parse tab from range like "Leads!A:O"
+  const rangeEnv = process.env.GOOGLE_SHEET_RANGE || 'Leads!A:O'
+  const tab = rangeEnv.includes('!') ? rangeEnv.split('!')[0] : 'Leads'
+  const row = await findNextLeadRow(sheetId, token, tab)
+  const writeRange = `${tab}!A${row}:O${row}`
   const url =
     `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}` +
-    `/values/${encodeURIComponent(range)}:append` +
-    `?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`
+    `/values/${encodeURIComponent(writeRange)}?valueInputOption=USER_ENTERED`
 
   const res = await fetch(url, {
-    method: 'POST',
+    method: 'PUT',
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
@@ -163,7 +197,7 @@ export async function appendLeadToGoogleSheet(payload) {
   })
 
   if (!res.ok) {
-    console.error('[googleSheet] append error', res.status, (await res.text()).slice(0, 400))
+    console.error('[googleSheet] write error', res.status, (await res.text()).slice(0, 400))
     return false
   }
   return true
