@@ -1,7 +1,8 @@
 /**
- * Vercel serverless â€” POST /api/receptionist
- * CommonJS (no package "type":"module" issues). Self-contained.
+ * Vercel serverless — POST /api/receptionist
+ * Live AI Receptionist + lead notify (Formspree email + Google Sheet).
  */
+import { writeLeadToSheet } from './googleSheet.js'
 
 const DEMO_PROMPT = `You are the AI Receptionist for Valley Air Pros, a sample HVAC / plumbing / electrical contractor serving Manteca, Turlock, Modesto, Stockton, Tracy, Lathrop, Ripon, Escalon, and Oakdale in California's Central Valley (209 area code).
 
@@ -112,28 +113,11 @@ async function notifyLead(lead) {
     /* non-fatal */
   }
 
-  const sheetUrl = process.env.LEAD_SHEET_WEBHOOK_URL || process.env.GOOGLE_SHEET_WEBHOOK_URL
-  if (sheetUrl) {
-    try {
-      const body = JSON.stringify(payload)
-      let r = await fetch(sheetUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: body,
-        redirect: 'manual',
-      })
-      const loc = r.headers.get('location')
-      if (loc && (r.status === 301 || r.status === 302 || r.status === 307 || r.status === 308)) {
-        r = await fetch(loc, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: body,
-        })
-      }
-      if (r.ok || r.status === 200 || r.status === 302) channels.push('sheet')
-    } catch (e) {
-      /* non-fatal */
-    }
+  try {
+    const sheetChannel = await writeLeadToSheet(payload)
+    if (sheetChannel) channels.push(sheetChannel)
+  } catch (e) {
+    console.error('[notifyLead] sheet', e)
   }
 
   return channels
