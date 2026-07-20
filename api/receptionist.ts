@@ -1,8 +1,9 @@
-import { runReceptionist, type IncomingMessage } from '../src/receptionist/serverHandler'
+import { runReceptionist, type IncomingMessage, type ReceptionistMode } from '../src/receptionist/serverHandler'
 
 /**
  * Vercel serverless: POST /api/receptionist
- * SpaceXAI (xAI OpenAI-compatible) — set XAI_API_KEY in Vercel env.
+ * Body: { messages, mode?: 'live' | 'demo', source?: string }
+ * SpaceXAI (xAI) — set XAI_API_KEY in Vercel env.
  */
 export default async function handler(
   req: { method?: string; body?: unknown },
@@ -24,6 +25,8 @@ export default async function handler(
 
   const body = (typeof req.body === 'string' ? JSON.parse(req.body as string) : req.body) as {
     messages?: IncomingMessage[]
+    mode?: ReceptionistMode
+    source?: string
   }
 
   const messages = body?.messages
@@ -31,7 +34,10 @@ export default async function handler(
     return res.status(400).json({ error: 'messages required' })
   }
 
-  const result = await runReceptionist(messages, apiKey)
+  const result = await runReceptionist(messages, apiKey, {
+    mode: body.mode === 'live' ? 'live' : 'demo',
+    source: body.source,
+  })
   if ('error' in result) {
     return res.status(502).json(result)
   }

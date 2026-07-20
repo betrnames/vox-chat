@@ -1,12 +1,27 @@
 import { RECEPTIONIST_SYSTEM_PROMPT } from './prompt'
+import { VOX_RECEPTIONIST_SYSTEM_PROMPT } from './voxPrompt'
+import { extractLeadFromReply, notifyLead, type CapturedLead } from './notifyLead'
 
 export type IncomingMessage = { role: 'user' | 'assistant'; content: string }
 
-/** Shared SpaceXAI call used by Vite dev middleware and optionally other runtimes. */
+export type ReceptionistMode = 'demo' | 'live'
+
+export type ReceptionistResult =
+  | { reply: string; lead?: CapturedLead | null; notified?: string[] }
+  | { error: string; fallback: true }
+
+function systemFor(mode: ReceptionistMode): string {
+  return mode === 'live' ? VOX_RECEPTIONIST_SYSTEM_PROMPT : RECEPTIONIST_SYSTEM_PROMPT
+}
+
+/** Shared SpaceXAI call used by Vite dev middleware and Vercel /api/receptionist. */
 export async function runReceptionist(
   messages: IncomingMessage[],
   apiKey: string,
-): Promise<{ reply: string } | { error: string; fallback: true }> {
+  options: { mode?: ReceptionistMode; source?: string } = {},
+): Promise<ReceptionistResult> {
+  const mode: ReceptionistMode = options.mode === 'live' ? 'live' : 'demo'
+
   const trimmed = messages
     .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
     .slice(-16)
@@ -25,12 +40,9 @@ export async function runReceptionist(
       },
       body: JSON.stringify({
         model: 'grok-4.5',
-        temperature: 0.5,
-        max_tokens: 400,
-        messages: [
-          { role: 'system', content: RECEPTIONIST_SYSTEM_PROMPT },
-          ...trimmed,
-        ],
+        temperature: mode === 'live' ? 0.4 : 0.5,
+        max_tokens: 450,
+        messages: [{ role: 'system', content: systemFor(mode) }, ...trimmed],
       }),
     })
 
@@ -41,12 +53,27 @@ export async function runReceptionist(
     const data = (await upstream.json()) as {
       choices?: Array<{ message?: { content?: string } }>
     }
-    const reply = data.choices?.[0]?.message?.content?.trim()
-    if (!reply) {
+    const raw = data.choices?.[0]?.message?.content?.trim()
+    if (!raw) {
       return { error: 'Empty AI response', fallback: true }
     }
 
-    return { reply }
+    if (mode !== 'live') {
+      return { reply: raw }
+    }
+
+    const { cleanReply, lead } = extractLeadFromReply(raw)
+    let notified: string[] | undefined
+
+    if (lead?.phone || lead?.email) {
+      const result = await notifyLead({
+        ...lead,
+        source: options.source || 'live-receptionist',
+      })
+      notified = result.channels
+    }
+
+    return { reply: cleanReply, lead, notified }
   } catch {
     return { error: 'Server error', fallback: true }
   }

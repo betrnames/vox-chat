@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import './index.css'
 import { advanceReceptionist, type ChatMemory, type ChatStep } from './receptionist/localFlow'
+import { TypingDots } from './TypingDots'
+import LiveReceptionistWidget from './LiveReceptionistWidget'
 
 function HeroWaves() {
   return (
@@ -11,16 +13,6 @@ function HeroWaves() {
         <path d="M0 300 Q200 250 400 290 T750 260 T1050 290 T1350 250 T1400 280" stroke="var(--review)" strokeWidth="1.5" strokeLinecap="round" opacity="0.12" fill="none" />
       </svg>
     </div>
-  )
-}
-
-function TypingDots() {
-  return (
-    <span className="inline-flex items-center gap-1" aria-label="Typing">
-      <span className="w-1.5 h-1.5 rounded-full bg-voice vox-bounce" style={{ animationDelay: '0ms' }} />
-      <span className="w-1.5 h-1.5 rounded-full bg-chat vox-bounce" style={{ animationDelay: '150ms' }} />
-      <span className="w-1.5 h-1.5 rounded-full bg-review vox-bounce" style={{ animationDelay: '300ms' }} />
-    </span>
   )
 }
 
@@ -1376,6 +1368,7 @@ export default function App() {
       <Contact />
       <Footer />
       <MobileBottomBar />
+      <LiveReceptionistWidget />
     </>
   )
 }

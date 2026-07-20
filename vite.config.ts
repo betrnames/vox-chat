@@ -4,11 +4,33 @@ import tailwindcss from '@tailwindcss/vite'
 import { resolve } from 'path'
 import type { IncomingMessage, ServerResponse } from 'http'
 
+function readJsonBody(req: IncomingMessage): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = []
+    req.on('data', (c) => chunks.push(c))
+    req.on('end', () => {
+      try {
+        const raw = Buffer.concat(chunks).toString('utf8')
+        resolve(raw ? JSON.parse(raw) : {})
+      } catch (e) {
+        reject(e)
+      }
+    })
+    req.on('error', reject)
+  })
+}
+
 function receptionistApiPlugin(apiKey: string | undefined): Plugin {
   return {
     name: 'receptionist-api',
     configureServer(server) {
-      server.middlewares.use('/api/receptionist', (req: IncomingMessage, res: ServerResponse, next) => {
+      server.middlewares.use(async (req: IncomingMessage, res: ServerResponse, next) => {
+        const url = req.url?.split('?')[0] || ''
+        if (url !== '/api/receptionist' && url !== '/api/lead') {
+          next()
+          return
+        }
+
         if (req.method === 'OPTIONS') {
           res.statusCode = 204
           res.end()
@@ -21,34 +43,41 @@ function receptionistApiPlugin(apiKey: string | undefined): Plugin {
           return
         }
 
-        const chunks: Buffer[] = []
-        req.on('data', (c) => chunks.push(c))
-        req.on('end', async () => {
-          try {
-            if (!apiKey) {
-              res.statusCode = 503
-              res.setHeader('Content-Type', 'application/json')
-              res.end(JSON.stringify({ error: 'XAI_API_KEY not configured', fallback: true }))
-              return
-            }
+        try {
+          const body = (await readJsonBody(req)) as Record<string, unknown>
+          res.setHeader('Content-Type', 'application/json')
+          res.setHeader('Cache-Control', 'no-store')
 
-            const raw = Buffer.concat(chunks).toString('utf8')
-            const body = raw ? JSON.parse(raw) : {}
-            const { runReceptionist } = await server.ssrLoadModule('/src/receptionist/serverHandler.ts')
-            const result = await runReceptionist(body.messages || [], apiKey)
-
-            res.statusCode = 'error' in result ? 502 : 200
-            res.setHeader('Content-Type', 'application/json')
-            res.setHeader('Cache-Control', 'no-store')
+          if (url === '/api/lead') {
+            const { notifyLead } = await server.ssrLoadModule('/src/receptionist/notifyLead.ts')
+            const result = await notifyLead({
+              ...(body as object),
+              source: (body.source as string) || 'api-lead',
+            })
+            res.statusCode = result.ok ? 200 : 502
             res.end(JSON.stringify(result))
-          } catch (e) {
-            console.error('[receptionist-api]', e)
-            res.statusCode = 500
-            res.setHeader('Content-Type', 'application/json')
-            res.end(JSON.stringify({ error: 'Server error', fallback: true }))
+            return
           }
-        })
-        req.on('error', () => next())
+
+          if (!apiKey) {
+            res.statusCode = 503
+            res.end(JSON.stringify({ error: 'XAI_API_KEY not configured', fallback: true }))
+            return
+          }
+
+          const { runReceptionist } = await server.ssrLoadModule('/src/receptionist/serverHandler.ts')
+          const result = await runReceptionist(body.messages || [], apiKey, {
+            mode: body.mode === 'live' ? 'live' : 'demo',
+            source: body.source,
+          })
+          res.statusCode = 'error' in result ? 502 : 200
+          res.end(JSON.stringify(result))
+        } catch (e) {
+          console.error('[receptionist-api]', e)
+          res.statusCode = 500
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify({ error: 'Server error', fallback: true }))
+        }
       })
     },
   }
