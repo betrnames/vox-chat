@@ -7,75 +7,97 @@
 
 ---
 
+## Resume prompt (paste next session)
+
+> Resume vox.chat from `docs/HANDOFF.md`.  
+> Public live POC = **AI Receptionist only**. Reviews SMS built but UI hidden until Twilio upgrade.  
+> Next product build = **Voice POC (Vapi + Grok + Twilio notify)**.  
+> Pricing/objections locked in `docs/pricing-and-objections.md` — review before sales calls.  
+> Contact: **support@vox.chat** · ops: **email@vox.chat**.
+
+---
+
 ## Product status (public site)
 
 | SKU | What visitors see | Backend |
 |-----|-------------------|---------|
-| **AI Receptionist** | **Live POC** — floating widget + mobile bar | `/api/receptionist` · Grok · email gate · rate limit · Formspree + Sheet |
-| **AI Reviews** | **Animated demo only** (no live “text me”) | APIs ready: `/api/reviews`, `/api/reviews-inbound` — UI hidden until Twilio **upgrade** (custom copy) |
-| **AI Voice** | **Animated call playback only** | Not built — **next major POC** |
+| **AI Receptionist** | **Live POC** — widget + mobile bar | `/api/receptionist` · Grok · email gate · rate limit · Formspree + Sheet |
+| **AI Reviews** | **Animated demo only** | APIs ready; UI hidden until Twilio upgrade for custom copy |
+| **AI Voice** | **Animated playback only** | Not built — **next major POC** |
 
-**Public rule:** only Receptionist is a real interactive proof. Reviews SMS was proven end-to-end on trial, then UI removed so trial template copy isn’t customer-facing.
-
----
-
-## What shipped recently
-
-1. Receptionist branding (not “chat”) · mobile bottom bar · seamless SVG dome over call button  
-2. SEO SSG/prerender · og image · Formspree + Google Sheet leads  
-3. Live Reviews POC: Twilio trial templates (`TWILIO_TRIAL=true`), webhook inbound 1–5  
-4. Live Reviews UI **hidden** after successful test  
-5. Theme: pill **switch** site-wide (`src/theme.tsx`); mobile switch in hamburger  
-6. Lean trust pack: Legal SMS/TCPA + recording · form consent · hero trust strip
+**Public rule:** only Receptionist is real interactive proof on the marketing site.
 
 ---
 
-## Env (Vercel Production — already set)
+## Pricing source of truth
+
+**→ `docs/pricing-and-objections.md`** (read before every audit/close)
+
+| SKU | List (quote) | Floor |
+|-----|--------------|-------|
+| Reviews | **$400/mo** | $300 |
+| Receptionist | **$650/mo** | $500 |
+| Voice | **$1,100/mo** | $800 |
+| Bundle | **$1,500/mo** | **$1,500 (no discount)** |
+
+- **Setup fee:** $0 listed — included; **first month paid in advance** unlocks setup  
+- **Default close:** Bundle · budget path: Reviews → add Voice in 30–60 days  
+- **Hard nos:** free product trial, Net 30, custom RFP, free website/ads  
+
+Also: GTM narrative in `docs/gtm-playbook.md` (triangle, BNI, pay-then-setup).
+
+---
+
+## What shipped this era (high level)
+
+1. Receptionist live POC + “Receptionist” not “chat” branding  
+2. Mobile bar + desktop FAB lifts above footer  
+3. Reviews SMS POC (Twilio trial templates) — UI removed after test  
+4. Theme switch site-wide; mobile switch in hamburger  
+5. Lean trust pack: Legal SMS/TCPA + recording · form consent · subtle hero trust strip  
+6. Contact email **support@vox.chat** · system/ops **email@vox.chat**  
+7. Pricing & objection playbook  
+
+---
+
+## Env (Vercel Production)
 
 - `XAI_API_KEY`
-- `GOOGLE_SHEET_ID`, `GOOGLE_SHEET_RANGE`, `GOOGLE_SHEET_FORMAT`, `GOOGLE_SERVICE_ACCOUNT_JSON_BASE64`
-- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` (`+17372324091`)
+- Google Sheet SA + `GOOGLE_SHEET_*`
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` (+17372324091)
 - `TWILIO_TRIAL=true`
 - `GOOGLE_REVIEW_URL=https://vox.chat` (GBP pending verification)
 - `REVIEW_OWNER_PHONE=+12099967102`
 
-Local: same keys in `.env` (never commit).
+Local: `.env` (never commit).
 
-**Twilio webhook (for when Reviews UI returns):**  
-Number → Messaging → A message comes in → `https://vox.chat/api/reviews-inbound` · HTTP POST
+**Twilio inbound (Reviews, when UI returns):**  
+`https://vox.chat/api/reviews-inbound` · HTTP POST on the Twilio number.
 
 ---
 
-## Next when resuming
+## Next when resuming (priority order)
 
-### 1. Voice agent POC (priority)
-
-**Recommended stack**
-
+### 1. Voice agent POC
 | Layer | Choice |
 |-------|--------|
-| Phone + agent runtime | **Vapi** (or Retell) |
-| LLM | **Grok / xAI** (same qualify → lead rails as receptionist) |
-| Notify contractor | **Twilio SMS** (existing) |
-| ElevenLabs | Optional voice skin only |
+| Runtime | **Vapi** (or Retell) |
+| LLM | **Grok / xAI** |
+| Notify | **Twilio SMS** |
+| Optional | ElevenLabs voice skin |
 
-**Not first:** raw Grok voice alone (no PSTN), pure ElevenLabs, full DIY Twilio Voice stack.
+Thin dial-in POC ~**2–5 days** · sellable after-hours MVP ~**1–2 weeks**.
 
-**Rough time:** thin live dial-in POC **2–5 days** · sellable after-hours MVP **1–2 weeks**.
+### 2. Sales hygiene (no code)
+- Create Stripe Payment Links at **list** prices  
+- Drill `docs/pricing-and-objections.md`  
+- Run Missed Call Audits in Turlock / Modesto / Manteca  
 
-**MVP shape:** Vapi number → Grok system prompt (Valley / Vox sales) → capture lead → SMS/email Gabe · optional link from vox.chat “Call the AI”.
+### 3. Reviews (after Twilio upgrade)
+- `TWILIO_TRIAL=false` · restore Try-on-phone UI · real GBP review URL  
 
-### 2. Reviews (after Twilio upgrade)
-
-1. Upgrade Twilio · set `TWILIO_TRIAL=false`  
-2. Restore “Try on your phone” UI (was `LiveReviewTry` in `App.tsx` — re-add from git history or `docs/poc-reviews.md`)  
-3. Real GBP review link when verification completes  
-4. Custom SMS copy: rating ask + Google link / owner alert  
-
-### 3. GBP
-
-- Profile **created**, **pending verification**  
-- Until verified: `GOOGLE_REVIEW_URL=https://vox.chat` is fine  
+### 4. GBP
+- Pending verification · then set `GOOGLE_REVIEW_URL`  
 
 ---
 
@@ -83,35 +105,23 @@ Number → Messaging → A message comes in → `https://vox.chat/api/reviews-in
 
 | Path | Purpose |
 |------|---------|
-| `src/App.tsx` | Homepage, demos, mobile bar |
-| `src/LiveReceptionistWidget.tsx` | Live receptionist |
-| `src/theme.tsx` | `useTheme` + `ThemeSwitch` |
-| `api/receptionist.js` | Live chat API |
-| `api/reviews.js` · `reviews-inbound.js` · `reviewsShared.js` | Reviews SMS |
-| `api/googleSheet.js` | Leads → Vox-Ops sheet |
-| `docs/poc-receptionist.md` | Receptionist setup |
-| `docs/poc-reviews.md` | Reviews + trial templates |
-| `docs/gtm-playbook.md` | Sales / SKUs |
 | `docs/HANDOFF.md` | This file |
+| `docs/pricing-and-objections.md` | **Prices, floors, setup, rejections** |
+| `docs/gtm-playbook.md` | ICP, scripts, audit flow |
+| `docs/poc-receptionist.md` / `poc-reviews.md` | POC setup |
+| `src/App.tsx` · `LiveReceptionistWidget.tsx` | Site + live chat |
+| `api/receptionist.js` · `api/reviews*.js` | APIs |
 
 ---
 
 ## Dev / deploy
 
 ```bash
-npm run dev          # localhost:5173
-npm run build
+npm run dev
 npx vercel --prod --yes
 ```
 
-**Formspree:** default form id in code (leads + review events).  
-**Phone:** (209) 996-7102 · **Contact:** support@vox.chat · **Ops/other:** email@vox.chat · X: @voxdotchat  
-
----
-
-## Resume prompt (paste for next session)
-
-> Resume vox.chat from `docs/HANDOFF.md`. Public live POC is AI Receptionist only. Reviews SMS is built but UI hidden until Twilio upgrade. Next build: Voice agent POC with **Vapi + Grok + Twilio notify**. Theme switch is site-wide via `src/theme.tsx`.
+**Phone:** (209) 996-7102 · **Contact:** support@vox.chat · **Ops:** email@vox.chat · **X:** @voxdotchat  
 
 ---
 
@@ -119,5 +129,7 @@ npx vercel --prod --yes
 
 - Show trial Twilio template SMS on the marketing site  
 - Commit `.env` or service account JSON  
-- Start Cloudflare Workers (Vercel only unless asked)  
-- Use Inter/Roboto/purple gradients (brand system in `CLAUDE.md`)
+- Discount Bundle below $1,500  
+- Free product months / Net 30 / custom RFPs  
+- Cloudflare Workers unless explicitly asked  
+- Inter / Roboto / purple gradients  
