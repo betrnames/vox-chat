@@ -23,9 +23,9 @@
 |-----|-------------------|---------|
 | **AI Receptionist** | **Live POC** — widget + mobile bar | `/api/receptionist` · Grok · email gate · rate limit · Formspree + Sheet |
 | **AI Reviews** | **Animated demo only** | APIs ready; UI hidden until Twilio upgrade for custom copy |
-| **AI Voice** | **Animated playback only** | Not built — **next major POC** |
+| **AI Voice** | Animated demo + **live dial CTA** when `VAPI_PHONE_NUMBER` set | Webhook `POST /api/voice-webhook` · status `GET /api/voice` · setup `docs/poc-voice.md` |
 
-**Public rule:** only Receptionist is real interactive proof on the marketing site.
+**Public rule:** Receptionist is live chat proof. Voice is live **after** Vapi number is configured.
 
 ---
 
@@ -79,15 +79,12 @@ Local: `.env` (never commit).
 
 ## Next when resuming (priority order)
 
-### 1. Voice agent POC
-| Layer | Choice |
-|-------|--------|
-| Runtime | **Vapi** (or Retell) |
-| LLM | **Grok / xAI** |
-| Notify | **Twilio SMS** |
-| Optional | ElevenLabs voice skin |
-
-Thin dial-in POC ~**2–5 days** · sellable after-hours MVP ~**1–2 weeks**.
+### 1. Finish Voice live POC (in progress)
+1. Create Vapi assistant + phone number (prompt in `src/voice/voxVoicePrompt.ts`)  
+2. Server URL: `https://vox.chat/api/voice-webhook`  
+3. Set Vercel env: `VAPI_PHONE_NUMBER=+1...` (and optional `VAPI_API_KEY`)  
+4. Redeploy · call number · confirm lead email/sheet  
+5. Full guide: **`docs/poc-voice.md`**
 
 ### 2. Sales hygiene (no code)
 - Create Stripe Payment Links at **list** prices  
@@ -110,7 +107,9 @@ Thin dial-in POC ~**2–5 days** · sellable after-hours MVP ~**1–2 weeks**.
 | `docs/pricing.md` | **Prices, floors, setup, margins** |
 | `docs/objections.md` | **Hard nos, scripts** |
 | `docs/gtm-playbook.md` | ICP, scripts, audit flow |
-| `docs/poc-receptionist.md` / `poc-reviews.md` | POC setup |
+| `docs/poc-receptionist.md` / `poc-reviews.md` / **`poc-voice.md`** | POC setup |
+| `src/voice/voxVoicePrompt.ts` | Voice system prompt for Vapi |
+| `api/voice.js` · `api/voice-webhook.js` | Voice status + Vapi webhook |
 | `src/App.tsx` · `LiveReceptionistWidget.tsx` | Site + live chat |
 | `api/receptionist.js` · `api/reviews*.js` | APIs |
 

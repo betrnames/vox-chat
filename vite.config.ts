@@ -334,24 +334,102 @@ function reviewsApiPlugin(): Plugin {
   }
 }
 
+/** Dev: GET /api/voice + POST /api/voice-webhook */
+function voiceApiPlugin(): Plugin {
+  return {
+    name: 'voice-api',
+    configureServer(server) {
+      server.middlewares.use(async (req: IncomingMessage, res: ServerResponse, next) => {
+        const url = req.url?.split('?')[0] || ''
+        if (url !== '/api/voice' && url !== '/api/voice-webhook') {
+          next()
+          return
+        }
+
+        res.setHeader('Cache-Control', 'no-store')
+
+        try {
+          if (url === '/api/voice' && req.method === 'GET') {
+            const phoneRaw = process.env.VAPI_PHONE_NUMBER || ''
+            const digits = phoneRaw.replace(/\D/g, '')
+            let phone = ''
+            if (digits.length === 10) phone = `+1${digits}`
+            else if (digits.length === 11 && digits.startsWith('1')) phone = `+${digits}`
+            else if (phoneRaw.startsWith('+')) phone = phoneRaw.trim()
+            const online = Boolean(phone)
+            let phoneDisplay = phone
+            if (digits.length === 11 && digits.startsWith('1')) {
+              phoneDisplay = `(${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`
+            }
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'application/json')
+            res.end(
+              JSON.stringify({
+                ok: true,
+                product: 'vox-voice',
+                online,
+                phone: phone || null,
+                phoneDisplay: online ? phoneDisplay : null,
+                telHref: online ? `tel:${phone}` : null,
+              }),
+            )
+            return
+          }
+
+          if (url === '/api/voice-webhook' && req.method === 'POST') {
+            // Dynamic import of production handler via path
+            const mod = (await import(
+              pathToFileURL(resolve(__dirname, 'api/voice-webhook.js')).href
+            )) as { default: (req: IncomingMessage, res: ServerResponse) => Promise<void> }
+            await mod.default(req, res)
+            return
+          }
+
+          if (url === '/api/voice-webhook' && req.method === 'GET') {
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'application/json')
+            res.end(JSON.stringify({ ok: true, webhook: 'voice-webhook' }))
+            return
+          }
+
+          res.statusCode = 405
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify({ error: 'Method not allowed' }))
+        } catch (e) {
+          console.error('[voice-api]', e)
+          res.statusCode = 500
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify({ error: 'Server error' }))
+        }
+      })
+    },
+  }
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const apiKey = env.XAI_API_KEY || process.env.XAI_API_KEY
 
-  // Surface Twilio + review env into process for api/reviewsShared.js in dev
+  // Surface Twilio + review + voice env into process for api handlers in dev
   for (const key of [
     'TWILIO_ACCOUNT_SID',
     'TWILIO_AUTH_TOKEN',
     'TWILIO_FROM_NUMBER',
+    'TWILIO_TRIAL',
     'GOOGLE_REVIEW_URL',
     'REVIEW_OWNER_PHONE',
     'FORMSPREE_ENDPOINT',
+    'VAPI_PHONE_NUMBER',
+    'VAPI_API_KEY',
+    'VAPI_WEBHOOK_SECRET',
+    'GOOGLE_SHEET_ID',
+    'GOOGLE_SERVICE_ACCOUNT_JSON_BASE64',
   ]) {
     if (env[key] && !process.env[key]) process.env[key] = env[key]
   }
 
   return {
-    plugins: [react(), tailwindcss(), receptionistApiPlugin(apiKey), reviewsApiPlugin()],
+    plugins: [react(), tailwindcss(), receptionistApiPlugin(apiKey), reviewsApiPlugin(), voiceApiPlugin()],
     build: {
       rollupOptions: {
         input: {
