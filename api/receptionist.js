@@ -272,12 +272,18 @@ export default async function handler(req, res) {
 
     const extracted = extractLead(replyRaw)
     var notified
-    if (extracted.lead && (extracted.lead.phone || extracted.lead.email)) {
-      extracted.lead.source = body.source || 'live-receptionist'
-      notified = await notifyLead(extracted.lead)
+    var lead = extracted.lead
+    // Prefer gate email from widget when model didn't capture one
+    var visitorEmail = typeof body.visitorEmail === 'string' ? body.visitorEmail.trim().slice(0, 120) : ''
+    if (visitorEmail && (!lead || !lead.email)) {
+      lead = Object.assign({}, lead || {}, { email: visitorEmail })
+    }
+    if (lead && (lead.phone || lead.email)) {
+      lead.source = body.source || 'live-receptionist'
+      notified = await notifyLead(lead)
     }
 
-    return res.status(200).json({ reply: extracted.cleanReply, lead: extracted.lead, notified: notified })
+    return res.status(200).json({ reply: extracted.cleanReply, lead: lead, notified: notified })
   } catch (e) {
     console.error('[receptionist] uncaught', e)
     return res.status(500).json({

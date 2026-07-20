@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { TypingDots } from './TypingDots'
 
 type Msg = { role: 'user' | 'assistant'; content: string }
@@ -12,6 +12,8 @@ const CHIPS = [
   'Website visitors not converting',
   'Tell me about the bundle',
 ]
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 function BrandDots({ size = 'sm' }: { size?: 'sm' | 'md' }) {
   const d = size === 'md' ? 'w-2 h-2' : 'w-1.5 h-1.5'
@@ -28,6 +30,7 @@ const RATE_LIMIT_MSG = 'Too many messages. Call or text (209) 996-7102 to talk n
 
 async function chat(
   messages: Msg[],
+  visitorEmail: string,
 ): Promise<{ reply: string; notified?: string[] } | { error: string; code?: string }> {
   try {
     const res = await fetch('/api/receptionist', {
@@ -36,6 +39,7 @@ async function chat(
       body: JSON.stringify({
         mode: 'live',
         source: 'site-widget',
+        visitorEmail,
         messages: messages.map((m) => ({ role: m.role, content: m.content })),
       }),
     })
@@ -89,6 +93,10 @@ function StatusPill({ online, compact = false }: { online: boolean; compact?: bo
 
 export default function LiveReceptionistWidget() {
   const [open, setOpen] = useState(false)
+  const [gatePassed, setGatePassed] = useState(false)
+  const [gateEmail, setGateEmail] = useState('')
+  const [gateError, setGateError] = useState('')
+  const [visitorEmail, setVisitorEmail] = useState('')
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
   const [leadSent, setLeadSent] = useState(false)
@@ -97,7 +105,7 @@ export default function LiveReceptionistWidget() {
   const [online, setOnline] = useState(
     () => (typeof navigator !== 'undefined' ? navigator.onLine : true),
   )
-  const [messages, setMessages] = useState<Msg[]>([{ role: 'assistant', content: OPENING }])
+  const [messages, setMessages] = useState<Msg[]>([])
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -115,7 +123,7 @@ export default function LiveReceptionistWidget() {
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-  }, [messages, typing, open])
+  }, [messages, typing, open, gatePassed])
 
   function lockInputFor60s() {
     setInputLocked(true)
@@ -126,9 +134,22 @@ export default function LiveReceptionistWidget() {
     }, 60_000)
   }
 
+  function startWithEmail(e: FormEvent) {
+    e.preventDefault()
+    const email = gateEmail.trim().toLowerCase()
+    if (!EMAIL_RE.test(email)) {
+      setGateError('Enter a valid email to start.')
+      return
+    }
+    setGateError('')
+    setVisitorEmail(email)
+    setGatePassed(true)
+    setMessages([{ role: 'assistant', content: OPENING }])
+  }
+
   async function send(text: string) {
     const trimmed = text.trim()
-    if (!trimmed || typing || inputLocked) return
+    if (!trimmed || typing || inputLocked || !gatePassed || !visitorEmail) return
 
     if (!navigator.onLine) {
       setOnline(false)
@@ -150,7 +171,7 @@ export default function LiveReceptionistWidget() {
     setInput('')
     setTyping(true)
 
-    const result = await chat(next)
+    const result = await chat(next, visitorEmail)
     setTyping(false)
 
     if ('error' in result) {
@@ -168,7 +189,6 @@ export default function LiveReceptionistWidget() {
       const billing =
         result.code === 'no_credits' ||
         /credits|billing|console\.x\.ai/i.test(result.error || '')
-      // Keep status green if API is up but xAI billing is the issue
       if (!billing) setOnline(false)
       setMessages((m) => [
         ...m,
@@ -191,7 +211,6 @@ export default function LiveReceptionistWidget() {
 
   return (
     <>
-      {/* Launcher — primary brand + three-dot mark */}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -241,77 +260,121 @@ export default function LiveReceptionistWidget() {
             )}
           </div>
 
-          <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 p-3 bg-background/40">
-            {messages.map((m, i) => (
-              <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div
-                  className={`max-w-[90%] px-3.5 py-2.5 rounded-lg text-sm leading-relaxed ${
-                    m.role === 'assistant'
-                      ? 'bg-card text-foreground border border-border/60 shadow-sm'
-                      : 'bg-primary text-primary-foreground border border-primary'
-                  }`}
-                >
-                  {m.role === 'assistant' && (
-                    <span className="flex items-center gap-1.5 mb-1.5">
-                      <BrandDots />
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-                        Receptionist
-                      </span>
-                    </span>
+          {!gatePassed ? (
+            <div className="flex-1 flex flex-col justify-center p-5 bg-background/40">
+              <p className="text-sm font-semibold text-foreground mb-1">Start the conversation</p>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                Drop your email so we can follow up — then the AI opens. No spam, no contracts.
+              </p>
+              <form onSubmit={startWithEmail} className="space-y-3">
+                <div>
+                  <label htmlFor="vox-chat-email" className="sr-only">
+                    Email
+                  </label>
+                  <input
+                    id="vox-chat-email"
+                    type="email"
+                    required
+                    autoFocus
+                    autoComplete="email"
+                    value={gateEmail}
+                    onChange={(e) => {
+                      setGateEmail(e.target.value)
+                      if (gateError) setGateError('')
+                    }}
+                    placeholder="you@company.com"
+                    className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-foreground text-base placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 transition-colors"
+                  />
+                  {gateError && (
+                    <p className="mt-1.5 text-xs text-destructive">{gateError}</p>
                   )}
-                  {m.content}
                 </div>
-              </div>
-            ))}
-            {typing && (
-              <div className="flex justify-start">
-                <div className="px-4 py-3 rounded-lg bg-card border border-border/60 shadow-sm">
-                  <TypingDots />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {messages.length <= 2 && (
-            <div className="flex flex-wrap gap-1.5 px-3 pb-2 bg-background/40">
-              {CHIPS.map((c) => (
                 <button
-                  key={c}
-                  type="button"
-                  disabled={controlsDisabled}
-                  onClick={() => send(c)}
-                  className="px-2.5 py-1 rounded-md border border-border bg-card text-muted-foreground text-[11px] font-medium hover:border-primary/40 hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40"
+                  type="submit"
+                  className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors"
                 >
-                  {c}
+                  Start chat
                 </button>
-              ))}
+              </form>
+              <p className="mt-4 text-[11px] text-muted-foreground/70 font-mono text-center">
+                Or call (209) 996-7102
+              </p>
             </div>
-          )}
+          ) : (
+            <>
+              <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-3 p-3 bg-background/40">
+                {messages.map((m, i) => (
+                  <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div
+                      className={`max-w-[90%] px-3.5 py-2.5 rounded-lg text-sm leading-relaxed ${
+                        m.role === 'assistant'
+                          ? 'bg-card text-foreground border border-border/60 shadow-sm'
+                          : 'bg-primary text-primary-foreground border border-primary'
+                      }`}
+                    >
+                      {m.role === 'assistant' && (
+                        <span className="flex items-center gap-1.5 mb-1.5">
+                          <BrandDots />
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                            Receptionist
+                          </span>
+                        </span>
+                      )}
+                      {m.content}
+                    </div>
+                  </div>
+                ))}
+                {typing && (
+                  <div className="flex justify-start">
+                    <div className="px-4 py-3 rounded-lg bg-card border border-border/60 shadow-sm">
+                      <TypingDots />
+                    </div>
+                  </div>
+                )}
+              </div>
 
-          <form
-            className="flex gap-2 p-3 border-t border-border/50 bg-card"
-            onSubmit={(e) => {
-              e.preventDefault()
-              send(input)
-            }}
-          >
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={inputLocked ? 'Please wait 60 seconds…' : 'Type a message…'}
-              disabled={controlsDisabled}
-              className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-input bg-background text-foreground text-base placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
-              autoComplete="off"
-            />
-            <button
-              type="submit"
-              disabled={!input.trim() || controlsDisabled}
-              className="px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 disabled:opacity-40 transition-colors"
-            >
-              Send
-            </button>
-          </form>
+              {messages.length <= 2 && (
+                <div className="flex flex-wrap gap-1.5 px-3 pb-2 bg-background/40">
+                  {CHIPS.map((c) => (
+                    <button
+                      key={c}
+                      type="button"
+                      disabled={controlsDisabled}
+                      onClick={() => send(c)}
+                      className="px-2.5 py-1 rounded-md border border-border bg-card text-muted-foreground text-[11px] font-medium hover:border-primary/40 hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40"
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <form
+                className="flex gap-2 p-3 border-t border-border/50 bg-card"
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  send(input)
+                }}
+              >
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={inputLocked ? 'Please wait 60 seconds…' : 'Type a message…'}
+                  disabled={controlsDisabled}
+                  className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-input bg-background text-foreground text-base placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
+                  autoComplete="off"
+                />
+                <button
+                  type="submit"
+                  disabled={!input.trim() || controlsDisabled}
+                  className="px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 disabled:opacity-40 transition-colors"
+                >
+                  Send
+                </button>
+              </form>
+            </>
+          )}
         </div>
       )}
     </>
