@@ -1,5 +1,5 @@
-/**
- * Vercel serverless — POST /api/lead
+﻿/**
+ * Vercel serverless â€” POST /api/lead
  * CommonJS, self-contained.
  */
 
@@ -9,7 +9,7 @@ function clean(s, max) {
   return s.trim().slice(0, max)
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   try {
     res.setHeader('Cache-Control', 'no-store')
 
@@ -37,7 +37,7 @@ module.exports = async function handler(req, res) {
       _subject:
         '[Vox Lead] ' +
         (clean(body.interest) || 'Lead') +
-        ' — ' +
+        ' â€” ' +
         (clean(body.name) || clean(body.phone) || 'new'),
       timestamp: new Date().toISOString(),
     }
@@ -84,3 +84,4 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Server error', ok: false, channels: [] })
   }
 }
+

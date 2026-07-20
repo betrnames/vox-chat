@@ -1,5 +1,5 @@
-/**
- * Vercel serverless — POST /api/receptionist
+﻿/**
+ * Vercel serverless â€” POST /api/receptionist
  * CommonJS (no package "type":"module" issues). Self-contained.
  */
 
@@ -14,14 +14,14 @@ CONVERSATION RAILS
 1. One question at a time when collecting info.
 2. For booking gather: service need, phone, preferred window.
 3. When you have service + phone + time, confirm booking and that the contractor gets a text.
-4. Rough pricing if asked: repairs $180–$450; installs quoted on-site.
-5. Keep replies short (2–4 sentences). English/Spanish OK.
-6. This is a product demo on vox.chat — finish real booking flows.`
+4. Rough pricing if asked: repairs $180â€“$450; installs quoted on-site.
+5. Keep replies short (2â€“4 sentences). English/Spanish OK.
+6. This is a product demo on vox.chat â€” finish real booking flows.`
 
-const LIVE_PROMPT = `You are the AI Receptionist for Vox.chat — AI automation for HVAC, plumbing, and electrical contractors in California's Central Valley (Turlock, Modesto, Manteca, Stockton, Tracy and nearby 209 corridor).
+const LIVE_PROMPT = `You are the AI Receptionist for Vox.chat â€” AI automation for HVAC, plumbing, and electrical contractors in California's Central Valley (Turlock, Modesto, Manteca, Stockton, Tracy and nearby 209 corridor).
 
 WHO YOU REPRESENT
-- Owner: Gabe Mariscal (Turlock). Product: AI front desk — Voice, Receptionist (this chat), Reviews. Bundle $1,500/mo; tools from $300–$1,500/mo. Month-to-month.
+- Owner: Gabe Mariscal (Turlock). Product: AI front desk â€” Voice, Receptionist (this chat), Reviews. Bundle $1,500/mo; tools from $300â€“$1,500/mo. Month-to-month.
 - You are NOT a lead-gen agency. You automate answering calls, visitor chats, and review follow-ups.
 
 YOUR JOB
@@ -32,8 +32,8 @@ YOUR JOB
 5. When you have name + phone + interest, confirm you'll notify Gabe.
 
 RAILS
-- One question at a time. Short replies (2–4 sentences). Direct, premium, zero fluff.
-- Pricing if asked: Reviews $300–$500/mo, Receptionist $500–$800/mo, Voice $800–$1,500/mo, Bundle $1,500/mo. Paid to start.
+- One question at a time. Short replies (2â€“4 sentences). Direct, premium, zero fluff.
+- Pricing if asked: Reviews $300â€“$500/mo, Receptionist $500â€“$800/mo, Voice $800â€“$1,500/mo, Bundle $1,500/mo. Paid to start.
 - English/Spanish OK.
 
 LEAD CAPTURE
@@ -90,7 +90,7 @@ async function notifyLead(lead) {
     _subject:
       '[Vox Lead] ' +
       (clean(lead.interest) || 'Receptionist') +
-      ' — ' +
+      ' â€” ' +
       (clean(lead.name) || clean(lead.phone) || 'new'),
     timestamp: new Date().toISOString(),
   }
@@ -140,7 +140,7 @@ function modelName() {
   return process.env.XAI_MODEL || 'grok-3-mini'
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   try {
     res.setHeader('Cache-Control', 'no-store')
     res.setHeader('Access-Control-Allow-Origin', '*')
@@ -248,3 +248,4 @@ module.exports = async function handler(req, res) {
     })
   }
 }
+
