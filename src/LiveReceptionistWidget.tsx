@@ -233,7 +233,7 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
         ) : (
           <>
             <BrandDots size="md" />
-            <span className="font-medium">Chat with AI</span>
+            <span className="font-medium">AI Receptionist</span>
             <span className="ml-0.5">
               <StatusPill online={online} compact />
             </span>
@@ -245,7 +245,7 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
       {open && (
         <button
           type="button"
-          aria-label="Close chat"
+          aria-label="Close receptionist"
           className="sm:hidden fixed inset-0 z-[55] bg-background/60 backdrop-blur-[2px]"
           onClick={() => onOpenChange(false)}
         />
@@ -283,7 +283,7 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
               type="button"
               onClick={() => onOpenChange(false)}
               className="sm:hidden p-2 -mr-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              aria-label="Close chat"
+              aria-label="Close receptionist"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -323,7 +323,7 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
                   type="submit"
                   className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors"
                 >
-                  Start chat
+                  Talk to receptionist
                 </button>
               </form>
               <p className="mt-4 text-[11px] text-muted-foreground/70 font-mono text-center">

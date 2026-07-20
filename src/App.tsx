@@ -1316,53 +1316,138 @@ function MobileBottomBar({
   chatOpen: boolean
   onChatToggle: () => void
 }) {
+  // Geometry: bar h-14 (56) + dome peeks above; phone sits inside the raised center
+  const R = 36
+  const shellH = R * 2 // 72
+  const barH = 56
+  const sideTop = shellH - barH // 16 — y where flat top meets the arc
+  const domePx = shellH
+
+  const shellRef = useRef<HTMLDivElement>(null)
+  const [shellW, setShellW] = useState(0)
+
+  useEffect(() => {
+    const el = shellRef.current
+    if (!el) return
+    const measure = () => setShellW(el.getBoundingClientRect().width)
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  const cx = shellW / 2
+  const cy = R
+  // Exact junction of flat top (y=sideTop) with circle center (cx, cy) r=R
+  const halfW = Math.sqrt(Math.max(0, R * R - (cy - sideTop) * (cy - sideTop)))
+  const x1 = cx - halfW
+  const x2 = cx + halfW
+
+  // Single continuous top edge (no multi-layer masks — those hairline at joins in dark mode)
+  const topEdge =
+    shellW > 0
+      ? `M0 ${sideTop} L${x1} ${sideTop} A${R} ${R} 0 0 1 ${x2} ${sideTop} L${shellW} ${sideTop}`
+      : ''
+  // Opaque fill — same path, closed. No opacity, no second shape behind it.
+  const fillPath = topEdge ? `${topEdge} L${shellW} ${shellH} L0 ${shellH} Z` : ''
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[65] sm:hidden border-t border-border bg-background/95 backdrop-blur-xl safe-area-bottom">
-      <div className="flex items-center justify-between h-14 px-2 max-w-lg mx-auto gap-1">
-        <a
-          href="#demos"
-          className="flex flex-1 flex-col items-center justify-center gap-0.5 min-h-11 text-muted-foreground/40 active:text-muted-foreground transition-colors"
-          aria-label="See demos"
+    <div className="fixed bottom-0 left-0 right-0 z-[65] sm:hidden">
+      <div className="relative safe-area-bottom">
+        <div
+          ref={shellRef}
+          className="absolute inset-x-0 bottom-0 pointer-events-none z-[1]"
+          style={{ height: shellH }}
+          aria-hidden
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
-          </svg>
-          <span className="text-[10px] font-medium text-muted-foreground/30">Demos</span>
-        </a>
+          {fillPath && (
+            <svg
+              width={shellW}
+              height={shellH}
+              className="absolute left-0 top-0 block overflow-visible"
+              shapeRendering="geometricPrecision"
+              aria-hidden
+            >
+              {/* One solid silhouette — opaque so dark mode never shows through at edges */}
+              <path d={fillPath} fill="var(--background)" />
+              {/* One continuous border stroke on the same geometry */}
+              <path
+                d={topEdge}
+                fill="none"
+                stroke="var(--border)"
+                strokeWidth={1}
+                strokeLinecap="square"
+                strokeLinejoin="round"
+              />
+            </svg>
+          )}
+          {/* Home-indicator strip (same opaque bg, no seam with shell bottom) */}
+          <div
+            className="absolute left-0 right-0 top-full bg-background"
+            style={{ height: 'env(safe-area-inset-bottom, 0px)' }}
+          />
+        </div>
 
-        <a
-          href="tel:+12099967102"
-          className="flex items-center justify-center w-14 h-14 -mt-3 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 active:scale-95 transition-transform shrink-0"
-          aria-label="Call Vox.chat"
-        >
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-          </svg>
-        </a>
+        <div className="relative z-[2] flex items-end justify-between h-14 px-2 max-w-lg mx-auto gap-1 overflow-visible">
+          <a
+            href="#demos"
+            className="flex flex-1 flex-col items-center justify-center gap-0.5 h-14 min-h-11 text-muted-foreground/40 active:text-muted-foreground transition-colors"
+            aria-label="See demos"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z" />
+            </svg>
+            <span className="text-[10px] font-medium text-muted-foreground/30">Demos</span>
+          </a>
 
-        <button
-          type="button"
-          onClick={onChatToggle}
-          aria-expanded={chatOpen}
-          aria-controls="vox-live-receptionist"
-          className={`flex flex-1 flex-col items-center justify-center gap-0.5 min-h-11 transition-colors ${
-            chatOpen
-              ? 'text-primary'
-              : 'text-muted-foreground/40 active:text-muted-foreground'
-          }`}
-          aria-label={chatOpen ? 'Close chat' : 'Chat with AI'}
-        >
-          <span className="relative inline-flex items-center justify-center w-5 h-5">
-            <span className="inline-flex items-center gap-0.5" aria-hidden="true">
-              <span className="w-1.5 h-1.5 rounded-full bg-voice" />
-              <span className="w-1.5 h-1.5 rounded-full bg-chat" />
-              <span className="w-1.5 h-1.5 rounded-full bg-review" />
+          {/* Phone sits inside the dome */}
+          <div
+            className="flex items-center justify-center shrink-0"
+            style={{ width: domePx, height: domePx }}
+          >
+            <a
+              href="tel:+12099967102"
+              className="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-md shadow-primary/30 active:scale-95 transition-transform"
+              aria-label="Call Vox.chat"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+              </svg>
+            </a>
+          </div>
+
+          <button
+            type="button"
+            onClick={onChatToggle}
+            aria-expanded={chatOpen}
+            aria-controls="vox-live-receptionist"
+            className={`flex flex-1 flex-col items-center justify-center gap-0.5 h-14 min-h-11 transition-colors ${
+              chatOpen
+                ? 'text-primary'
+                : 'text-muted-foreground/40 active:text-muted-foreground'
+            }`}
+            aria-label={chatOpen ? 'Close AI Receptionist' : 'Open AI Receptionist'}
+          >
+            {chatOpen ? (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                {/* Headset — receptionist */}
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 13a8 8 0 0116 0m-16 0v4a2 2 0 002 2h1a1 1 0 001-1v-4a1 1 0 00-1-1H6a2 2 0 00-2 2zm16 0v4a2 2 0 01-2 2h-1a1 1 0 01-1-1v-4a1 1 0 011-1h1a2 2 0 012 2z"
+                />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19a3 3 0 01-3 3h-1" />
+              </svg>
+            )}
+            <span className={`text-[10px] font-medium leading-tight ${chatOpen ? 'text-primary/80' : 'text-muted-foreground/30'}`}>
+              {chatOpen ? 'Close' : 'Receptionist'}
             </span>
-          </span>
-          <span className={`text-[10px] font-medium ${chatOpen ? 'text-primary/80' : 'text-muted-foreground/30'}`}>
-            {chatOpen ? 'Close' : 'Chat'}
-          </span>
-        </button>
+          </button>
+        </div>
       </div>
     </div>
   )
