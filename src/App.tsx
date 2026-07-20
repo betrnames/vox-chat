@@ -110,28 +110,6 @@ function Hero() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </a>
-
-            {/* Trust strip — local proof, no generic badges */}
-            <ul className="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-[11px] sm:text-xs font-mono text-muted-foreground/80">
-              <li className="inline-flex items-center gap-1.5">
-                <span className="w-1 h-1 rounded-full bg-primary shrink-0" aria-hidden />
-                Turlock · 209 corridor
-              </li>
-              <li className="inline-flex items-center gap-1.5">
-                <span className="w-1 h-1 rounded-full bg-primary shrink-0" aria-hidden />
-                Month-to-month
-              </li>
-              <li className="inline-flex items-center gap-1.5">
-                <span className="w-1 h-1 rounded-full bg-chat shrink-0" aria-hidden />
-                Live AI Receptionist
-              </li>
-              <li className="inline-flex items-center gap-1.5">
-                <span className="w-1 h-1 rounded-full bg-voice shrink-0" aria-hidden />
-                <a href="tel:+12099967102" className="hover:text-foreground transition-colors">
-                  (209) 996-7102
-                </a>
-              </li>
-            </ul>
           </div>
 
           {/* Right — contact form */}
@@ -210,6 +188,30 @@ function Hero() {
               <ConsentNote />
             </form>
           </div>
+        </div>
+
+        {/* C — Trust strip: full width under hero columns so it’s hard to miss */}
+        <div className="mt-10 sm:mt-12 rounded-xl border border-border/60 bg-card/80 backdrop-blur-sm px-4 py-3.5 sm:px-6 sm:py-4">
+          <ul className="flex flex-wrap items-center justify-center lg:justify-between gap-x-6 gap-y-3 text-xs sm:text-sm text-muted-foreground">
+            <li className="inline-flex items-center gap-2 font-medium text-foreground/90">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" aria-hidden />
+              Turlock · 209 corridor
+            </li>
+            <li className="inline-flex items-center gap-2 font-medium text-foreground/90">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" aria-hidden />
+              Month-to-month · no long contracts
+            </li>
+            <li className="inline-flex items-center gap-2 font-medium text-foreground/90">
+              <span className="w-1.5 h-1.5 rounded-full bg-chat shrink-0" aria-hidden />
+              Live AI Receptionist on this site
+            </li>
+            <li className="inline-flex items-center gap-2 font-medium text-foreground/90">
+              <span className="w-1.5 h-1.5 rounded-full bg-voice shrink-0" aria-hidden />
+              <a href="tel:+12099967102" className="hover:text-primary transition-colors">
+                (209) 996-7102
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
     </section>
