@@ -42,10 +42,15 @@ function Nav() {
           >
             Get started
           </a>
-          <ThemeSwitch dark={dark} onToggle={toggle} />
+          {/* Desktop only — mobile switch lives in the hamburger panel */}
+          <div className="hidden md:block">
+            <ThemeSwitch dark={dark} onToggle={toggle} />
+          </div>
           <button
+            type="button"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle menu"
+            aria-expanded={menuOpen}
             className="md:hidden p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             {menuOpen ? (
@@ -64,7 +69,13 @@ function Nav() {
         <div className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl px-5 py-4 space-y-1">
           <a href="#services" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Services</a>
           <a href="#demos" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Demos</a>
+          <a href="/blog.html" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Blog</a>
+          <a href="/faq.html" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">FAQ</a>
           <a href="#contact" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm font-semibold text-primary hover:bg-primary/10 transition-colors">Get started</a>
+          <div className="flex items-center justify-between gap-3 px-3 py-3 mt-2 border-t border-border/40">
+            <span className="text-sm text-muted-foreground">{dark ? 'Dark mode' : 'Light mode'}</span>
+            <ThemeSwitch dark={dark} onToggle={toggle} />
+          </div>
         </div>
       )}
     </nav>
