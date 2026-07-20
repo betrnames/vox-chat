@@ -84,11 +84,11 @@ export default function LegalPage() {
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Your Rights (California Residents)</h3>
-                <p>Under the California Consumer Privacy Act (CCPA), you have the right to know what personal information we collect, request deletion of your data, and opt out of any sale of personal information. We do not sell personal information. To exercise your rights, contact us at contact@gabemariscal.com.</p>
+                <p>Under the California Consumer Privacy Act (CCPA), you have the right to know what personal information we collect, request deletion of your data, and opt out of any sale of personal information. We do not sell personal information. To exercise your rights, contact us at support@vox.chat.</p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Contact</h3>
-                <p>For privacy-related questions, email <a href="mailto:contact@gabemariscal.com" className="text-primary hover:underline">contact@gabemariscal.com</a>.</p>
+                <p>For privacy-related questions, email <a href="mailto:support@vox.chat" className="text-primary hover:underline">support@vox.chat</a>.</p>
               </div>
             </div>
           </section>
@@ -147,8 +147,8 @@ export default function LegalPage() {
                 <p>
                   Reply <strong className="text-foreground">STOP</strong> to any Vox text to opt out of further SMS from that program. Reply{' '}
                   <strong className="text-foreground">HELP</strong> for help, or email{' '}
-                  <a href="mailto:email@vox.chat" className="text-primary hover:underline">
-                    email@vox.chat
+                  <a href="mailto:support@vox.chat" className="text-primary hover:underline">
+                    support@vox.chat
                   </a>
                   . You may still receive emails or calls related to an open service relationship unless you request otherwise.
                 </p>
@@ -199,8 +199,8 @@ export default function LegalPage() {
                 <p>
                   Recordings and transcripts are shared with the subscribing business and may be stored by Vox and its infrastructure providers for a
                   limited period. Request deletion by contacting{' '}
-                  <a href="mailto:email@vox.chat" className="text-primary hover:underline">
-                    email@vox.chat
+                  <a href="mailto:support@vox.chat" className="text-primary hover:underline">
+                    support@vox.chat
                   </a>
                   , subject to legal hold and operational needs.
                 </p>
@@ -259,7 +259,7 @@ export default function LegalPage() {
             <a href="/legal.html" className="text-foreground">Legal</a>
           </div>
           <div className="flex items-center gap-3">
-            <a href="mailto:email@vox.chat" aria-label="Email us" className="text-muted-foreground/50 hover:text-foreground transition-colors">
+            <a href="mailto:support@vox.chat" aria-label="Email us" className="text-muted-foreground/50 hover:text-foreground transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>

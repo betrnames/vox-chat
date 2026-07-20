@@ -129,7 +129,7 @@ export default async function handler(req, res) {
 
   if (!twilioConfigured()) {
     res.status(503).json({
-      error: 'Reviews SMS not configured yet. Call (209) 996-7102 or email email@vox.chat.',
+      error: 'Reviews SMS not configured yet. Call (209) 996-7102 or email support@vox.chat.',
       fallback: true,
       code: 'twilio_missing',
     })

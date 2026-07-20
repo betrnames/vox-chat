@@ -281,7 +281,7 @@ export default function FaqPage() {
             <a href="/legal.html" className="hover:text-foreground transition-colors">Legal</a>
           </div>
           <div className="flex items-center gap-3">
-            <a href="mailto:email@vox.chat" aria-label="Email us" className="text-muted-foreground/50 hover:text-foreground transition-colors">
+            <a href="mailto:support@vox.chat" aria-label="Email us" className="text-muted-foreground/50 hover:text-foreground transition-colors">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>

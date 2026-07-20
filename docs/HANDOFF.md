@@ -105,7 +105,7 @@ npx vercel --prod --yes
 ```
 
 **Formspree:** default form id in code (leads + review events).  
-**Phone:** (209) 996-7102 · X: @voxdotchat  
+**Phone:** (209) 996-7102 · **Contact:** support@vox.chat · **Ops/other:** email@vox.chat · X: @voxdotchat  
 
 ---
 

@@ -220,7 +220,7 @@ function reviewsApiPlugin(): Plugin {
               res.statusCode = 503
               res.end(
                 JSON.stringify({
-                  error: 'Reviews SMS not configured yet. Call (209) 996-7102 or email email@vox.chat.',
+                  error: 'Reviews SMS not configured yet. Call (209) 996-7102 or email support@vox.chat.',
                   fallback: true,
                   code: 'twilio_missing',
                 }),

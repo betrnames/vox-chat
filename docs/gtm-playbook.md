@@ -91,7 +91,7 @@ One 20–30 minute call. Live in days — not months. No hardware. No code on yo
 Owners in **Turlock · Modesto · Manteca** who lose jobs when they’re on a roof, in an attic, or asleep.
 
 **CTA**  
-Book a free **15-minute Missed Call Audit** → [phone] · vox.chat · email@vox.chat  
+Book a free **15-minute Missed Call Audit** → [phone] · vox.chat · support@vox.chat  
 
 **After “let’s do it” — pay first, then private setup (not in menu/sitemap)**  
 
