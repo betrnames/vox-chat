@@ -108,6 +108,8 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
   )
   const [messages, setMessages] = useState<Msg[]>([])
   const scrollRef = useRef<HTMLDivElement>(null)
+  /** Desktop: lift launcher/panel when footer is in view so it doesn't cover footer links */
+  const [liftForFooter, setLiftForFooter] = useState(false)
 
   useEffect(() => {
     const goOnline = () => setOnline(true)
@@ -120,6 +122,17 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
       window.removeEventListener('offline', goOffline)
       if (lockTimerRef.current) clearTimeout(lockTimerRef.current)
     }
+  }, [])
+
+  useEffect(() => {
+    const footer = document.querySelector('footer')
+    if (!footer || typeof IntersectionObserver === 'undefined') return
+    const io = new IntersectionObserver(
+      ([entry]) => setLiftForFooter(entry.isIntersecting),
+      { root: null, rootMargin: '0px', threshold: 0 },
+    )
+    io.observe(footer)
+    return () => io.disconnect()
   }, [])
 
   useEffect(() => {
@@ -220,7 +233,9 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
       <button
         type="button"
         onClick={() => onOpenChange(!open)}
-        className="hidden sm:flex fixed z-[60] bottom-6 right-6 items-center gap-2.5 rounded-full border border-border/60 bg-background/95 backdrop-blur-xl text-foreground shadow-lg shadow-black/10 dark:shadow-black/40 px-4 py-3 text-sm font-semibold hover:border-primary/40 hover:bg-muted active:scale-[0.98] transition-all"
+        className={`hidden sm:flex fixed z-[60] right-6 items-center gap-2.5 rounded-full border border-border/60 bg-background/95 backdrop-blur-xl text-foreground shadow-lg shadow-black/10 dark:shadow-black/40 px-4 py-3 text-sm font-semibold hover:border-primary/40 hover:bg-muted active:scale-[0.98] transition-[bottom,transform] duration-200 ${
+          liftForFooter ? 'bottom-36' : 'bottom-6'
+        }`}
         aria-expanded={open}
         aria-controls="vox-live-receptionist"
       >
@@ -255,11 +270,13 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
       {open && (
         <div
           id="vox-live-receptionist"
-          className="fixed z-[60] flex flex-col overflow-hidden bg-card shadow-2xl shadow-black/20 dark:shadow-black/50 border border-border/60
+          className={`fixed z-[60] flex flex-col overflow-hidden bg-card shadow-2xl shadow-black/20 dark:shadow-black/50 border border-border/60
             /* mobile: full width above bottom bar */
             left-0 right-0 bottom-14 top-auto h-[min(78dvh,560px)] rounded-t-2xl border-b-0
-            /* desktop: floating card */
-            sm:left-auto sm:right-6 sm:bottom-24 sm:top-auto sm:w-[min(100vw-2rem,380px)] sm:h-[min(70vh,520px)] sm:rounded-2xl sm:border-b"
+            /* desktop: floating card — lift with launcher when footer is visible */
+            sm:left-auto sm:right-6 sm:top-auto sm:w-[min(100vw-2rem,380px)] sm:h-[min(70vh,520px)] sm:rounded-2xl sm:border-b transition-[bottom] duration-200 ${
+              liftForFooter ? 'sm:bottom-44' : 'sm:bottom-24'
+            }`}
           role="dialog"
           aria-label="Vox AI Receptionist"
         >
