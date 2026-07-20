@@ -1,8 +1,11 @@
 import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import { resolve } from 'path'
+import { resolve, dirname } from 'path'
+import { fileURLToPath, pathToFileURL } from 'url'
 import type { IncomingMessage, ServerResponse } from 'http'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 function readJsonBody(req: IncomingMessage): Promise<unknown> {
   return new Promise((resolve, reject) => {
@@ -123,12 +126,232 @@ function receptionistApiPlugin(apiKey: string | undefined): Plugin {
   }
 }
 
+/** Dev-only: POST/GET /api/reviews — real Twilio SMS when env is set */
+const DEV_REVIEW_LIMIT_MAX = 3
+const DEV_REVIEW_WINDOW_MS = 10 * 60 * 1000
+const devReviewHits = new Map<string, { count: number; resetAt: number }>()
+
+function checkDevReviewLimit(ip: string): boolean {
+  const now = Date.now()
+  let entry = devReviewHits.get(ip)
+  if (!entry || now >= entry.resetAt) {
+    entry = { count: 0, resetAt: now + DEV_REVIEW_WINDOW_MS }
+    devReviewHits.set(ip, entry)
+  }
+  entry.count += 1
+  return entry.count <= DEV_REVIEW_LIMIT_MAX
+}
+
+function reviewsApiPlugin(): Plugin {
+  return {
+    name: 'reviews-api',
+    configureServer(server) {
+      server.middlewares.use(async (req: IncomingMessage, res: ServerResponse, next) => {
+        const url = req.url?.split('?')[0] || ''
+        if (url !== '/api/reviews' && url !== '/api/reviews-inbound') {
+          next()
+          return
+        }
+
+        res.setHeader('Cache-Control', 'no-store')
+
+        if (req.method === 'OPTIONS') {
+          res.statusCode = 204
+          res.end()
+          return
+        }
+
+        try {
+          // Load shared helpers from api/ (Node ESM)
+          const shared = (await import(
+            pathToFileURL(resolve(__dirname, 'api/reviewsShared.js')).href
+          )) as {
+            normalizePhone: (raw: unknown) => string
+            pendingReviews: Map<string, { name: string; business: string; sentAt: number }>
+            ratingAskBody: (name: string) => string
+            reviewUrl: () => string
+            sendTwilioSms: (
+              to: string,
+              body: string,
+              options?: { kind?: string },
+            ) => Promise<{ ok: boolean; error?: string; code?: number; trial?: boolean }>
+            twilioConfigured: () => boolean
+            clean: (s: unknown, max?: number) => string
+            useTrialTemplates?: () => boolean
+          }
+          const {
+            normalizePhone,
+            pendingReviews,
+            ratingAskBody,
+            reviewUrl,
+            sendTwilioSms,
+            twilioConfigured,
+            clean,
+            useTrialTemplates,
+          } = shared
+
+          if (url === '/api/reviews' && req.method === 'GET') {
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'application/json')
+            res.end(
+              JSON.stringify({
+                ok: true,
+                online: twilioConfigured(),
+                product: 'vox-reviews',
+                trial: typeof useTrialTemplates === 'function' ? useTrialTemplates() : true,
+              }),
+            )
+            return
+          }
+
+          if (url === '/api/reviews' && req.method === 'POST') {
+            res.setHeader('Content-Type', 'application/json')
+            if (!checkDevReviewLimit(getDevClientIp(req))) {
+              res.statusCode = 429
+              res.end(
+                JSON.stringify({
+                  error: 'Too many review texts from this connection. Try again in a few minutes.',
+                  code: 'rate_limit',
+                }),
+              )
+              return
+            }
+            if (!twilioConfigured()) {
+              res.statusCode = 503
+              res.end(
+                JSON.stringify({
+                  error: 'Reviews SMS not configured yet. Call (209) 996-7102 or email email@vox.chat.',
+                  fallback: true,
+                  code: 'twilio_missing',
+                }),
+              )
+              return
+            }
+            const body = (await readJsonBody(req)) as Record<string, unknown>
+            const phone = normalizePhone(body.phone)
+            if (!phone) {
+              res.statusCode = 400
+              res.end(JSON.stringify({ error: 'Enter a valid US mobile number.' }))
+              return
+            }
+            const name = clean(body.name, 80)
+            const business = clean(body.business, 80)
+            // Trial: Body must be template name (sms_feedback_surveys), not free text
+            const result = await sendTwilioSms(phone, ratingAskBody(name), { kind: 'rating_ask' })
+            if (!result.ok) {
+              res.statusCode = 502
+              res.end(
+                JSON.stringify({
+                  error: result.error || 'Could not send SMS',
+                  code: result.code || 'twilio_error',
+                  hint: 'Trial: verified numbers only. After upgrade set TWILIO_TRIAL=false for custom copy.',
+                }),
+              )
+              return
+            }
+            pendingReviews.set(phone, { name, business, sentAt: Date.now() })
+            res.statusCode = 200
+            res.end(
+              JSON.stringify({
+                ok: true,
+                phone,
+                trial: result.trial,
+                message: result.trial
+                  ? 'Sent (trial template: feedback survey). Reply 1–5 to continue. Custom Vox copy unlocks after you upgrade Twilio.'
+                  : 'Review request sent. Reply 1–5 on that text to continue the flow.',
+              }),
+            )
+            return
+          }
+
+          if (url === '/api/reviews-inbound' && req.method === 'POST') {
+            // For local Twilio webhook (ngrok). Form body.
+            const chunks: Buffer[] = []
+            await new Promise<void>((resolve, reject) => {
+              req.on('data', (c) => chunks.push(c))
+              req.on('end', () => resolve())
+              req.on('error', reject)
+            })
+            const raw = Buffer.concat(chunks).toString('utf8')
+            const params = new URLSearchParams(raw)
+            const from = normalizePhone(params.get('From') || params.get('from') || '')
+            const text = clean(params.get('Body') || params.get('body') || '', 320)
+            const m = String(text).match(/\b([1-5])\b/)
+            const rating = m ? Number(m[1]) : null
+
+            let reply =
+              'Thanks for texting Vox Reviews. Reply with a single number 1–5 to rate your service, or call (209) 996-7102.'
+
+            if (from && rating != null) {
+              const pending = pendingReviews.get(from)
+              const name = pending?.name || ''
+              const positive = rating >= 4
+              if (positive) {
+                const link = reviewUrl()
+                reply = name
+                  ? `Thanks ${name} — glad it went well. Mind a 30-second Google review? ${link}`
+                  : `Thanks — glad it went well. Mind a 30-second Google review? ${link}`
+                pendingReviews.delete(from)
+              } else {
+                reply =
+                  "Sorry it wasn't a 5. We're not sending a public review link — the owner will reach out shortly."
+                pendingReviews.delete(from)
+              }
+              // Trial: no free-form TwiML — send template via API
+              if (typeof useTrialTemplates === 'function' ? useTrialTemplates() : true) {
+                await sendTwilioSms(from, reply, { kind: positive ? 'positive' : 'negative' })
+                res.statusCode = 200
+                res.setHeader('Content-Type', 'text/xml')
+                res.end('<?xml version="1.0" encoding="UTF-8"?><Response></Response>')
+                return
+              }
+            }
+
+            const escaped = reply
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&quot;')
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'text/xml')
+            res.end(
+              `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escaped}</Message></Response>`,
+            )
+            return
+          }
+
+          res.statusCode = 405
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify({ error: 'Method not allowed' }))
+        } catch (e) {
+          console.error('[reviews-api]', e)
+          res.statusCode = 500
+          res.setHeader('Content-Type', 'application/json')
+          res.end(JSON.stringify({ error: 'Server error' }))
+        }
+      })
+    },
+  }
+}
+
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const apiKey = env.XAI_API_KEY || process.env.XAI_API_KEY
 
+  // Surface Twilio + review env into process for api/reviewsShared.js in dev
+  for (const key of [
+    'TWILIO_ACCOUNT_SID',
+    'TWILIO_AUTH_TOKEN',
+    'TWILIO_FROM_NUMBER',
+    'GOOGLE_REVIEW_URL',
+    'REVIEW_OWNER_PHONE',
+    'FORMSPREE_ENDPOINT',
+  ]) {
+    if (env[key] && !process.env[key]) process.env[key] = env[key]
+  }
+
   return {
-    plugins: [react(), tailwindcss(), receptionistApiPlugin(apiKey)],
+    plugins: [react(), tailwindcss(), receptionistApiPlugin(apiKey), reviewsApiPlugin()],
     build: {
       rollupOptions: {
         input: {

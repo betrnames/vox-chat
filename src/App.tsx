@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, type FormEvent } from 'react'
 import './index.css'
 import { advanceReceptionist, type ChatMemory, type ChatStep } from './receptionist/localFlow'
 import { TypingDots } from './TypingDots'
@@ -1012,13 +1012,143 @@ function ReviewDemo() {
   )
 }
 
+/** Live Reviews POC — real SMS via Twilio (see docs/poc-reviews.md) */
+function LiveReviewTry() {
+  const [phone, setPhone] = useState('')
+  const [name, setName] = useState('')
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [message, setMessage] = useState('')
+  const [online, setOnline] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/reviews')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled) setOnline(Boolean(d?.online))
+      })
+      .catch(() => {
+        if (!cancelled) setOnline(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault()
+    setStatus('sending')
+    setMessage('')
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, name: name || undefined }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setStatus('error')
+        setMessage(
+          data.error ||
+            (data.code === 'twilio_missing'
+              ? 'SMS not configured yet — call (209) 996-7102.'
+              : 'Could not send. Try again or call us.'),
+        )
+        return
+      }
+      setStatus('sent')
+      setMessage(data.message || 'Sent. Reply 1–5 on that text to finish the flow.')
+    } catch {
+      setStatus('error')
+      setMessage('Network error. Try again or call (209) 996-7102.')
+    }
+  }
+
+  return (
+    <div className="mt-6 pt-6 border-t border-border/50">
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <span
+            className={`w-2 h-2 rounded-full shrink-0 ${
+              online === true ? 'bg-primary' : online === false ? 'bg-muted-foreground/40' : 'bg-muted-foreground/20'
+            }`}
+          />
+          <span className="font-mono text-[11px] uppercase tracking-wider text-review">Try on your phone</span>
+        </div>
+        <span className="text-[10px] font-mono text-muted-foreground/60 shrink-0">
+          {online === true ? 'SMS live' : online === false ? 'SMS offline' : '…'}
+        </span>
+      </div>
+      <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+        Get the real contractor text: rate 1–5, then Google link only if you’re happy — or an owner alert if not.
+      </p>
+      <form onSubmit={onSubmit} className="space-y-3">
+        <div className="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="review-try-phone" className="sr-only">
+              Mobile number
+            </label>
+            <input
+              id="review-try-phone"
+              type="tel"
+              required
+              inputMode="tel"
+              autoComplete="tel"
+              placeholder="(209) 555-0147"
+              value={phone}
+              onChange={(e) => {
+                setPhone(e.target.value)
+                if (status !== 'idle' && status !== 'sending') setStatus('idle')
+              }}
+              className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-foreground text-base placeholder:text-muted-foreground/50 focus:outline-none focus:border-review/50 transition-colors"
+            />
+          </div>
+          <div>
+            <label htmlFor="review-try-name" className="sr-only">
+              First name (optional)
+            </label>
+            <input
+              id="review-try-name"
+              type="text"
+              autoComplete="given-name"
+              placeholder="First name (optional)"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-foreground text-base placeholder:text-muted-foreground/50 focus:outline-none focus:border-review/50 transition-colors"
+            />
+          </div>
+        </div>
+        <button
+          type="submit"
+          disabled={status === 'sending' || online === false}
+          className="w-full py-2.5 rounded-lg bg-review/15 border border-review/30 text-review text-sm font-semibold hover:bg-review/25 disabled:opacity-50 disabled:pointer-events-none transition-colors"
+        >
+          {status === 'sending' ? 'Sending…' : 'Text me the review request'}
+        </button>
+      </form>
+      {message && (
+        <p
+          className={`mt-3 text-sm leading-relaxed ${
+            status === 'error' ? 'text-destructive' : 'text-primary'
+          }`}
+        >
+          {message}
+        </p>
+      )}
+      <p className="mt-3 text-[11px] text-muted-foreground/70 font-mono leading-relaxed">
+        Trial Twilio: verified numbers only · fixed template text (not custom Vox copy yet) · reply 1–5 after deploy + webhook. Owner alerts → email@vox.chat.
+      </p>
+    </div>
+  )
+}
+
 function Demos() {
   const [activeTab, setActiveTab] = useState<'voice' | 'chat' | 'review'>('chat')
 
   const tabs = [
     { id: 'chat' as const, label: 'AI Receptionist', desc: 'Guided demo for Valley Air Pros — schedules, quotes, and service areas through a full booking path.' },
-    { id: 'review' as const, label: 'AI Review Agent', desc: 'Walk the real branch: satisfaction score → Google link or private owner alert. No blind review spam.' },
-    { id: 'voice' as const, label: 'AI Phone Agent', desc: 'Call playback — qualify, book, notify. Live telephony comes with the real proof-of-concept build.' },
+    { id: 'review' as const, label: 'AI Review Agent', desc: 'Animated branch + live SMS: satisfaction score → Google link or private owner alert. No blind review spam.' },
+    { id: 'voice' as const, label: 'AI Phone Agent', desc: 'Call playback — qualify, book, notify. Live voice POC is next after Reviews.' },
   ]
 
   useEffect(() => {
@@ -1078,7 +1208,12 @@ function Demos() {
           <div className="rounded-2xl border border-border/60 bg-card p-6 sm:p-8 shadow-md">
             {activeTab === 'voice' && <VoiceDemo />}
             {activeTab === 'chat' && <ReceptionistDemo />}
-            {activeTab === 'review' && <ReviewDemo />}
+            {activeTab === 'review' && (
+              <>
+                <ReviewDemo />
+                <LiveReviewTry />
+              </>
+            )}
           </div>
         </div>
       </div>

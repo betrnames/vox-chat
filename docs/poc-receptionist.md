@@ -116,6 +116,6 @@ Open http://localhost:5173 → **Chat with AI** (bottom right) → walk a full l
 
 ## Next POCs (when ready)
 
-1. **Reviews** — Twilio SMS after job + Google review link  
+1. **Reviews** — see [poc-reviews.md](./poc-reviews.md) (live SMS + 1–5 gate)  
 2. **Voice** — Twilio/Vapi number → same qualify + notify stack
 
