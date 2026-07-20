@@ -336,7 +336,7 @@ export const blogPosts: BlogPost[] = [
     ],
   },
   {
-    slug: 'AI Receptionists-vs-forms',
+    slug: 'chatbots-vs-forms',
     title: 'AI Receptionists vs. Contact Forms: Which Captures More Leads?',
     excerpt: 'We tested both on 50 contractor websites over 90 days. AI Receptionists converted 3x more visitors into qualified leads — and the leads were higher quality.',
     date: 'Jul 5, 2026',

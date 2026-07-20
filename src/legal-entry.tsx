@@ -1,10 +1,5 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
 import './index.css'
 import LegalPage from './LegalPage'
+import { mount } from './hydrate'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <LegalPage />
-  </StrictMode>,
-)
+mount(<LegalPage />)

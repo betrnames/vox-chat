@@ -1,10 +1,5 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
 import './index.css'
 import BlogIndex from './BlogIndex'
+import { mount } from './hydrate'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <BlogIndex />
-  </StrictMode>,
-)
+mount(<BlogIndex />)

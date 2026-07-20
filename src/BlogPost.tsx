@@ -19,6 +19,7 @@ function useTheme() {
 }
 
 function getSlugFromPath() {
+  if (typeof window === 'undefined') return null
   const path = window.location.pathname
   const match = path.match(/\/blog\/(.+?)(?:\.html)?$/)
   return match ? match[1] : null
@@ -140,9 +141,9 @@ function ContentSection({ section }: { section: ContentBlock }) {
   )
 }
 
-export default function BlogPost() {
+export default function BlogPost({ slug: slugProp }: { slug?: string } = {}) {
   const { dark, toggle } = useTheme()
-  const slug = getSlugFromPath()
+  const slug = slugProp ?? getSlugFromPath()
   const post = blogPosts.find((p) => p.slug === slug)
 
   if (!post) {
