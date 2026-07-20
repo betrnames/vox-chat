@@ -1,24 +1,7 @@
 /**
  * Vercel serverless — POST /api/receptionist
- * Self-contained (no imports from /src) so Vercel can bundle reliably.
- *
- * Body: { messages: {role, content}[], mode?: 'live' | 'demo', source?: string }
- * Env: XAI_API_KEY (required), FORMSPREE_ENDPOINT, LEAD_SHEET_WEBHOOK_URL
+ * CommonJS (no package "type":"module" issues). Self-contained.
  */
-
-type IncomingMessage = { role: 'user' | 'assistant'; content: string }
-
-type CapturedLead = {
-  name?: string
-  phone?: string
-  email?: string
-  business?: string
-  city?: string
-  trade?: string
-  interest?: string
-  notes?: string
-  source?: string
-}
 
 const DEMO_PROMPT = `You are the AI Receptionist for Valley Air Pros, a sample HVAC / plumbing / electrical contractor serving Manteca, Turlock, Modesto, Stockton, Tracy, Lathrop, Ripon, Escalon, and Oakdale in California's Central Valley (209 area code).
 
@@ -60,20 +43,21 @@ When you have at least a phone AND (name OR business) AND clear interest, append
 
 Only emit once when complete enough. Do not invent phone numbers.`
 
-function clean(s: unknown, max = 200): string {
+function clean(s, max) {
+  max = max || 200
   if (typeof s !== 'string') return ''
   return s.trim().slice(0, max)
 }
 
-function extractLead(raw: string): { cleanReply: string; lead: CapturedLead | null } {
+function extractLead(raw) {
   const re = /<<<LEAD>>>\s*([\s\S]*?)\s*<<<END>>>/i
   const m = raw.match(re)
   if (!m) return { cleanReply: raw.trim(), lead: null }
   const cleanReply = raw.replace(re, '').trim()
   try {
-    const parsed = JSON.parse(m[1].trim()) as CapturedLead
+    const parsed = JSON.parse(m[1].trim())
     return {
-      cleanReply,
+      cleanReply: cleanReply,
       lead: {
         name: clean(parsed.name),
         phone: clean(parsed.phone, 40),
@@ -85,13 +69,13 @@ function extractLead(raw: string): { cleanReply: string; lead: CapturedLead | nu
         notes: clean(parsed.notes, 500),
       },
     }
-  } catch {
-    return { cleanReply, lead: null }
+  } catch (e) {
+    return { cleanReply: cleanReply, lead: null }
   }
 }
 
-async function notifyLead(lead: CapturedLead): Promise<string[]> {
-  const channels: string[] = []
+async function notifyLead(lead) {
+  const channels = []
   const payload = {
     name: clean(lead.name, 120) || 'Unknown',
     phone: clean(lead.phone, 40),
@@ -103,7 +87,11 @@ async function notifyLead(lead: CapturedLead): Promise<string[]> {
     notes: clean(lead.notes, 500),
     source: clean(lead.source, 80) || 'live-receptionist',
     site: 'vox.chat',
-    _subject: `[Vox Lead] ${clean(lead.interest) || 'Receptionist'} — ${clean(lead.name) || clean(lead.phone) || 'new'}`,
+    _subject:
+      '[Vox Lead] ' +
+      (clean(lead.interest) || 'Receptionist') +
+      ' — ' +
+      (clean(lead.name) || clean(lead.phone) || 'new'),
     timestamp: new Date().toISOString(),
   }
 
@@ -117,7 +105,7 @@ async function notifyLead(lead: CapturedLead): Promise<string[]> {
       body: JSON.stringify(payload),
     })
     if (r.ok) channels.push('email')
-  } catch {
+  } catch (e) {
     /* non-fatal */
   }
 
@@ -128,7 +116,7 @@ async function notifyLead(lead: CapturedLead): Promise<string[]> {
       let r = await fetch(sheetUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body,
+        body: body,
         redirect: 'manual',
       })
       const loc = r.headers.get('location')
@@ -136,11 +124,11 @@ async function notifyLead(lead: CapturedLead): Promise<string[]> {
         r = await fetch(loc, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body,
+          body: body,
         })
       }
       if (r.ok || r.status === 200 || r.status === 302) channels.push('sheet')
-    } catch {
+    } catch (e) {
       /* non-fatal */
     }
   }
@@ -148,27 +136,19 @@ async function notifyLead(lead: CapturedLead): Promise<string[]> {
   return channels
 }
 
-// Prefer broadly available model names; override with XAI_MODEL env if needed
-function modelName(): string {
+function modelName() {
   return process.env.XAI_MODEL || 'grok-3-mini'
 }
 
-export default async function handler(
-  req: { method?: string; body?: unknown },
-  res: {
-    status: (code: number) => { json: (body: unknown) => void; end?: (body?: string) => void }
-    setHeader: (k: string, v: string) => void
-    json?: (body: unknown) => void
-  },
-) {
+module.exports = async function handler(req, res) {
   try {
     res.setHeader('Cache-Control', 'no-store')
     res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
 
     if (req.method === 'OPTIONS') {
-      return res.status(204).json({})
+      return res.status(204).end()
     }
 
     if (req.method === 'GET') {
@@ -188,14 +168,10 @@ export default async function handler(
       return res.status(503).json({ error: 'XAI_API_KEY not configured', fallback: true })
     }
 
-    let body: {
-      messages?: IncomingMessage[]
-      mode?: string
-      source?: string
-    } = {}
+    let body = {}
     try {
-      body = (typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {}) as typeof body
-    } catch {
+      body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {}
+    } catch (e) {
       return res.status(400).json({ error: 'Invalid JSON body' })
     }
 
@@ -206,9 +182,13 @@ export default async function handler(
 
     const mode = body.mode === 'live' ? 'live' : 'demo'
     const trimmed = messages
-      .filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string')
+      .filter(function (m) {
+        return m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string'
+      })
       .slice(-16)
-      .map((m) => ({ role: m.role, content: String(m.content).slice(0, 2000) }))
+      .map(function (m) {
+        return { role: m.role, content: String(m.content).slice(0, 2000) }
+      })
 
     if (trimmed.length === 0) {
       return res.status(400).json({ error: 'messages required' })
@@ -218,21 +198,20 @@ export default async function handler(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: 'Bearer ' + apiKey,
       },
       body: JSON.stringify({
         model: modelName(),
         temperature: mode === 'live' ? 0.4 : 0.5,
         max_tokens: 450,
-        messages: [
-          { role: 'system', content: mode === 'live' ? LIVE_PROMPT : DEMO_PROMPT },
-          ...trimmed,
-        ],
+        messages: [{ role: 'system', content: mode === 'live' ? LIVE_PROMPT : DEMO_PROMPT }].concat(trimmed),
       }),
     })
 
     if (!upstream.ok) {
-      const errText = await upstream.text().catch(() => '')
+      const errText = await upstream.text().catch(function () {
+        return ''
+      })
       console.error('[receptionist] xAI error', upstream.status, errText.slice(0, 400))
       return res.status(502).json({
         error: 'Upstream AI error',
@@ -241,34 +220,31 @@ export default async function handler(
       })
     }
 
-    const data = (await upstream.json()) as {
-      choices?: Array<{ message?: { content?: string } }>
-    }
-    const raw = data.choices?.[0]?.message?.content?.trim()
-    if (!raw) {
+    const data = await upstream.json()
+    const raw = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
+    const replyRaw = raw && String(raw).trim()
+    if (!replyRaw) {
       return res.status(502).json({ error: 'Empty AI response', fallback: true })
     }
 
     if (mode !== 'live') {
-      return res.status(200).json({ reply: raw })
+      return res.status(200).json({ reply: replyRaw })
     }
 
-    const { cleanReply, lead } = extractLead(raw)
-    let notified: string[] | undefined
-    if (lead?.phone || lead?.email) {
-      notified = await notifyLead({
-        ...lead,
-        source: body.source || 'live-receptionist',
-      })
+    const extracted = extractLead(replyRaw)
+    var notified
+    if (extracted.lead && (extracted.lead.phone || extracted.lead.email)) {
+      extracted.lead.source = body.source || 'live-receptionist'
+      notified = await notifyLead(extracted.lead)
     }
 
-    return res.status(200).json({ reply: cleanReply, lead, notified })
+    return res.status(200).json({ reply: extracted.cleanReply, lead: extracted.lead, notified: notified })
   } catch (e) {
     console.error('[receptionist] uncaught', e)
     return res.status(500).json({
       error: 'Server error',
       fallback: true,
-      message: e instanceof Error ? e.message : 'unknown',
+      message: e && e.message ? e.message : 'unknown',
     })
   }
 }
