@@ -35,10 +35,12 @@ export default async function handler(req, res) {
       source: clean(body.source, 80) || 'api-lead',
       site: 'vox.chat',
       _subject:
-        '[Vox Lead] ' +
+        'Vox.chat lead: ' +
         (clean(body.interest) || 'Lead') +
-        ' â€” ' +
+        ' - ' +
         (clean(body.name) || clean(body.phone) || 'new'),
+      _replyto: clean(body.email, 120) || 'email@vox.chat',
+      _format: 'plain',
       timestamp: new Date().toISOString(),
     }
 
