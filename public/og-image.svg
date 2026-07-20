@@ -30,17 +30,17 @@
   <circle cx="100" cy="439" r="5" fill="#FF6B4A"/>
   <text x="112" y="444" font-family="monospace" font-size="12" font-weight="500" fill="#2E2E2E">AI Phone Agent</text>
 
-  <!-- AI Chatbot -->
-  <rect x="266" y="420" width="145" height="38" rx="8" fill="white" opacity="0.6"/>
-  <rect x="266" y="420" width="145" height="38" rx="8" fill="none" stroke="#D2D3D9" stroke-width="1"/>
+  <!-- AI Receptionist -->
+  <rect x="266" y="420" width="185" height="38" rx="8" fill="white" opacity="0.6"/>
+  <rect x="266" y="420" width="185" height="38" rx="8" fill="none" stroke="#D2D3D9" stroke-width="1"/>
   <circle cx="286" cy="439" r="5" fill="#4A9EFF"/>
-  <text x="298" y="444" font-family="monospace" font-size="12" font-weight="500" fill="#2E2E2E">AI Chatbot</text>
+  <text x="298" y="444" font-family="monospace" font-size="12" font-weight="500" fill="#2E2E2E">AI Receptionist</text>
 
   <!-- AI Review Agent -->
-  <rect x="427" y="420" width="175" height="38" rx="8" fill="white" opacity="0.6"/>
-  <rect x="427" y="420" width="175" height="38" rx="8" fill="none" stroke="#D2D3D9" stroke-width="1"/>
-  <circle cx="447" cy="439" r="5" fill="#FFB84A"/>
-  <text x="459" y="444" font-family="monospace" font-size="12" font-weight="500" fill="#2E2E2E">AI Review Agent</text>
+  <rect x="467" y="420" width="175" height="38" rx="8" fill="white" opacity="0.6"/>
+  <rect x="467" y="420" width="175" height="38" rx="8" fill="none" stroke="#D2D3D9" stroke-width="1"/>
+  <circle cx="487" cy="439" r="5" fill="#FFB84A"/>
+  <text x="499" y="444" font-family="monospace" font-size="12" font-weight="500" fill="#2E2E2E">AI Review Agent</text>
 
   <!-- Domain -->
   <text x="82" y="490" font-family="monospace" font-size="14" fill="#7C7F88" opacity="0.5">vox.chat</text>
