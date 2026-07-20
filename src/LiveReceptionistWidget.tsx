@@ -24,6 +24,8 @@ function BrandDots({ size = 'sm' }: { size?: 'sm' | 'md' }) {
   )
 }
 
+const RATE_LIMIT_MSG = 'Too many messages. Call or text (209) 996-7102 to talk now.'
+
 async function chat(
   messages: Msg[],
 ): Promise<{ reply: string; notified?: string[] } | { error: string; code?: string }> {
@@ -43,6 +45,12 @@ async function chat(
       error?: string
       fallback?: boolean
       code?: string
+    }
+    if (res.status === 429 || data.code === 'rate_limit') {
+      return {
+        error: data.error || RATE_LIMIT_MSG,
+        code: 'rate_limit',
+      }
     }
     if (!res.ok || !data.reply) {
       return { error: data.error || 'unavailable', code: data.code }
@@ -84,6 +92,8 @@ export default function LiveReceptionistWidget() {
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
   const [leadSent, setLeadSent] = useState(false)
+  const [inputLocked, setInputLocked] = useState(false)
+  const lockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [online, setOnline] = useState(
     () => (typeof navigator !== 'undefined' ? navigator.onLine : true),
   )
@@ -99,6 +109,7 @@ export default function LiveReceptionistWidget() {
     return () => {
       window.removeEventListener('online', goOnline)
       window.removeEventListener('offline', goOffline)
+      if (lockTimerRef.current) clearTimeout(lockTimerRef.current)
     }
   }, [])
 
@@ -106,9 +117,18 @@ export default function LiveReceptionistWidget() {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [messages, typing, open])
 
+  function lockInputFor60s() {
+    setInputLocked(true)
+    if (lockTimerRef.current) clearTimeout(lockTimerRef.current)
+    lockTimerRef.current = setTimeout(() => {
+      setInputLocked(false)
+      lockTimerRef.current = null
+    }, 60_000)
+  }
+
   async function send(text: string) {
     const trimmed = text.trim()
-    if (!trimmed || typing) return
+    if (!trimmed || typing || inputLocked) return
 
     if (!navigator.onLine) {
       setOnline(false)
@@ -134,6 +154,17 @@ export default function LiveReceptionistWidget() {
     setTyping(false)
 
     if ('error' in result) {
+      if (result.code === 'rate_limit') {
+        setMessages((m) => [
+          ...m,
+          {
+            role: 'assistant',
+            content: result.error || RATE_LIMIT_MSG,
+          },
+        ])
+        lockInputFor60s()
+        return
+      }
       const billing =
         result.code === 'no_credits' ||
         /credits|billing|console\.x\.ai/i.test(result.error || '')
@@ -155,6 +186,8 @@ export default function LiveReceptionistWidget() {
     setMessages((m) => [...m, { role: 'assistant', content: result.reply }])
     if (result.notified?.length) setLeadSent(true)
   }
+
+  const controlsDisabled = typing || inputLocked
 
   return (
     <>
@@ -245,7 +278,7 @@ export default function LiveReceptionistWidget() {
                 <button
                   key={c}
                   type="button"
-                  disabled={typing}
+                  disabled={controlsDisabled}
                   onClick={() => send(c)}
                   className="px-2.5 py-1 rounded-md border border-border bg-card text-muted-foreground text-[11px] font-medium hover:border-primary/40 hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40"
                 >
@@ -266,13 +299,14 @@ export default function LiveReceptionistWidget() {
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Type a message…"
-              className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-input bg-background text-foreground text-base placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 transition-colors"
+              placeholder={inputLocked ? 'Please wait 60 seconds…' : 'Type a message…'}
+              disabled={controlsDisabled}
+              className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-input bg-background text-foreground text-base placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 transition-colors disabled:opacity-50"
               autoComplete="off"
             />
             <button
               type="submit"
-              disabled={!input.trim() || typing}
+              disabled={!input.trim() || controlsDisabled}
               className="px-3.5 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 disabled:opacity-40 transition-colors"
             >
               Send

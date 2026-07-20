@@ -4,6 +4,39 @@
  */
 import { writeLeadToSheet } from './googleSheet.js'
 
+/** Per-IP rate limit: 15 messages / 10 minutes */
+const RATE_LIMIT_MAX = 15
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000
+const rateLimitHits = new Map()
+
+function getClientIp(req) {
+  const headers = req.headers || {}
+  const xf = headers['x-forwarded-for'] || headers['x-real-ip'] || headers['x-vercel-forwarded-for']
+  if (typeof xf === 'string' && xf.length) return xf.split(',')[0].trim()
+  if (Array.isArray(xf) && xf[0]) return String(xf[0]).trim()
+  return (req.socket && req.socket.remoteAddress) || 'unknown'
+}
+
+function checkRateLimit(ip) {
+  const now = Date.now()
+  let entry = rateLimitHits.get(ip)
+  if (!entry || now >= entry.resetAt) {
+    entry = { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS }
+    rateLimitHits.set(ip, entry)
+  }
+  entry.count += 1
+  return entry.count <= RATE_LIMIT_MAX
+}
+
+// Drop expired IP windows every 10 minutes
+const rateLimitCleanup = setInterval(function () {
+  const now = Date.now()
+  for (const [ip, entry] of rateLimitHits.entries()) {
+    if (now >= entry.resetAt) rateLimitHits.delete(ip)
+  }
+}, RATE_LIMIT_WINDOW_MS)
+if (typeof rateLimitCleanup.unref === 'function') rateLimitCleanup.unref()
+
 const DEMO_PROMPT = `You are the AI Receptionist for Valley Air Pros, a sample HVAC / plumbing / electrical contractor serving Manteca, Turlock, Modesto, Stockton, Tracy, Lathrop, Ripon, Escalon, and Oakdale in California's Central Valley (209 area code).
 
 ROLE
@@ -148,6 +181,14 @@ export default async function handler(req, res) {
 
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' })
+    }
+
+    const clientIp = getClientIp(req)
+    if (!checkRateLimit(clientIp)) {
+      return res.status(429).json({
+        error: 'Too many messages. Call or text (209) 996-7102 to talk now.',
+        code: 'rate_limit',
+      })
     }
 
     const apiKey = process.env.XAI_API_KEY

@@ -20,6 +20,35 @@ function readJsonBody(req: IncomingMessage): Promise<unknown> {
   })
 }
 
+/** Dev-only: mirror production rate limit (15 msgs / 10 min per IP) */
+const DEV_RATE_LIMIT_MAX = 15
+const DEV_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000
+const devRateLimitHits = new Map<string, { count: number; resetAt: number }>()
+
+function getDevClientIp(req: IncomingMessage): string {
+  const xf = req.headers['x-forwarded-for'] || req.headers['x-real-ip']
+  if (typeof xf === 'string' && xf.length) return xf.split(',')[0].trim()
+  return req.socket?.remoteAddress || 'unknown'
+}
+
+function checkDevRateLimit(ip: string): boolean {
+  const now = Date.now()
+  let entry = devRateLimitHits.get(ip)
+  if (!entry || now >= entry.resetAt) {
+    entry = { count: 0, resetAt: now + DEV_RATE_LIMIT_WINDOW_MS }
+    devRateLimitHits.set(ip, entry)
+  }
+  entry.count += 1
+  return entry.count <= DEV_RATE_LIMIT_MAX
+}
+
+setInterval(() => {
+  const now = Date.now()
+  for (const [ip, entry] of devRateLimitHits.entries()) {
+    if (now >= entry.resetAt) devRateLimitHits.delete(ip)
+  }
+}, DEV_RATE_LIMIT_WINDOW_MS).unref?.()
+
 function receptionistApiPlugin(apiKey: string | undefined): Plugin {
   return {
     name: 'receptionist-api',
@@ -56,6 +85,17 @@ function receptionistApiPlugin(apiKey: string | undefined): Plugin {
             })
             res.statusCode = result.ok ? 200 : 502
             res.end(JSON.stringify(result))
+            return
+          }
+
+          if (!checkDevRateLimit(getDevClientIp(req))) {
+            res.statusCode = 429
+            res.end(
+              JSON.stringify({
+                error: 'Too many messages. Call or text (209) 996-7102 to talk now.',
+                code: 'rate_limit',
+              }),
+            )
             return
           }
 
