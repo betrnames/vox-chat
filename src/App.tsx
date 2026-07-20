@@ -116,11 +116,11 @@ function Hero() {
               <span className="leading-none text-left">AI automation for HVAC, plumbing &amp; electrical</span>
             </div>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.08] mb-5">
-              Your business.<br />
-              <span className="text-primary">Never offline.</span>
+              Never miss a call, lead,<br />
+              <span className="text-primary">or review.</span>
             </h1>
             <p className="text-muted-foreground text-lg max-w-lg leading-relaxed mb-8 mx-auto lg:mx-0">
-              AI voice agents, AI Receptionists, and AI review agents that answer phones, handle customer conversations, and grow your reviews — so you never miss a customer again.
+              AI answers your phone, captures website leads, and gets you more Google reviews — 24/7. Built for contractors.
             </p>
             <a
               href="#demos"
