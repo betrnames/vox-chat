@@ -207,7 +207,7 @@ export default function LegalPage() {
               </svg>
             </a>
             <a
-              href="https://x.com/voxchat"
+              href="https://x.com/voxdotchat"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Vox.chat on X"
