@@ -241,21 +241,98 @@ Don’t chase.
 
 ---
 
-## 9. Internal margin notes (private)
+## 9. Where the money goes (you vs tools) — no client “split”
 
-Rough COGS mindset (order of magnitude — update when Voice is live):
+### What the client pays (no hidden charges)
 
-| Cost | Notes |
+| Line | Policy |
 |------|--------|
-| LLM (Grok) | Per conversation/call |
-| Twilio SMS | Reviews + notifies |
-| Vapi/telephony | Voice when live |
-| Your time | Setup + support |
+| Monthly SKU | One number (e.g. Bundle **$1,500/mo**) |
+| Setup fee | **$0 listed** — included in first paid month |
+| Usage overages | **None on your price card** (you absorb tool usage inside the flat fee) |
+| “Platform fee” / “API surcharge” | **Do not add** — looks like bait-and-switch |
+| Partner revenue share | **None** — Vox is your company; tools are your vendors |
 
-**Guardrails:**  
+**What you tell clients:**  
+> “One monthly price. Setup is included. No per-minute invoice from me, no surprise software fees. Month-to-month.”
+
+**What is true internally:**  
+You pay Grok, Twilio, Vapi, Vercel, etc. out of **your** pocket. That is **COGS**, not a line item you pass through (unless you later productize “overage” — not recommended for early GTM).
+
+There is **no split** with Smith, Twilio, or xAI. Vendors bill **you**. Client bills **you** only.
+
+```
+Client pays:     $1,500  (example Bundle)
+                 ──────
+Tools (COGS):    ~$30–$250  (typical small crew; see below)
+Your time:       setup hours once + light support
+Stripe/Zelle fee:~3% if card
+                 ──────
+Your gross:      most of the $1,500  (often ~85–98% after tools at normal volume)
+```
+
+---
+
+### Rough monthly tool costs (order of magnitude — update from real bills)
+
+Assumptions: one contractor client, moderate use. Prices move — check vendor dashboards.
+
+| Tool | What for | Rough cost |
+|------|----------|------------|
+| **xAI Grok API** | Receptionist chat + Voice brain | Often **a few $ to low tens $/mo** per client at chat volumes; more if heavy Voice minutes on a pricey model. Prefer **Grok Fast / cheaper tier** for production volume. |
+| **Twilio SMS** | Review texts, owner alerts, booking SMS | ~**$0.008/segment** US → e.g. 200 texts ≈ **$1.60**; 1,000 texts ≈ **$8** + ~**$1–2/mo** per number |
+| **Twilio / Telnyx voice** | Minutes if not only Vapi | ~**$0.008–0.015/min** inbound US (ballpark) |
+| **Vapi** (when Voice live) | Agent runtime | Platform often ~**$0.05/min** + model/STT/TTS/telephony on top → real all-in often ~**$0.15–0.35/min** |
+| **Vercel / Formspree / Google** | Hosting, forms, sheet | **$0–low** at your scale |
+| **Your labor** | Setup 2–6 hrs once; support | Not a vendor bill — opportunity cost |
+
+**Voice example (illustrative):**  
+100 min of answered calls/mo × ~$0.25 all-in ≈ **$25** tools.  
+500 min × $0.25 ≈ **$125**.  
+Still small vs **$1,100 Voice** or **$1,500 Bundle**.
+
+**Receptionist-only example:**  
+Hundreds of chat turns/mo on a cheap Grok tier often stays **under ~$10–40** unless volume explodes.
+
+**Reviews-only example:**  
+SMS for a crew doing 40–80 jobs/mo is often **under ~$5–15** in Twilio.
+
+→ **Most of the price is yours** (labor, risk, local service, productization). Tools are usually a **small %** at early client volumes.
+
+---
+
+### Per-SKU “who gets what” (illustrative)
+
+| SKU | Client pays | Typical tools (light–moderate) | Roughly yours before tax/time |
+|-----|-------------|-------------------------------|-------------------------------|
+| Reviews $400 | $400 | ~$5–25 | **~$375–395** |
+| Receptionist $650 | $650 | ~$10–50 | **~$600–640** |
+| Voice $1,100 | $1,100 | ~$25–200 (usage-driven) | **~$900–1,075** |
+| Bundle $1,500 | $1,500 | ~$40–250 | **~$1,250–1,460** |
+
+Heavy call centers (thousands of minutes) change Voice COGS — then raise list or cap minutes; **don’t invent hidden fees**.
+
+---
+
+### Setup: included vs “additional charge”
+
+| | Client sees | You experience |
+|--|-------------|----------------|
+| Setup | **Included** ($0 line item) | Your unpaid hours until first month clears |
+| First month | **Full list price**, paid first | Funds setup + first month tools |
+| Extra custom work | **Not included** → new SKU or paid add-on next cycle | Protects margin |
+
+**No separate “setup deposit”** unless you later adopt Soft setup $250–$500 (see §2). Default remains **all-in monthly**.
+
+---
+
+### Guardrails
+
 - Floor prices protect against unprofitable “wins.”  
-- Bundle at $1,500 should stay healthy if you don’t over-customize.  
-- If COGS rise, raise **list** — don’t silently eat discount.
+- Bundle at $1,500 stays healthy if you don’t over-customize.  
+- If COGS rise, **raise list** — don’t add surprise surcharges mid-contract.  
+- Track real bills monthly: xAI + Twilio + Vapi per client.  
+- Cap abuse (rate limits, fair-use: e.g. “normal contractor volume; extreme call centers quoted custom”).
 
 ---
 
