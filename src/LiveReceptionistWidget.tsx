@@ -283,7 +283,7 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
           <div className="flex items-center gap-3 px-4 py-3 border-b border-border/50 bg-background/80 backdrop-blur-sm shrink-0">
             {/* drag hint on mobile */}
             <div className="sm:hidden absolute left-1/2 -translate-x-1/2 top-1.5 w-10 h-1 rounded-full bg-border" aria-hidden />
-            <BrandDots size="md" />
+            {/* Brand dots only on closed launcher FAB — keep open panel header clean */}
             <div className="min-w-0 flex-1 pt-1 sm:pt-0">
               <p className="text-sm font-semibold text-foreground leading-tight tracking-tight">
                 AI Receptionist

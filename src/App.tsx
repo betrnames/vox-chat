@@ -5,6 +5,7 @@ import { TypingDots } from './TypingDots'
 import LiveReceptionistWidget from './LiveReceptionistWidget'
 import { useTheme, ThemeSwitch } from './theme'
 import ConsentNote from './ConsentNote'
+import { VapiVoiceProvider, VoiceCallTrigger, useVapiVoice } from './voice/VapiVoice'
 
 function HeroWaves() {
   return (
@@ -400,12 +401,12 @@ function Services() {
                   >
                     Try the demo
                   </a>
-                  <a
-                    href="tel:+12099967102"
-                    className="flex w-full items-center justify-center gap-2 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    or call now
-                  </a>
+                  <VoiceCallTrigger
+                    className="flex w-full items-center justify-center gap-2 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
+                    idleLabel="or call now"
+                    activeLabel="end call"
+                    connectingLabel="connecting…"
+                  />
                 </div>
               </div>
             )
@@ -444,32 +445,7 @@ function VoiceDemo() {
   const [done, setDone] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const [liveVoice, setLiveVoice] = useState<{
-    online: boolean
-    phoneDisplay: string | null
-    telHref: string | null
-  } | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    fetch('/api/voice')
-      .then((r) => r.json())
-      .then((d) => {
-        if (!cancelled) {
-          setLiveVoice({
-            online: Boolean(d?.online),
-            phoneDisplay: d?.phoneDisplay || null,
-            telHref: d?.telHref || null,
-          })
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setLiveVoice({ online: false, phoneDisplay: null, telHref: null })
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  const { ready: vapiReady, status: vapiStatus } = useVapiVoice()
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -524,27 +500,31 @@ function VoiceDemo() {
 
   return (
     <div className="flex flex-col">
-      {/* Live Voice POC — shown when VAPI_PHONE_NUMBER is configured */}
-      {liveVoice?.online && liveVoice.telHref && (
+      {/* Live Voice POC — browser mic call via Vapi widget */}
+      {vapiReady && (
         <div className="mb-5 rounded-xl border border-voice/30 bg-voice/5 p-4">
           <div className="flex items-center gap-2 mb-2">
             <span className="w-2 h-2 rounded-full bg-voice animate-pulse" />
             <span className="font-mono text-[11px] uppercase tracking-wider text-voice">Live AI phone agent</span>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-            Call Vox.chat’s AI agent — it qualifies and notifies Gabe. This is the real product POC (not the animated demo below).
+            Talk to Vox.chat’s AI agent in your browser — it qualifies and notifies Gabe. This is the real product POC (not the animated demo below).
           </p>
-          <a
-            href={liveVoice.telHref}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-voice text-white text-sm font-semibold hover:bg-voice/90 transition-colors"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-            </svg>
-            Call {liveVoice.phoneDisplay || 'live AI'}
-          </a>
+          <VoiceCallTrigger
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-voice text-white text-sm font-semibold hover:bg-voice/90 transition-colors disabled:opacity-60"
+            idleLabel={
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                </svg>
+                Talk to live AI
+              </>
+            }
+            activeLabel="End call"
+            connectingLabel="Connecting…"
+          />
           <p className="mt-2 text-[11px] text-muted-foreground/70 font-mono">
-            Leave your name + number · may be recorded · support@vox.chat
+            {vapiStatus === 'active' ? 'On call · mic live' : 'Allow microphone · may be recorded · support@vox.chat'}
           </p>
         </div>
       )}
@@ -1454,20 +1434,12 @@ function MobileBottomBar({
             <span className="text-[10px] font-medium text-muted-foreground/30">Demos</span>
           </a>
 
-          {/* Phone sits inside the dome */}
+          {/* Phone sits inside the dome — starts Vapi web voice agent */}
           <div
             className="flex items-center justify-center shrink-0"
             style={{ width: domePx, height: domePx }}
           >
-            <a
-              href="tel:+12099967102"
-              className="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-primary-foreground shadow-md shadow-primary/30 active:scale-95 transition-transform"
-              aria-label="Call Vox.chat"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
-              </svg>
-            </a>
+            <MobileVoiceFab />
           </div>
 
           <button
@@ -1507,11 +1479,51 @@ function MobileBottomBar({
   )
 }
 
+function MobileVoiceFab() {
+  const { status, toggle, ready, isSpeaking } = useVapiVoice()
+  const active = status === 'active' || status === 'connecting'
+
+  return (
+    <button
+      type="button"
+      onClick={() => void toggle()}
+      disabled={!ready && !active}
+      className={`flex items-center justify-center w-12 h-12 rounded-full shadow-md active:scale-95 transition-transform disabled:opacity-50 ${
+        active
+          ? 'bg-red-500 text-white shadow-red-500/30'
+          : 'bg-primary text-primary-foreground shadow-primary/30'
+      }`}
+      aria-label={active ? 'End AI voice call' : 'Talk to Vox AI phone agent'}
+      aria-pressed={active}
+    >
+      {active ? (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      ) : (
+        <svg
+          className={`w-5 h-5 ${isSpeaking ? 'animate-pulse' : ''}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={1.75}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"
+          />
+        </svg>
+      )}
+    </button>
+  )
+}
+
 export default function App() {
   const [chatOpen, setChatOpen] = useState(false)
 
   return (
-    <>
+    <VapiVoiceProvider>
       <Nav />
       <Hero />
       <Services />
@@ -1523,6 +1535,6 @@ export default function App() {
       <Footer />
       <MobileBottomBar chatOpen={chatOpen} onChatToggle={() => setChatOpen((o) => !o)} />
       <LiveReceptionistWidget open={chatOpen} onOpenChange={setChatOpen} />
-    </>
+    </VapiVoiceProvider>
   )
 }

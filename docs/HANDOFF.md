@@ -80,10 +80,10 @@ Local: `.env` (never commit).
 ## Next when resuming (priority order)
 
 ### 1. Finish Voice live POC (in progress)
-1. Create Vapi assistant + phone number (prompt in `src/voice/voxVoicePrompt.ts`)  
-2. Server URL: `https://vox.chat/api/voice-webhook`  
-3. Set Vercel env: `VAPI_PHONE_NUMBER=+1...` (and optional `VAPI_API_KEY`)  
-4. Redeploy · call number · confirm lead email/sheet  
+1. Vapi **web widget** on site (primary): phone FAB + “or call now” / “Call now” start `@vapi-ai/web`  
+2. Env (build-time, public OK): `VITE_VAPI_PUBLIC_KEY` + `VITE_VAPI_ASSISTANT_ID` (local `.env` + Vercel Production)  
+3. Code: `src/voice/VapiVoice.tsx` · still optional phone: `VAPI_PHONE_NUMBER` + Server URL `https://vox.chat/api/voice-webhook`  
+4. Redeploy after setting Vite env · test mic call · confirm lead email/sheet if webhook set  
 5. Full guide: **`docs/poc-voice.md`**
 
 ### 2. Sales hygiene (no code)
