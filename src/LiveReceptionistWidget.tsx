@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { TypingDots } from './TypingDots'
 import ConsentNote from './ConsentNote'
+import { useVapiVoiceOptional } from './voice/VapiVoice'
 
 type Msg = { role: 'user' | 'assistant'; content: string }
 
@@ -94,6 +95,7 @@ function StatusPill({ online, compact = false }: { online: boolean; compact?: bo
 }
 
 export default function LiveReceptionistWidget({ open, onOpenChange }: LiveReceptionistWidgetProps) {
+  const vapi = useVapiVoiceOptional()
   const [gatePassed, setGatePassed] = useState(false)
   const [gateEmail, setGateEmail] = useState('')
   const [gateError, setGateError] = useState('')
@@ -345,9 +347,19 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
                 </button>
                 <ConsentNote />
               </form>
-              <p className="mt-4 text-[11px] text-muted-foreground/70 font-mono text-center">
-                Or call (209) 996-7102
-              </p>
+              {vapi?.ready && (
+                <button
+                  type="button"
+                  onClick={() => void vapi.toggle()}
+                  disabled={vapi.status === 'connecting'}
+                  className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 rounded-lg border border-voice/40 text-voice text-sm font-semibold hover:bg-voice/10 active:scale-[0.98] transition-colors disabled:opacity-50"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.536 8.464a5 5 0 010 7.072M12 18.364a9 9 0 010-12.728M8.464 15.536a5 5 0 010-7.072M3 12a9 9 0 0118 0" />
+                  </svg>
+                  {vapi.status === 'connecting' ? 'Connecting…' : vapi.status === 'active' ? 'End call' : 'Speak to an agent'}
+                </button>
+              )}
             </div>
           ) : (
             <>
