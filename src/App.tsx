@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import './index.css'
 import { advanceReceptionist, type ChatMemory, type ChatStep } from './receptionist/localFlow'
 import { TypingDots } from './TypingDots'
@@ -85,6 +85,33 @@ function Nav() {
 }
 
 function Hero() {
+  const [showForm, setShowForm] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const loopTimer = useRef<ReturnType<typeof setTimeout>>()
+  const formInteracted = useRef(false)
+
+  const handleVideoEnd = useCallback(() => {
+    setShowForm(true)
+    formInteracted.current = false
+    loopTimer.current = setTimeout(() => {
+      if (formInteracted.current) return
+      setShowForm(false)
+      setTimeout(() => {
+        const v = videoRef.current
+        if (v) { v.currentTime = 0; v.play().catch(() => {}) }
+      }, 800)
+    }, 20000)
+  }, [])
+
+  const handleFormInteraction = useCallback(() => {
+    formInteracted.current = true
+    if (loopTimer.current) { clearTimeout(loopTimer.current); loopTimer.current = undefined }
+  }, [])
+
+  useEffect(() => {
+    return () => { if (loopTimer.current) clearTimeout(loopTimer.current) }
+  }, [])
+
   return (
     <section className="relative pt-32 sm:pt-44 pb-24 sm:pb-36 px-5 bg-gradient-to-t from-primary/10 via-primary/5 to-transparent overflow-hidden">
       <HeroWaves />
@@ -116,11 +143,11 @@ function Hero() {
             <ul className="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-[11px] font-mono text-muted-foreground/80">
               <li className="inline-flex items-center gap-1.5">
                 <span className="w-1 h-1 rounded-full bg-primary shrink-0" aria-hidden />
-                Turlock · 209 corridor
+                Month-to-month
               </li>
               <li className="inline-flex items-center gap-1.5">
                 <span className="w-1 h-1 rounded-full bg-primary shrink-0" aria-hidden />
-                Month-to-month
+                No contracts
               </li>
               <li className="inline-flex items-center gap-1.5">
                 <span className="w-1 h-1 rounded-full bg-chat shrink-0" aria-hidden />
@@ -129,81 +156,107 @@ function Hero() {
             </ul>
           </div>
 
-          {/* Right — contact form */}
-          <div className="rounded-2xl border border-border/60 bg-card p-6 sm:p-7 shadow-lg">
-            <h2 className="text-lg font-semibold mb-1">Book a free consultation</h2>
-            <p className="text-sm text-muted-foreground mb-5">No contracts. Cancel anytime.</p>
-            <form
-              action="https://formspree.io/f/mwvdpgay"
-              method="POST"
-              className="space-y-3"
+          {/* Right — video → form cross-fade */}
+          <div className="relative aspect-video">
+            {/* Video layer */}
+            <div
+              className="absolute inset-0 transition-opacity duration-700 ease-in-out flex items-center justify-center"
+              style={{ opacity: showForm ? 0 : 1, pointerEvents: showForm ? 'none' : 'auto' }}
             >
-              <input type="hidden" name="site" value="vox.chat" />
-              <input type="hidden" name="source" value="hero" />
-              <div className="grid grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Your name"
-                  required
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
-                />
-                <input
-                  type="text"
-                  name="business"
-                  placeholder="Business name"
-                  required
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <input
-                  type="tel"
-                  name="phone"
-                  placeholder="Phone"
-                  required
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
-                />
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  required
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <select
-                  name="trade"
-                  required
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:border-ring transition-colors appearance-none"
+              <video
+                ref={videoRef}
+                src="/hero-video.mp4"
+                poster="/hero-poster.jpg"
+                autoPlay
+                muted
+                playsInline
+                preload="auto"
+                onEnded={handleVideoEnd}
+                className="w-full h-full object-contain rounded-2xl shadow-2xl shadow-primary/10"
+              />
+            </div>
+            {/* Form layer */}
+            <div
+              className="absolute inset-0 transition-opacity duration-700 ease-in-out flex items-center"
+              style={{ opacity: showForm ? 1 : 0, pointerEvents: showForm ? 'auto' : 'none' }}
+            >
+              <div className="w-full rounded-2xl border border-border/60 bg-card p-6 sm:p-7 shadow-lg">
+                <h2 className="text-lg font-semibold mb-1">Book a free consultation</h2>
+                <p className="text-sm text-muted-foreground mb-5">No contracts. Cancel anytime.</p>
+                <form
+                  action="https://formspree.io/f/mwvdpgay"
+                  method="POST"
+                  className="space-y-3"
+                  onFocusCapture={handleFormInteraction}
                 >
-                  <option value="">Your trade</option>
-                  <option value="hvac">HVAC</option>
-                  <option value="plumbing">Plumbing</option>
-                  <option value="electrical">Electrical</option>
-                  <option value="other">Other</option>
-                </select>
-                <select
-                  name="service"
-                  required
-                  className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:border-ring transition-colors appearance-none"
-                >
-                  <option value="">Which service?</option>
-                  <option value="voice">AI Phone Agent</option>
-                  <option value="chat">AI Receptionist</option>
-                  <option value="reviews">AI Review Agent</option>
-                  <option value="bundle">All Three</option>
-                </select>
+                  <input type="hidden" name="site" value="vox.chat" />
+                  <input type="hidden" name="source" value="hero" />
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="text"
+                      name="name"
+                      placeholder="Your name"
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
+                    />
+                    <input
+                      type="text"
+                      name="business"
+                      placeholder="Business name"
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input
+                      type="tel"
+                      name="phone"
+                      placeholder="Phone"
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
+                    />
+                    <input
+                      type="email"
+                      name="email"
+                      placeholder="Email"
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <select
+                      name="trade"
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:border-ring transition-colors appearance-none"
+                    >
+                      <option value="">Your trade</option>
+                      <option value="hvac">HVAC</option>
+                      <option value="plumbing">Plumbing</option>
+                      <option value="electrical">Electrical</option>
+                      <option value="other">Other</option>
+                    </select>
+                    <select
+                      name="service"
+                      required
+                      className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:border-ring transition-colors appearance-none"
+                    >
+                      <option value="">Which service?</option>
+                      <option value="voice">AI Phone Agent</option>
+                      <option value="chat">AI Receptionist</option>
+                      <option value="reviews">AI Review Agent</option>
+                      <option value="bundle">All Three</option>
+                    </select>
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/80 transition-colors"
+                  >
+                    Get started free
+                  </button>
+                  <ConsentNote />
+                </form>
               </div>
-              <button
-                type="submit"
-                className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/80 transition-colors"
-              >
-                Get started free
-              </button>
-              <ConsentNote />
-            </form>
+            </div>
           </div>
         </div>
       </div>
