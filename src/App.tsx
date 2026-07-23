@@ -87,7 +87,7 @@ function Nav() {
 function Hero() {
   const [showForm, setShowForm] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
-  const loopTimer = useRef<ReturnType<typeof setTimeout>>()
+  const loopTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const formInteracted = useRef(false)
 
   const handleVideoEnd = useCallback(() => {
