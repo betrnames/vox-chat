@@ -50,6 +50,8 @@ export default function LegalPage() {
               <a href="#sms" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">SMS &amp; TCPA</a>
               <a href="#recording" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Call &amp; chat recording</a>
               <a href="#disclaimer" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Disclaimer</a>
+              <a href="#fair-use" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Fair Use Policy</a>
+              <a href="#compliance" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Compliance Add-Ons</a>
             </nav>
           </aside>
 
@@ -230,6 +232,103 @@ export default function LegalPage() {
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">AI Technology</h3>
                 <p>Our AI agents use advanced language models and voice synthesis technology. While highly capable, AI systems are not infallible. We continuously monitor and improve agent performance but cannot guarantee 100% accuracy in all interactions.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Fair Use Policy */}
+          <section id="fair-use" className="scroll-mt-24">
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">Fair Use Policy</h2>
+            <p className="text-xs text-muted-foreground mb-6">Last updated: July 23, 2026</p>
+            <div className="space-y-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Flat-Rate Promise</h3>
+                <p>Vox.chat services are offered at a flat monthly rate with no per-minute or per-message charges. This Fair Use Policy ensures every customer gets reliable, high-quality service without a small number of accounts driving costs that affect everyone.</p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Included Usage</h3>
+                <p>Each package includes generous monthly allowances designed to cover the vast majority of small and mid-size businesses:</p>
+                <ul className="list-disc pl-5 mt-2 space-y-1">
+                  <li>Reviews — up to 5,000 SMS messages</li>
+                  <li>Receptionist — up to 5,000 web chat sessions</li>
+                  <li>Voice — up to 5,000 voice minutes</li>
+                  <li>Bundle — up to 5,000 voice minutes, 5,000 SMS messages, and 5,000 web chat sessions</li>
+                </ul>
+                <p className="mt-2">These allowances are not hard caps. Occasional spikes — a busy week, a seasonal rush — are expected and will never trigger a surprise charge.</p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Exceeding the Allowance</h3>
+                <p>If your account regularly exceeds the included allowance for two or more consecutive billing cycles, we will notify you with your actual usage data and work together to find the right fit. Options may include moving to a higher-tier plan, a custom volume agreement, or optimizing your setup to reduce unnecessary usage. We will never silently add per-minute or per-message charges to your invoice. Any pricing change requires mutual written agreement.</p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">What Counts as Usage</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Voice minutes are measured from call pickup to hangup, rounded to the nearest minute.</li>
+                  <li>SMS messages count each sent and received message as one unit.</li>
+                  <li>Web chat sessions count each unique visitor conversation as one session.</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">What Doesn't Count</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Calls that go unanswered or hit voicemail before the AI engages</li>
+                  <li>System-generated alerts or notifications to you (the business owner)</li>
+                  <li>Test calls and setup/configuration activity</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Prohibited Use</h3>
+                <p>This service is for your business's customer-facing communications. It may not be used for bulk or automated outbound telemarketing or robocalling, reselling Vox.chat services to third parties, artificially inflating usage, or any use that violates applicable telecommunications law (TCPA, etc.). Violation of prohibited use may result in immediate suspension.</p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Changes to This Policy</h3>
+                <p>We may update usage allowances or thresholds with 30 days' written notice. Any changes apply to the next billing cycle, never retroactively.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Compliance & Security Add-Ons */}
+          <section id="compliance" className="scroll-mt-24">
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">Compliance &amp; Security Add-Ons</h2>
+            <p className="text-xs text-muted-foreground mb-6">Last updated: July 23, 2026</p>
+            <div className="space-y-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
+              <p>For businesses in healthcare, finance, or other regulated industries, Vox.chat offers optional compliance add-ons billed monthly in addition to your package price.</p>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">HIPAA Compliance — $2,500/mo</h3>
+                <p>Required for any business handling Protected Health Information (PHI) over voice or messaging. Includes:</p>
+                <ul className="list-disc pl-5 mt-2 space-y-1">
+                  <li>HIPAA-compliant voice AI infrastructure</li>
+                  <li>Business Associate Agreement (BAA) execution</li>
+                  <li>Encrypted call handling and storage meeting HIPAA technical safeguards</li>
+                  <li>Compliance configuration and ongoing monitoring</li>
+                  <li>Annual compliance review and documentation</li>
+                </ul>
+                <p className="mt-2">Who needs this: Medical and dental practices, behavioral health providers, home health agencies, telehealth services, medical billing companies, or any business where callers may disclose health information.</p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Zero Data Retention (ZDR) — $1,500/mo</h3>
+                <p>For businesses that require no call data, transcripts, or recordings to be stored after processing. Includes:</p>
+                <ul className="list-disc pl-5 mt-2 space-y-1">
+                  <li>Real-time processing with no persistent storage of call content</li>
+                  <li>No transcripts, recordings, or conversation logs retained</li>
+                  <li>Immediate purge of all call data after the session ends</li>
+                  <li>Compliance documentation confirming zero-retention architecture</li>
+                </ul>
+                <p className="mt-2">Who needs this: Legal firms, financial advisors, businesses with strict data minimization policies, or any organization where retaining customer conversation data poses regulatory or liability risk.</p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Compliance Bundle — $3,500/mo</h3>
+                <p>Both HIPAA Compliance and Zero Data Retention together, saving $500/mo versus purchasing separately. Recommended for healthcare organizations that need the highest level of data protection.</p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Important Notes</h3>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>Compliance add-ons apply to your entire Vox.chat account — they cannot be enabled per-assistant or per-phone-number.</li>
+                  <li>Activation requires a brief compliance intake (typically 1–2 business days) to configure your environment correctly.</li>
+                  <li>HIPAA compliance requires a signed BAA before activation. We will provide the BAA for your review.</li>
+                  <li>Compliance add-ons are billed month-to-month with no long-term commitment, same as your core package.</li>
+                  <li>Removing a compliance add-on requires 30 days' written notice and confirmation that you no longer handle regulated data through Vox.chat.</li>
+                </ul>
               </div>
             </div>
           </section>
