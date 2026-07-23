@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import './index.css'
-import { useTheme, ThemeSwitch } from './theme'
 import { VapiVoiceProvider, VoiceCallTrigger } from './voice/VapiVoice'
 
 const categories = [
@@ -132,7 +131,6 @@ const categories = [
 ]
 
 export default function FaqPage() {
-  const { dark, toggle } = useTheme()
   const [activeSection, setActiveSection] = useState(categories[0].id)
 
   useEffect(() => {
@@ -166,7 +164,6 @@ export default function FaqPage() {
             <span className="w-2.5 h-2.5 rounded-full bg-review" />
           </a>
           <div className="flex items-center gap-3">
-            <ThemeSwitch dark={dark} onToggle={toggle} />
             <a
               href="/"
               className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-input text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"

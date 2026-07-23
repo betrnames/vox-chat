@@ -1,10 +1,6 @@
 import './index.css'
 import { blogPosts } from './blog-data'
-import { useTheme, ThemeSwitch } from './theme'
-
 export default function BlogIndex() {
-  const { dark, toggle } = useTheme()
-
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
@@ -15,7 +11,6 @@ export default function BlogIndex() {
             <span className="w-2.5 h-2.5 rounded-full bg-review" />
           </a>
           <div className="flex items-center gap-3">
-            <ThemeSwitch dark={dark} onToggle={toggle} />
             <a
               href="/"
               className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-input text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"

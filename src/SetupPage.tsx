@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import './index.css'
-import { useTheme, ThemeSwitch } from './theme'
 import ConsentNote from './ConsentNote'
 
 function param(name: string): string {
@@ -14,7 +13,6 @@ const fieldClass =
 const labelClass = 'block text-xs font-medium text-muted-foreground mb-1.5'
 
 export default function SetupPage() {
-  const { dark, toggle } = useTheme()
   const submitted = useMemo(() => param('done') === '1' || param('thanks') === '1', [])
 
   const defaults = useMemo(
@@ -46,7 +44,6 @@ export default function SetupPage() {
             <span className="w-2.5 h-2.5 rounded-full bg-chat" />
             <span className="w-2.5 h-2.5 rounded-full bg-review" />
           </div>
-          <ThemeSwitch dark={dark} onToggle={toggle} />
         </div>
       </header>
 

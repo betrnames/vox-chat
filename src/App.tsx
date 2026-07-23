@@ -3,7 +3,6 @@ import './index.css'
 import { advanceReceptionist, type ChatMemory, type ChatStep } from './receptionist/localFlow'
 import { TypingDots } from './TypingDots'
 import LiveReceptionistWidget from './LiveReceptionistWidget'
-import { useTheme, ThemeSwitch } from './theme'
 import ConsentNote from './ConsentNote'
 import { VapiVoiceProvider, VoiceCallTrigger, useVapiVoice } from './voice/VapiVoice'
 
@@ -20,7 +19,6 @@ function HeroWaves() {
 }
 
 function Nav() {
-  const { dark, toggle } = useTheme()
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
@@ -44,10 +42,6 @@ function Nav() {
           >
             Get started
           </a>
-          {/* Desktop only — mobile switch lives in the hamburger panel */}
-          <div className="hidden md:block">
-            <ThemeSwitch dark={dark} onToggle={toggle} />
-          </div>
           <button
             type="button"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -74,10 +68,6 @@ function Nav() {
           <a href="/blog.html" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Blog</a>
           <a href="/faq.html" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">FAQ</a>
           <a href="#contact" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm font-semibold text-primary hover:bg-primary/10 transition-colors">Get started</a>
-          <div className="flex items-center justify-between gap-3 px-3 py-3 mt-2 border-t border-border/40">
-            <span className="text-sm text-muted-foreground">{dark ? 'Dark mode' : 'Light mode'}</span>
-            <ThemeSwitch dark={dark} onToggle={toggle} />
-          </div>
         </div>
       )}
     </nav>
@@ -116,7 +106,7 @@ function Hero() {
     <section className="relative pt-32 sm:pt-44 pb-24 sm:pb-36 px-5 bg-gradient-to-t from-primary/10 via-primary/5 to-transparent overflow-hidden">
       <HeroWaves />
       <div className="relative max-w-6xl mx-auto">
-        <div className="grid lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-16 items-center">
+        <div className="grid lg:grid-cols-[1fr_1fr] gap-12 lg:gap-24 items-center">
           {/* Left — headline */}
           <div className="text-center lg:text-left">
             <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border border-input bg-muted text-muted-foreground text-[11px] sm:text-xs font-mono mb-6 mx-auto lg:mx-0 max-w-[calc(100%-0.5rem)]">
@@ -129,18 +119,8 @@ function Hero() {
             <p className="text-muted-foreground text-lg max-w-lg leading-relaxed mb-8 mx-auto lg:mx-0">
               AI answers your phone, captures website leads, and gets you more Google reviews — 24/7. Built for contractors.
             </p>
-            <a
-              href="#demos"
-              className="inline-flex items-center justify-center lg:justify-start gap-2 text-sm font-medium text-primary hover:text-primary/70 transition-colors"
-            >
-              See it in action
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </a>
-
-            {/* Trust strip — subtle */}
-            <ul className="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-[11px] font-mono text-muted-foreground/80">
+            {/* Trust strip */}
+            <ul className="flex flex-wrap items-center justify-center lg:justify-start gap-x-5 gap-y-2 text-[11px] font-mono text-muted-foreground/80">
               <li className="inline-flex items-center gap-1.5">
                 <span className="w-1 h-1 rounded-full bg-primary shrink-0" aria-hidden />
                 Month-to-month
@@ -154,10 +134,26 @@ function Hero() {
                 Live AI Receptionist
               </li>
             </ul>
+
+            {/* CTAs */}
+            <div className="grid grid-cols-2 gap-3 mt-8">
+              <a
+                href="#demos"
+                className="flex items-center justify-center py-2.5 rounded-lg border border-input text-foreground text-sm font-semibold hover:border-primary/40 hover:text-primary transition-colors"
+              >
+                Demo
+              </a>
+              <a
+                href="#contact"
+                className="flex items-center justify-center py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors"
+              >
+                Get started
+              </a>
+            </div>
           </div>
 
           {/* Right — video → form cross-fade */}
-          <div className="relative aspect-video">
+          <div className="relative aspect-square w-full max-w-[580px] mx-auto lg:mx-0">
             {/* Video layer */}
             <div
               className="absolute inset-0 transition-opacity duration-700 ease-in-out flex items-center justify-center"
@@ -172,7 +168,7 @@ function Hero() {
                 playsInline
                 preload="auto"
                 onEnded={handleVideoEnd}
-                className="w-full h-full object-contain rounded-2xl shadow-2xl shadow-primary/10"
+                className="w-full h-full object-contain rounded-2xl"
               />
             </div>
             {/* Form layer */}
@@ -251,7 +247,7 @@ function Hero() {
                     type="submit"
                     className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/80 transition-colors"
                   >
-                    Get started free
+                    Book now
                   </button>
                   <ConsentNote />
                 </form>

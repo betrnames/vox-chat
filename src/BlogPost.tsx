@@ -1,6 +1,5 @@
 import './index.css'
 import { blogPosts, type ContentBlock } from './blog-data'
-import { useTheme, ThemeSwitch } from './theme'
 import { VapiVoiceProvider, VoiceCallTrigger } from './voice/VapiVoice'
 
 function getSlugFromPath() {
@@ -127,7 +126,6 @@ function ContentSection({ section }: { section: ContentBlock }) {
 }
 
 export default function BlogPost({ slug: slugProp }: { slug?: string } = {}) {
-  const { dark, toggle } = useTheme()
   const slug = slugProp ?? getSlugFromPath()
   const post = blogPosts.find((p) => p.slug === slug)
 
@@ -156,7 +154,6 @@ export default function BlogPost({ slug: slugProp }: { slug?: string } = {}) {
             <span className="w-2.5 h-2.5 rounded-full bg-review" />
           </a>
           <div className="flex items-center gap-3">
-            <ThemeSwitch dark={dark} onToggle={toggle} />
             <a
               href="/blog.html"
               className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-input text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"

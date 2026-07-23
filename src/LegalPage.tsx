@@ -1,9 +1,5 @@
 import './index.css'
-import { useTheme, ThemeSwitch } from './theme'
-
 export default function LegalPage() {
-  const { dark, toggle } = useTheme()
-
   return (
     <>
       {/* Nav */}
@@ -15,7 +11,6 @@ export default function LegalPage() {
             <span className="w-2.5 h-2.5 rounded-full bg-review" />
           </a>
           <div className="flex items-center gap-3">
-            <ThemeSwitch dark={dark} onToggle={toggle} />
             <a
               href="/"
               className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-input text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
