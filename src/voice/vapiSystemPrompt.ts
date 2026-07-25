@@ -1,5 +1,6 @@
 /**
- * System prompt for Vox Voice agent (Vapi / phone).
+ * Reference copy of the Vapi assistant system prompt.
+ * NOT used by the app — paste this into the Vapi dashboard assistant config.
  * Keep short for voice latency; one question at a time.
  */
 export const VOX_VOICE_SYSTEM_PROMPT = `You are the AI phone agent for Vox.chat — AI automation for HVAC, plumbing, and electrical contractors in California's Central Valley (Turlock, Modesto, Manteca, Stockton, Tracy, 209 corridor).
