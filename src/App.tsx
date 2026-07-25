@@ -483,16 +483,16 @@ function Services() {
 function VoiceDemo() {
   const messages = [
     { from: 'system' as const, text: 'Incoming call from (209) 555-0147...' },
-    { from: 'ai' as const, text: "Good afternoon, Valley Air Pros, this is the AI phone agent. How can I help you today?" },
-    { from: 'caller' as const, text: "Yeah, my AC stopped blowing cold air about an hour ago. It's 102 out here in Manteca." },
-    { from: 'ai' as const, text: "I'm sorry to hear that — let me get you taken care of. Can I get your name?" },
-    { from: 'caller' as const, text: 'Mike Torres.' },
-    { from: 'ai' as const, text: "Thanks Mike. And what's the best address for the service call?" },
-    { from: 'caller' as const, text: '1247 Oakwood Drive, Manteca.' },
-    { from: 'ai' as const, text: 'Got it. I have availability tomorrow morning between 8 and 10 AM, or this afternoon between 4 and 6. Which works better?' },
-    { from: 'caller' as const, text: 'This afternoon for sure.' },
-    { from: 'ai' as const, text: "Done — you're booked for today between 4 and 6 PM. You'll get a confirmation text shortly. Anything else I can help with?" },
-    { from: 'system' as const, text: '✓ Appointment booked → SMS sent to contractor → Calendar updated' },
+    { from: 'ai' as const, text: "Good afternoon, this is Vox.chat's AI phone agent. I help contractors stop losing jobs to missed calls. How can I help?" },
+    { from: 'caller' as const, text: "Yeah, I run an HVAC company in Manteca. I keep missing after-hours calls." },
+    { from: 'ai' as const, text: "That's a common one. How big is your crew — solo or how many techs?" },
+    { from: 'caller' as const, text: 'I got about 5 guys.' },
+    { from: 'ai' as const, text: "5 techs — that's roughly 15 missed calls a week after hours. At $500 average and a 50% close rate, you're leaving about $3,750 a week on the table. Vox Voice fixes that for $1,100/mo — pays for itself day one." },
+    { from: 'caller' as const, text: 'That sounds right actually. What do I need to get started?' },
+    { from: 'ai' as const, text: "Just your name and best callback number. Gabe will text you today to get set up — month-to-month, no contracts." },
+    { from: 'caller' as const, text: 'Mike Torres, (209) 555-0147.' },
+    { from: 'ai' as const, text: "Got it Mike — Gabe will reach out shortly. Your HVAC business is about to stop losing money to missed calls. Anything else?" },
+    { from: 'system' as const, text: '✓ Lead captured → Gabe notified via SMS + email → Follow-up queued' },
   ]
 
   const [visibleCount, setVisibleCount] = useState(0)
@@ -632,7 +632,7 @@ function VoiceDemo() {
               </div>
               <p className="text-sm font-medium text-foreground mb-1">After-hours AC emergency</p>
               <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
-                Constrained demo — a real Manteca-style call. Agent qualifies, books, and notifies the contractor in under 2 minutes.
+                Animated demo — the AI qualifies a contractor, runs an instant revenue assessment, and captures the lead in under 2 minutes.
               </p>
             </div>
           )}
@@ -667,14 +667,14 @@ function ReceptionistDemo() {
   const [messages, setMessages] = useState<Array<{ from: 'receptionist' | 'user'; text: string }>>([
     {
       from: 'receptionist',
-      text: "Hi — I'm the AI Receptionist for Valley Air Pros. I can schedule a repair, rough out a quote, or confirm service areas. What do you need?",
+      text: "Hi — I'm the AI Receptionist for Vox.chat. I help HVAC, plumbing, and electrical contractors stop losing jobs to missed calls, dead website forms, and forgotten review asks. What's the biggest pain right now?",
     },
   ])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
   const [step, setStep] = useState<ChatStep>('idle')
   const [memory, setMemory] = useState<ChatMemory>({})
-  const [chips, setChips] = useState(['Schedule a repair', 'Get a quote', 'What areas do you serve?', 'My AC died — 95336'])
+  const [chips, setChips] = useState(['Missed after-hours calls', 'Need more Google reviews', 'Website visitors not converting', 'Tell me about the bundle'])
   const scrollRef = useRef<HTMLDivElement>(null)
   const stepRef = useRef(step)
   const memoryRef = useRef(memory)
@@ -704,12 +704,12 @@ function ReceptionistDemo() {
           { from: 'user', text: trimmed },
           {
             from: 'receptionist',
-            text: "Fresh start. I can schedule a repair, rough out a quote, or confirm service areas — what do you need?",
+            text: "Fresh start. I help contractors stop losing jobs to missed calls, dead website forms, and forgotten review asks. What's the biggest pain right now?",
           },
         ])
         setStep('idle')
         setMemory({})
-        setChips(['Schedule a repair', 'Get a quote', 'What areas do you serve?'])
+        setChips(['Missed after-hours calls', 'Need more Google reviews', 'Website visitors not converting', 'Tell me about the bundle'])
       }, 400)
       return
     }
@@ -900,7 +900,7 @@ function ReviewDemo() {
         ...m,
         {
           from: 'system',
-          text: 'Hi Mike! How was your service with Valley Air Pros today? Reply with a number 1–5.',
+          text: 'Hi Mike! How was your service today? Reply with a number 1–5.',
         },
       ])
       setAwaitingRating(true)
@@ -923,7 +923,7 @@ function ReviewDemo() {
           ...m,
           {
             from: 'system',
-            text: 'Thanks Mike — glad it went well. Mind a 30-second Google review? One-tap link: https://g.page/r/valley-air-demo',
+            text: 'Thanks Mike — glad it went well. Mind a 30-second Google review? One-tap link: https://g.page/r/review-demo',
           },
         ])
         setTyping('right')
@@ -1104,7 +1104,7 @@ function Demos() {
   const [activeTab, setActiveTab] = useState<'voice' | 'chat' | 'review'>('chat')
 
   const tabs = [
-    { id: 'chat' as const, label: 'AI Receptionist', desc: 'Guided demo for Valley Air Pros — schedules, quotes, and service areas through a full booking path.' },
+    { id: 'chat' as const, label: 'AI Receptionist', desc: 'Guided demo — qualifies your trade and crew size, runs an instant revenue assessment, and captures your info.' },
     { id: 'review' as const, label: 'AI Review Agent', desc: 'Walk the branch: satisfaction score → Google link or private owner alert. No blind review spam. Live SMS ships after Twilio upgrade.' },
     { id: 'voice' as const, label: 'AI Phone Agent', desc: 'Animated call demo — plus live dial-in when Vapi is configured (see docs/poc-voice.md).' },
   ]

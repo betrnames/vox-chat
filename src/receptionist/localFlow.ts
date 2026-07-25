@@ -1,20 +1,21 @@
-/** Deterministic multi-step fallback when the SpaceXAI API is unavailable. */
+/** Deterministic multi-step Vox.chat sales flow for the guided demo. */
 
 export type ChatStep =
   | 'idle'
-  | 'schedule_service'
-  | 'schedule_phone'
-  | 'schedule_slot'
-  | 'quote_type'
-  | 'quote_zip'
+  | 'qualify_trade'
+  | 'qualify_crew'
+  | 'qualify_pain'
+  | 'assessment'
+  | 'collect_name'
+  | 'collect_phone'
   | 'complete'
 
 export type ChatMemory = {
-  service?: string
+  trade?: string
+  crewSize?: number
+  pain?: string
+  name?: string
   phone?: string
-  slot?: string
-  quoteType?: string
-  zip?: string
 }
 
 function extractPhone(text: string): string | null {
@@ -22,47 +23,63 @@ function extractPhone(text: string): string | null {
   return m ? m[1].replace(/\D/g, '').replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3') : null
 }
 
-function extractZip(text: string): string | null {
-  const m = text.match(/\b(9\d{4})\b/)
-  return m ? m[1] : null
-}
-
-function detectService(text: string): string | null {
+function detectTrade(text: string): string | null {
   const t = text.toLowerCase()
-  if (/\b(ac|a\/c|air|cool|cooling|hvac)\b/.test(t)) return 'AC / cooling'
-  if (/\b(heat|furnace|heater|heating)\b/.test(t)) return 'heating'
-  if (/\b(plumb|pipe|leak|drain|water heater)\b/.test(t)) return 'plumbing'
+  if (/\b(hvac|ac|a\/c|air|cool|cooling|heat|furnace)\b/.test(t)) return 'HVAC'
+  if (/\b(plumb|pipe|leak|drain|water heater|sewer)\b/.test(t)) return 'plumbing'
   if (/\b(electr|outlet|panel|wiring|breaker)\b/.test(t)) return 'electrical'
-  if (/\b(duct)\b/.test(t)) return 'ductwork'
+  if (/\b(roof)\b/.test(t)) return 'roofing'
+  if (/\b(pest|termite)\b/.test(t)) return 'pest control'
+  if (/\b(landscape|lawn|yard)\b/.test(t)) return 'landscaping'
   return null
 }
 
-function detectSlot(text: string): string | null {
+function detectCrewSize(text: string): number | null {
   const t = text.toLowerCase()
-  if (/\b(morning|am)\b/.test(t)) return 'tomorrow morning (8–10 AM)'
-  if (/\b(afternoon|pm)\b/.test(t)) return 'tomorrow afternoon (1–4 PM)'
-  if (/\b(today|asap|emergency|soon)\b/.test(t)) return 'today (same-day window)'
-  if (/\b(evening|after work)\b/.test(t)) return 'tomorrow evening (4–6 PM)'
+  if (/\b(solo|just me|one man|myself|1 man|one-man)\b/.test(t)) return 1
+  const m = t.match(/\b(\d{1,2})\b/)
+  if (m) {
+    const n = parseInt(m[1], 10)
+    if (n >= 1 && n <= 99) return n
+  }
   return null
 }
 
-function detectQuoteType(text: string): string | null {
+function detectPain(text: string): string | null {
   const t = text.toLowerCase()
-  if (/\b(install|replacement|new unit)\b/.test(t)) return 'install / replacement'
-  if (/\b(repair|fix|broken)\b/.test(t)) return 'repair'
-  if (/\b(maintenance|tune|checkup|service plan)\b/.test(t)) return 'maintenance'
+  if (/\b(miss|after.?hours|nights?|weekends?|overflow|voicemail)\b/.test(t)) return 'missed calls'
+  if (/\b(review|google|stars?|rating|reputation)\b/.test(t)) return 'reviews'
+  if (/\b(website|chat|visitor|leads?|convert|form)\b/.test(t)) return 'website leads'
+  if (/\b(all|everything|bundle|full)\b/.test(t)) return 'all three'
   return null
 }
 
-function detectIntent(text: string): 'schedule' | 'quote' | 'area' | 'hello' | 'restart' | null {
+function detectIntent(text: string): 'pricing' | 'hipaa' | 'hello' | 'restart' | null {
   const t = text.toLowerCase()
   if (/\b(start over|reset|restart|new chat)\b/.test(t)) return 'restart'
   if (/\b(hello|hi|hey|howdy)\b/.test(t)) return 'hello'
-  if (/\b(quote|price|cost|how much|estimate|pricing)\b/.test(t)) return 'quote'
-  if (/\b(area|serve|service area|where do you|coverage)\b/.test(t)) return 'area'
-  if (/\b(schedule|book|appointment|repair|fix|broken|not working|died|emergency)\b/.test(t)) return 'schedule'
-  if (detectService(text)) return 'schedule'
+  if (/\b(hipaa|hippa|compliance|zero data|zdr|regulated|healthcare)\b/.test(t)) return 'hipaa'
+  if (/\b(price|pricing|cost|how much)\b/.test(t)) return 'pricing'
   return null
+}
+
+const AVG_JOB: Record<string, number> = {
+  HVAC: 500,
+  plumbing: 450,
+  electrical: 400,
+}
+
+function buildAssessment(mem: ChatMemory): string {
+  const crew = mem.crewSize || 3
+  const avg = AVG_JOB[mem.trade || ''] || 425
+  const missedPerWeek = crew * 3
+  const weeklyLost = Math.round(missedPerWeek * avg * 0.5)
+  const monthlyLost = weeklyLost * 4
+
+  const solo = crew === 1
+  const crewLabel = solo ? 'solo operator' : `${crew}-tech crew`
+
+  return `Quick math on your ${mem.trade || 'service'} business as a ${crewLabel}: you're likely missing around ${missedPerWeek} calls a week after hours. At ~$${avg} average job and a 50% close rate, that's roughly $${weeklyLost.toLocaleString()}/week — over $${monthlyLost.toLocaleString()}/month — going to whoever picks up first.${solo ? " As a solo operator every one of those hurts." : ""} That's exactly what Vox fixes. Want to see which package fits?`
 }
 
 export function advanceReceptionist(
@@ -74,12 +91,12 @@ export function advanceReceptionist(
   const lower = t.toLowerCase()
   let nextMem = { ...memory }
 
-  const completeChips = ['Book another', 'Start over']
-  const idleChips = ['Schedule a repair', 'Get a quote', 'What areas do you serve?']
+  const completeChips = ['Tell me more', 'Start over']
+  const idleChips = ['Missed after-hours calls', 'Need more Google reviews', 'Website visitors not converting', 'Tell me about the bundle']
 
   if (detectIntent(t) === 'restart' || lower === 'start over') {
     return {
-      reply: "Fresh start. I can schedule a repair, rough out a quote, or confirm where we serve — what do you need?",
+      reply: "Fresh start. I help contractors stop losing jobs to missed calls, dead website forms, and forgotten review asks. What's the biggest pain right now?",
       step: 'idle',
       memory: {},
       chips: idleChips,
@@ -87,126 +104,19 @@ export function advanceReceptionist(
   }
 
   if (step === 'complete') {
-    if (/\b(book|schedule|another|repair)\b/.test(lower)) {
+    if (/\b(tell|more|package|pricing|price)\b/.test(lower)) {
       return {
-        reply: 'Happy to book another. What needs service — AC, heating, plumbing, or electrical?',
-        step: 'schedule_service',
-        memory: {},
-        chips: ['AC not cooling', 'Furnace issue', 'Plumbing leak', 'Electrical'],
-      }
-    }
-    return {
-      reply: "You're all set. Tap Start over for a new run, or ask anything else about service.",
-      step: 'complete',
-      memory: nextMem,
-      chips: completeChips,
-    }
-  }
-
-  if (step === 'schedule_service') {
-    const service = detectService(t) || (t.length > 1 ? t : null)
-    if (!service) {
-      return {
-        reply: 'What needs service — AC/cooling, heating, plumbing, or electrical?',
-        step: 'schedule_service',
-        memory: nextMem,
-        chips: ['AC not cooling', 'Heating', 'Plumbing', 'Electrical'],
-      }
-    }
-    nextMem.service = service
-    const phone = extractPhone(t)
-    if (phone) {
-      nextMem.phone = phone
-      return {
-        reply: `Got it — ${service}. Phone ${phone} saved. Morning or afternoon work better for the tech visit?`,
-        step: 'schedule_slot',
-        memory: nextMem,
-        chips: ['Morning', 'Afternoon', 'Today if possible'],
-      }
-    }
-    return {
-      reply: `${service} — noted. What's the best phone number to reach you?`,
-      step: 'schedule_phone',
-      memory: nextMem,
-      chips: ['(209) 555-0147', 'Text me instead'],
-    }
-  }
-
-  if (step === 'schedule_phone') {
-    if (/\b(text|sms)\b/.test(lower)) {
-      nextMem.phone = 'SMS opt-in'
-    } else {
-      const phone = extractPhone(t)
-      if (!phone && t.replace(/\D/g, '').length < 7) {
-        return {
-          reply: 'I need a callback number so the tech can confirm. Example: (209) 555-0147',
-          step: 'schedule_phone',
-          memory: nextMem,
-          chips: ['(209) 555-0147'],
-        }
-      }
-      nextMem.phone = phone || t
-    }
-    return {
-      reply: `Thanks — ${nextMem.phone}. Last step: morning, afternoon, or same-day if we have a window?`,
-      step: 'schedule_slot',
-      memory: nextMem,
-      chips: ['Morning 8–10', 'Afternoon 1–4', 'Today ASAP'],
-    }
-  }
-
-  if (step === 'schedule_slot') {
-    if (/just the range/i.test(t)) {
-      return {
-        reply: 'No problem — keep that range for planning. Come back anytime to book a visit.',
+        reply: "Reviews ~$300–$500/mo for automated Google review texts. Receptionist ~$500–$800/mo for AI website chat. Voice ~$800–$1,500/mo for 24/7 AI phone answering. Or bundle all three for $1,500/mo — less than a part-time hire. All month-to-month, no contracts. Gabe will reach out to get you set up.",
         step: 'complete',
         memory: nextMem,
         chips: completeChips,
       }
     }
-    const slot = detectSlot(t) || t
-    nextMem.slot = slot
     return {
-      reply: `Booked. ${nextMem.service || 'Service'} for ${nextMem.slot}. We'll text ${nextMem.phone || 'you'} a confirmation and notify the contractor. You're on the schedule.`,
+      reply: "You're all set — Gabe will follow up shortly. Tap Start over for a new conversation.",
       step: 'complete',
       memory: nextMem,
       chips: completeChips,
-    }
-  }
-
-  if (step === 'quote_type') {
-    const qt = detectQuoteType(t) || detectService(t) || t
-    nextMem.quoteType = qt
-    const zip = extractZip(t)
-    if (zip) {
-      nextMem.zip = zip
-      return {
-        reply: `Rough range for ${qt} in ${zip}: $180–$450 diagnostic/repair visits; installs vary by system. Want me to book a tech to quote on-site?`,
-        step: 'complete',
-        memory: nextMem,
-        chips: ['Yes, book a visit', 'Start over'],
-      }
-    }
-    return {
-      reply: `${qt} — good. What's your zip code so I can price for your area?`,
-      step: 'quote_zip',
-      memory: nextMem,
-      chips: ['95336', '95380', '95350'],
-    }
-  }
-
-  if (step === 'quote_zip') {
-    const zip = extractZip(t) || t.replace(/\D/g, '').slice(0, 5) || t
-    nextMem.zip = zip
-    return {
-      reply: `For ${nextMem.quoteType || 'service'} near ${zip}: typical repair visits run $180–$450; full installs are quoted on-site. I can book a free estimate — morning or afternoon?`,
-      step: 'schedule_slot',
-      memory: {
-        ...nextMem,
-        service: nextMem.quoteType || 'estimate visit',
-        phone: nextMem.phone || 'on file at booking',
-      },
-      chips: ['Morning', 'Afternoon', 'Just the range is fine'],
     }
   }
 
@@ -214,74 +124,197 @@ export function advanceReceptionist(
 
   if (intent === 'hello') {
     return {
-      reply: "Hey! I'm the AI Receptionist for Valley Air Pros. I can schedule repairs, rough out quotes, or confirm service areas — what do you need?",
+      reply: "Hey! I'm the AI Receptionist for Vox.chat. I help HVAC, plumbing, and electrical contractors stop losing jobs to missed calls, dead forms, and forgotten review asks. What's the biggest pain right now?",
       step: 'idle',
       memory: {},
       chips: idleChips,
     }
   }
 
-  if (intent === 'area') {
+  if (intent === 'pricing') {
     return {
-      reply: 'We cover the 209 corridor — Manteca, Stockton, Tracy, Modesto, Turlock, Lathrop, Ripon, and nearby. Same-day often available. Want to schedule something?',
-      step: 'idle',
+      reply: "Reviews ~$300–$500/mo. Receptionist ~$500–$800/mo. Voice ~$800–$1,500/mo. Bundle all three for $1,500/mo — that's less than a part-time hire. Month-to-month, no contracts. What trade are you in? I can give you a quick revenue estimate.",
+      step: 'qualify_trade',
       memory: {},
-      chips: ['Schedule a repair', 'Get a quote', 'Start over'],
+      chips: ['HVAC', 'Plumbing', 'Electrical'],
     }
   }
 
-  if (intent === 'quote') {
+  if (intent === 'hipaa') {
     return {
-      reply: 'Happy to ballpark pricing. Is this an install/replacement, a repair, or maintenance?',
-      step: 'quote_type',
+      reply: "We offer compliance add-ons for regulated industries. HIPAA Compliance is $2,500/mo — includes a BAA, encrypted call handling, and annual compliance review. Zero Data Retention is $1,500/mo — no transcripts or recordings stored. Both together (Compliance Bundle) for $3,500/mo, saving $500. All month-to-month. What trade are you in?",
+      step: 'qualify_trade',
       memory: {},
-      chips: ['Repair', 'New install', 'Maintenance'],
+      chips: ['HVAC', 'Plumbing', 'Electrical', 'Healthcare'],
     }
   }
 
-  if (intent === 'schedule') {
-    const service = detectService(t)
-    const zip = extractZip(t)
-    const phone = extractPhone(t)
-    if (service) nextMem.service = service
-    if (zip) nextMem.zip = zip
-    if (phone) nextMem.phone = phone
-
-    if (service && phone) {
+  if (step === 'idle') {
+    const pain = detectPain(t)
+    const trade = detectTrade(t)
+    if (pain) nextMem.pain = pain
+    if (trade) {
+      nextMem.trade = trade
       return {
-        reply: `${service} — got it. Number ${phone} saved${zip ? ` · ${zip}` : ''}. Morning or afternoon for the tech?`,
-        step: 'schedule_slot',
+        reply: `${trade} — great. How big is your crew? Solo operator or how many techs?`,
+        step: 'qualify_crew',
         memory: nextMem,
-        chips: ['Morning', 'Afternoon', 'Today ASAP'],
+        chips: ['Solo', '3–5 techs', '10+'],
       }
     }
-    if (service) {
+    if (pain) {
       return {
-        reply: `${service} in ${zip || 'your area'} — I can book that. What's the best phone number?`,
-        step: 'schedule_phone',
+        reply: `${pain === 'all three' ? 'The full stack' : pain.charAt(0).toUpperCase() + pain.slice(1)} — that's exactly what we solve. What trade are you in?`,
+        step: 'qualify_trade',
+        memory: nextMem,
+        chips: ['HVAC', 'Plumbing', 'Electrical'],
+      }
+    }
+    return {
+      reply: "Got it. What trade are you in — HVAC, plumbing, electrical, or something else?",
+      step: 'qualify_trade',
+      memory: nextMem,
+      chips: ['HVAC', 'Plumbing', 'Electrical'],
+    }
+  }
+
+  if (step === 'qualify_trade') {
+    const trade = detectTrade(t) || (t.length > 1 ? t : null)
+    if (!trade) {
+      return {
+        reply: "What trade — HVAC, plumbing, electrical?",
+        step: 'qualify_trade',
+        memory: nextMem,
+        chips: ['HVAC', 'Plumbing', 'Electrical'],
+      }
+    }
+    nextMem.trade = trade
+    const crew = detectCrewSize(t)
+    if (crew) {
+      nextMem.crewSize = crew
+      return {
+        reply: `${trade}, ${crew === 1 ? 'solo' : crew + ' techs'} — got it. What's the biggest pain: missed after-hours calls, not enough Google reviews, or website visitors not converting?`,
+        step: 'qualify_pain',
+        memory: nextMem,
+        chips: ['Missed calls', 'Need reviews', 'Website leads', 'All of it'],
+      }
+    }
+    return {
+      reply: `${trade} — nice. How big is your crew? Solo or how many techs?`,
+      step: 'qualify_crew',
+      memory: nextMem,
+      chips: ['Solo', '3–5 techs', '10+'],
+    }
+  }
+
+  if (step === 'qualify_crew') {
+    const crew = detectCrewSize(t)
+    if (!crew) {
+      if (/\b(small|few|couple)\b/.test(lower)) nextMem.crewSize = 3
+      else if (/\b(big|large|lots)\b/.test(lower)) nextMem.crewSize = 12
+      else {
+        return {
+          reply: "Roughly how many techs — just you, or a crew?",
+          step: 'qualify_crew',
+          memory: nextMem,
+          chips: ['Solo', '3–5', '10+'],
+        }
+      }
+    } else {
+      nextMem.crewSize = crew
+    }
+    return {
+      reply: `${nextMem.crewSize === 1 ? 'Solo' : nextMem.crewSize + ' techs'} — respect. What's the biggest pain right now: missed after-hours calls, not enough Google reviews, or website visitors not converting?`,
+      step: 'qualify_pain',
+      memory: nextMem,
+      chips: ['Missed calls', 'Need reviews', 'Website leads', 'All of it'],
+    }
+  }
+
+  if (step === 'qualify_pain') {
+    const pain = detectPain(t) || (t.length > 1 ? t : null)
+    if (!pain) {
+      return {
+        reply: "What bugs you most — missed calls, reviews, or website leads?",
+        step: 'qualify_pain',
+        memory: nextMem,
+        chips: ['Missed calls', 'Reviews', 'Website leads'],
+      }
+    }
+    nextMem.pain = pain
+    const assessment = buildAssessment(nextMem)
+    return {
+      reply: assessment,
+      step: 'assessment',
+      memory: nextMem,
+      chips: ['Yes, show packages', 'What does it cost?'],
+    }
+  }
+
+  if (step === 'assessment') {
+    const recommended = nextMem.pain === 'reviews' ? 'Reviews at ~$400/mo'
+      : nextMem.pain === 'website leads' ? 'Receptionist at ~$650/mo'
+      : nextMem.pain === 'missed calls' ? 'Voice at ~$1,100/mo'
+      : 'the Bundle at $1,500/mo'
+    return {
+      reply: `Based on what you told me, I'd start with ${recommended}. The bundle gets you all three for $1,500/mo — less than a part-time hire. Month-to-month, no contracts, $0 setup. Drop your name and best phone and Gabe will reach out today.`,
+      step: 'collect_name',
+      memory: nextMem,
+      chips: [],
+    }
+  }
+
+  if (step === 'collect_name') {
+    const phone = extractPhone(t)
+    if (phone) {
+      nextMem.phone = phone
+      nextMem.name = t.replace(phone, '').replace(/[^\w\s]/g, '').trim() || 'there'
+      return {
+        reply: `Got it — Gabe will text ${nextMem.phone} shortly to get you set up. ${nextMem.trade ? `Your ${nextMem.trade} business is about to stop losing money to missed calls.` : "You're about to stop losing money to missed calls."} Anything else?`,
+        step: 'complete',
+        memory: nextMem,
+        chips: completeChips,
+      }
+    }
+    nextMem.name = t
+    return {
+      reply: `Thanks ${nextMem.name}. What's the best phone number to reach you?`,
+      step: 'collect_phone',
+      memory: nextMem,
+      chips: ['(209) 555-0147'],
+    }
+  }
+
+  if (step === 'collect_phone') {
+    const phone = extractPhone(t)
+    if (!phone && t.replace(/\D/g, '').length < 7) {
+      return {
+        reply: "I need a callback number so Gabe can follow up. Example: (209) 555-0147",
+        step: 'collect_phone',
         memory: nextMem,
         chips: ['(209) 555-0147'],
       }
     }
+    nextMem.phone = phone || t
     return {
-      reply: 'I can get that on the calendar. What needs service — AC, heating, plumbing, or electrical?',
-      step: 'schedule_service',
+      reply: `Perfect — Gabe will reach out to ${nextMem.phone} today. ${nextMem.trade ? `Your ${nextMem.trade} business is about to stop losing money to missed calls.` : "You're about to stop losing money to missed calls."} Anything else?`,
+      step: 'complete',
       memory: nextMem,
-      chips: ['AC not cooling', 'Heating', 'Plumbing', 'Electrical'],
+      chips: completeChips,
     }
   }
 
   if (t.length > 2) {
     return {
-      reply: "I can help with that. Let's book it — what needs service (AC, heating, plumbing, electrical), or want a price range first?",
+      reply: "I can help with that. Are you dealing with missed calls, not enough reviews, or website visitors not converting?",
       step: 'idle',
       memory: {},
-      chips: ['Schedule a repair', 'Get a quote', 'Service areas'],
+      chips: idleChips,
     }
   }
 
   return {
-    reply: 'I can schedule a repair, rough out a quote, or list service areas. Tap a suggestion or type what you need.',
+    reply: "I help contractors stop losing jobs. Tap a topic or tell me what's going on with your business.",
     step: 'idle',
     memory: {},
     chips: idleChips,
