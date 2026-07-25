@@ -11,9 +11,12 @@
     "setup:sheet": "node scripts/setup-google-leads.mjs"
   },
   "dependencies": {
+    "@remotion/cli": "^4.0.499",
+    "@remotion/player": "^4.0.499",
     "@vapi-ai/web": "^2.6.1",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "remotion": "^4.0.499"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.11",
