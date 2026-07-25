@@ -1,5 +1,5 @@
-import { RECEPTIONIST_SYSTEM_PROMPT } from './prompt'
-import { VOX_RECEPTIONIST_SYSTEM_PROMPT } from './voxPrompt'
+import { RECEPTIONIST_SYSTEM_PROMPT } from './chatDemoPrompt'
+import { VOX_RECEPTIONIST_SYSTEM_PROMPT } from './chatLivePrompt'
 import { extractLeadFromReply, notifyLead, type CapturedLead } from './notifyLead'
 
 export type IncomingMessage = { role: 'user' | 'assistant'; content: string }
