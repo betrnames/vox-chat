@@ -3,6 +3,7 @@
  * Direct lead capture (email + Google Sheet).
  */
 import { writeLeadToSheet } from './googleSheet.js'
+import { twilioConfigured, sendTwilioSms, normalizePhone } from './reviewsShared.js'
 
 function clean(s, max) {
   max = max || 200
@@ -62,6 +63,18 @@ export default async function handler(req, res) {
       if (sheetChannel) channels.push(sheetChannel)
     } catch (e) {
       console.error('[lead] sheet', e)
+    }
+
+    // SMS alert to owner
+    const ownerPhone = normalizePhone(process.env.REVIEW_OWNER_PHONE)
+    if (twilioConfigured() && ownerPhone) {
+      try {
+        const smsBody = `New Vox.chat lead (web form): ${payload.name} - ${payload.phone || payload.email}. Interest: ${payload.interest || 'unknown'}.`
+        const smsResult = await sendTwilioSms(ownerPhone, smsBody, { kind: 'owner_alert' })
+        if (smsResult.ok) channels.push('sms')
+      } catch (e) {
+        console.error('[lead] sms', e)
+      }
     }
 
     return res.status(channels.length ? 200 : 502).json({ ok: channels.length > 0, channels })

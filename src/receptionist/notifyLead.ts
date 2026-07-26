@@ -91,6 +91,37 @@ export async function notifyLead(lead: CapturedLead): Promise<{ ok: boolean; cha
     }
   }
 
+  // SMS alert to owner via Twilio
+  const sid = serverEnv('TWILIO_ACCOUNT_SID')
+  const token = serverEnv('TWILIO_AUTH_TOKEN')
+  const from = serverEnv('TWILIO_FROM_NUMBER')
+  const ownerPhone = serverEnv('REVIEW_OWNER_PHONE')
+  if (sid && token && from && ownerPhone) {
+    try {
+      const trialRaw = (serverEnv('TWILIO_TRIAL') || '').toLowerCase()
+      const isTrial = trialRaw !== '0' && trialRaw !== 'false' && trialRaw !== 'no'
+
+      const smsBody = isTrial
+        ? (serverEnv('TWILIO_TEMPLATE_OWNER') || 'sms_internal_alerts')
+        : `New Vox.chat lead (receptionist): ${payload.name} - ${payload.phone || payload.email}. Interest: ${payload.interest || 'unknown'}. ${payload.notes || ''}`
+
+      const params = new URLSearchParams({ To: ownerPhone, From: from, Body: smsBody })
+      const url = `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`
+      const auth = btoa(`${sid}:${token}`)
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Basic ${auth}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params,
+      })
+      if (r.ok) channels.push('sms')
+    } catch {
+      /* non-fatal */
+    }
+  }
+
   return { ok: channels.length > 0, channels }
 }
 
