@@ -1,6 +1,13 @@
+import { useState } from 'react'
 import './index.css'
 import { blogPosts } from './blog-data'
+
+const tags = Array.from(new Set(blogPosts.map((p) => p.tag)))
+
 export default function BlogIndex() {
+  const [activeTag, setActiveTag] = useState<string | null>(null)
+  const filtered = activeTag ? blogPosts.filter((p) => p.tag === activeTag) : blogPosts
+
   return (
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
@@ -22,7 +29,7 @@ export default function BlogIndex() {
       </nav>
 
       <header className="pt-28 sm:pt-32 pb-12 px-5">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
             <a href="/" className="hover:text-foreground transition-colors">Home</a>
             <span>/</span>
@@ -38,42 +45,76 @@ export default function BlogIndex() {
       </header>
 
       <main className="px-5 pb-24">
-        <div className="max-w-4xl mx-auto space-y-6">
-          {blogPosts.map((post) => (
-            <a
-              key={post.slug}
-              href={`/blog/${post.slug}.html`}
-              className="group block rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm transition-shadow duration-300 hover:shadow-[0_0_25px_-5px_var(--primary)] hover:border-primary/30"
-            >
-              {post.image && (
-                <img
-                  src={post.image}
-                  alt={post.imageAlt || post.title}
-                  width={1200}
-                  height={630}
-                  loading="lazy"
-                  className="w-full h-auto"
-                />
-              )}
-              <div className="p-6 sm:p-8">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="px-2.5 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium">{post.tag}</span>
-                <span className="text-xs text-muted-foreground">{post.date}</span>
-                <span className="text-xs text-muted-foreground/50">{post.readTime}</span>
-              </div>
-              <h2 className="font-serif text-xl sm:text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
-                {post.title}
-              </h2>
-              <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">{post.excerpt}</p>
-              <span className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-primary">
-                Read article
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </span>
-              </div>
-            </a>
-          ))}
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-[220px_1fr] gap-10 lg:gap-16">
+          {/* Left Nav */}
+          <aside className="hidden lg:block">
+            <nav className="sticky top-24 space-y-1">
+              <button
+                type="button"
+                onClick={() => setActiveTag(null)}
+                className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                  activeTag === null
+                    ? 'bg-primary/10 text-primary font-medium'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                }`}
+              >
+                All posts
+              </button>
+              {tags.map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => setActiveTag(tag)}
+                  className={`block w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+                    activeTag === tag
+                      ? 'bg-primary/10 text-primary font-medium'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  }`}
+                >
+                  {tag}
+                </button>
+              ))}
+            </nav>
+          </aside>
+
+          {/* Blog Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filtered.map((post) => (
+              <a
+                key={post.slug}
+                href={`/blog/${post.slug}.html`}
+                className="group block rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm transition-shadow duration-300 hover:shadow-[0_0_25px_-5px_var(--primary)] hover:border-primary/30"
+              >
+                {post.image && (
+                  <img
+                    src={post.image}
+                    alt={post.imageAlt || post.title}
+                    width={1200}
+                    height={630}
+                    loading="lazy"
+                    className="w-full h-auto"
+                  />
+                )}
+                <div className="p-5">
+                  <div className="flex flex-wrap items-center gap-2 mb-3">
+                    <span className="px-2.5 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium">{post.tag}</span>
+                    <span className="text-xs text-muted-foreground">{post.date}</span>
+                    <span className="text-xs text-muted-foreground/50">{post.readTime}</span>
+                  </div>
+                  <h2 className="font-serif text-lg font-bold mb-2 group-hover:text-primary transition-colors leading-snug">
+                    {post.title}
+                  </h2>
+                  <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">{post.excerpt}</p>
+                  <span className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-primary">
+                    Read article
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
       </main>
 
