@@ -449,6 +449,12 @@ export default defineConfig(({ mode }) => {
           'blog-stockton-plumbers': resolve(__dirname, 'blog/stockton-plumbers-emergency-calls.html'),
           'blog-tracy-contractors': resolve(__dirname, 'blog/tracy-contractors-rank-google-maps.html'),
           'blog-modesto-roofers': resolve(__dirname, 'blog/modesto-roofers-storm-season-calls.html'),
+          'blog-turlock-after-hours': resolve(__dirname, 'blog/turlock-after-hours-answering-contractors.html'),
+          'blog-ai-vs-traditional': resolve(__dirname, 'blog/ai-answering-vs-traditional-answering-service-hvac.html'),
+          'blog-reviews-vs-referrals': resolve(__dirname, 'blog/google-reviews-vs-referrals-electricians.html'),
+          'blog-managed-vs-diy': resolve(__dirname, 'blog/managed-ai-vs-diy-dashboards-contractors.html'),
+          'blog-need-receptionist': resolve(__dirname, 'blog/do-i-need-receptionist-hvac-company.html'),
+          'blog-answer-calls-on-job': resolve(__dirname, 'blog/how-to-answer-calls-while-on-a-job.html'),
           legal: resolve(__dirname, 'legal.html'),
           // Unlisted intake — not linked from nav/footer/sitemap
           setup: resolve(__dirname, 'setup.html'),

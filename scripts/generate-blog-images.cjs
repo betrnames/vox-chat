@@ -101,6 +101,48 @@ const posts = [
     headline: 'Handle the Storm Surge',
     sub: 'Modesto Roofers',
   },
+  {
+    slug: 'turlock-after-hours-answering-contractors',
+    stat: '$4,200',
+    label: 'per week in recovered after-hours calls',
+    headline: 'After Hours = After Revenue',
+    sub: 'Turlock Contractors',
+  },
+  {
+    slug: 'ai-answering-vs-traditional-answering-service-hvac',
+    stat: '60%',
+    label: 'less than traditional answering services',
+    headline: 'AI vs Live Answering',
+    sub: 'HVAC Companies',
+  },
+  {
+    slug: 'google-reviews-vs-referrals-electricians',
+    stat: '3×',
+    label: 'more calls with 50+ reviews',
+    headline: 'Reviews Beat Referrals',
+    sub: 'Electricians',
+  },
+  {
+    slug: 'managed-ai-vs-diy-dashboards-contractors',
+    stat: '73%',
+    label: 'quit DIY AI tools in 60 days',
+    headline: 'Managed vs DIY',
+    sub: 'Contractors',
+  },
+  {
+    slug: 'do-i-need-receptionist-hvac-company',
+    stat: '$38K',
+    label: 'per year — or $1,100/mo for AI',
+    headline: 'Skip the Hire',
+    sub: 'HVAC Companies',
+  },
+  {
+    slug: 'how-to-answer-calls-while-on-a-job',
+    stat: '40%',
+    label: 'of calls missed while on job sites',
+    headline: 'Never Miss a Call',
+    sub: 'Contractors',
+  },
 ]
 
 function makeSvg({ stat, label, headline, sub }, theme) {
