@@ -182,7 +182,13 @@ function Hero() {
               className="absolute inset-0 transition-opacity duration-700 ease-in-out flex items-center"
               style={{ opacity: showForm ? 1 : 0, pointerEvents: showForm ? 'auto' : 'none' }}
             >
-              <div className="w-full rounded-2xl border border-border/60 bg-card p-6 sm:p-7 shadow-lg">
+              <div
+                className="w-full rounded-2xl border p-6 sm:p-7 shadow-lg"
+                style={{
+                  borderColor: 'color-mix(in srgb, var(--color-chat) 30%, transparent)',
+                  background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-chat) 6%, var(--card)) 0%, var(--card) 100%)',
+                }}
+              >
                 <h2 className="text-lg font-semibold mb-1">Book a free consultation</h2>
                 <p className="text-sm text-muted-foreground mb-5">No contracts. Cancel anytime.</p>
                 <form
@@ -273,18 +279,21 @@ function HowItWorks() {
       title: 'We learn your trade',
       description: 'Tell us your services, service area, and how you want calls handled. HVAC installs, emergency plumbing, panel upgrades — we tailor the AI to your exact workflow.',
       detail: ['Custom greeting & tone', 'Trade-specific FAQ training', 'Your calendar & booking rules'],
+      color: 'var(--color-voice)',
     },
     {
       eyebrow: 'Step 2',
       title: 'Your AI goes live',
       description: 'Your AI agent starts answering calls, chatting with website visitors, and following up on reviews — even at 2 AM when a pipe bursts.',
       detail: ['Phone forwarding setup', 'AI Receptionist activated', 'Review automation activated'],
+      color: 'var(--color-chat)',
     },
     {
       eyebrow: 'Step 3',
       title: 'You grow while we handle the rest',
       description: 'Focus on the job site. Your AI handles every call, books every appointment, and builds your 5-star reputation around the clock.',
       detail: ['Real-time notifications', 'Monthly performance reports', 'Ongoing script optimization'],
+      color: 'var(--color-review)',
     },
   ]
 
@@ -301,16 +310,26 @@ function HowItWorks() {
           {steps.map((s, i) => (
             <div key={i} className={`grid lg:grid-cols-2 gap-8 lg:gap-16 items-center ${i % 2 === 1 ? 'lg:direction-rtl' : ''}`}>
               <div className={i % 2 === 1 ? 'lg:order-2' : ''}>
-                <span className="font-mono text-xs uppercase tracking-widest text-primary">{s.eyebrow}</span>
+                <span className="font-mono text-xs uppercase tracking-widest" style={{ color: s.color }}>{s.eyebrow}</span>
                 <h3 className="font-serif text-2xl sm:text-3xl font-bold tracking-tight mt-2 mb-3">{s.title}</h3>
                 <p className="text-muted-foreground leading-relaxed">{s.description}</p>
               </div>
-              <div className={`rounded-2xl border border-border/60 bg-card p-6 sm:p-8 shadow-sm transition-shadow duration-300 hover:shadow-[0_0_25px_-5px_var(--primary)] hover:border-primary/30 ${i % 2 === 1 ? 'lg:order-1' : ''}`}>
+              <div
+                className={`rounded-2xl border bg-card p-6 sm:p-8 shadow-sm transition-all duration-300 ${i % 2 === 1 ? 'lg:order-1' : ''}`}
+                style={{
+                  borderColor: `color-mix(in srgb, ${s.color} 30%, transparent)`,
+                  background: `linear-gradient(135deg, color-mix(in srgb, ${s.color} 6%, var(--card)) 0%, var(--card) 100%)`,
+                  ['--step-color' as string]: s.color,
+                }}
+              >
                 <ul className="space-y-4">
                   {s.detail.map((d) => (
                     <li key={d} className="flex items-center gap-3">
-                      <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                        <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                      <span
+                        className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: `color-mix(in srgb, ${s.color} 15%, transparent)` }}
+                      >
+                        <svg className="w-3.5 h-3.5" style={{ color: s.color }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                         </svg>
                       </span>
@@ -334,6 +353,7 @@ const colorMap = {
     text: 'text-voice',
     check: 'text-voice/70',
     tabActive: 'bg-voice/12 text-voice border-voice/30',
+    css: 'var(--color-voice)',
   },
   chat: {
     dot: 'bg-chat',
@@ -341,6 +361,7 @@ const colorMap = {
     text: 'text-chat',
     check: 'text-chat/70',
     tabActive: 'bg-chat/12 text-chat border-chat/30',
+    css: 'var(--color-chat)',
   },
   review: {
     dot: 'bg-review',
@@ -348,6 +369,7 @@ const colorMap = {
     text: 'text-review',
     check: 'text-review/70',
     tabActive: 'bg-review/12 text-review border-review/30',
+    css: 'var(--color-review)',
   },
 }
 
@@ -395,8 +417,16 @@ const services = [
 
 function Services() {
   return (
-    <section id="services" className="py-24 sm:py-32 px-5 bg-muted">
-      <div className="max-w-4xl mx-auto">
+    <section id="services" className="py-24 sm:py-32 px-5 bg-muted relative overflow-hidden">
+      <svg className="absolute inset-0 w-full h-full opacity-[0.04] pointer-events-none" aria-hidden="true">
+        <defs>
+          <pattern id="grid-services" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M40 0H0v40" fill="none" stroke="currentColor" strokeWidth="1"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid-services)"/>
+      </svg>
+      <div className="max-w-4xl mx-auto relative">
         <div className="text-center mb-16">
           <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">Services</p>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight mb-4">
@@ -412,12 +442,16 @@ function Services() {
             return (
               <div
                 key={s.name}
-                className={`relative flex flex-col rounded-2xl border bg-card transition-all ${
+                className={`relative flex flex-col rounded-2xl border transition-all ${
                   s.popular
                     ? 'border-primary shadow-lg sm:scale-[1.03] sm:-my-2'
-                    : 'border-border/60 shadow-sm hover:shadow-md hover:border-border'
+                    : 'shadow-sm hover:shadow-md'
                 }`}
-                style={s.popular ? { boxShadow: '0 0 30px -5px var(--primary)' } : undefined}
+                style={{
+                  borderColor: s.popular ? undefined : `color-mix(in srgb, ${c.css} 30%, transparent)`,
+                  background: `linear-gradient(135deg, color-mix(in srgb, ${c.css} 6%, var(--card)) 0%, var(--card) 100%)`,
+                  boxShadow: s.popular ? `0 0 30px -5px var(--primary)` : undefined,
+                }}
               >
                 {s.popular && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
@@ -1135,8 +1169,16 @@ function Demos() {
   const activeDesc = tabs.find((t) => t.id === activeTab)!.desc
 
   return (
-    <section id="demos" className="py-24 sm:py-32 px-5 bg-muted scroll-mt-20">
-      <div className="max-w-6xl mx-auto">
+    <section id="demos" className="py-24 sm:py-32 px-5 bg-muted relative overflow-hidden scroll-mt-20">
+      <svg className="absolute inset-0 w-full h-full opacity-[0.04] pointer-events-none" aria-hidden="true">
+        <defs>
+          <pattern id="dots-demos" width="24" height="24" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1.5" fill="currentColor"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#dots-demos)"/>
+      </svg>
+      <div className="max-w-6xl mx-auto relative">
         <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12 lg:gap-16 items-start">
           <div className="lg:sticky lg:top-24">
             <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">Interactive demos</p>
@@ -1163,7 +1205,13 @@ function Demos() {
               ))}
             </div>
           </div>
-          <div className="rounded-2xl border border-border/60 bg-card p-6 sm:p-8 shadow-md">
+          <div
+            className="rounded-2xl border bg-card p-6 sm:p-8 shadow-md transition-colors duration-300"
+            style={{
+              borderColor: `color-mix(in srgb, ${colorMap[activeTab].css} 30%, transparent)`,
+              background: `linear-gradient(135deg, color-mix(in srgb, ${colorMap[activeTab].css} 6%, var(--card)) 0%, var(--card) 100%)`,
+            }}
+          >
             {activeTab === 'voice' && <VoiceDemo />}
             {activeTab === 'chat' && <ReceptionistDemo />}
             {activeTab === 'review' && <ReviewDemo />}
@@ -1176,9 +1224,9 @@ function Demos() {
 
 function ROI() {
   const stats = [
-    { value: '27%', label: 'Calls missed', sub: 'by the average HVAC contractor' },
-    { value: '85%', label: 'Call a competitor', sub: 'when no one picks up' },
-    { value: '$3,800', label: 'Lost per month', sub: 'in missed call revenue' },
+    { value: '27%', label: 'Calls missed', sub: 'by the average HVAC contractor', css: 'var(--color-voice)' },
+    { value: '85%', label: 'Call a competitor', sub: 'when no one picks up', css: 'var(--color-chat)' },
+    { value: '$3,800', label: 'Lost per month', sub: 'in missed call revenue', css: 'var(--color-review)' },
   ]
 
   return (
@@ -1195,8 +1243,15 @@ function ROI() {
         </div>
         <div className="grid sm:grid-cols-3 gap-6">
           {stats.map((s) => (
-            <div key={s.label} className="text-center px-8 pt-10 pb-8 rounded-2xl border border-border/60 bg-card shadow-sm">
-              <div className="font-serif text-4xl sm:text-5xl font-bold text-primary mb-2">{s.value}</div>
+            <div
+              key={s.label}
+              className="text-center px-8 pt-10 pb-8 rounded-2xl border shadow-sm"
+              style={{
+                borderColor: `color-mix(in srgb, ${s.css} 30%, transparent)`,
+                background: `linear-gradient(135deg, color-mix(in srgb, ${s.css} 6%, var(--card)) 0%, var(--card) 100%)`,
+              }}
+            >
+              <div className="font-serif text-4xl sm:text-5xl font-bold mb-2" style={{ color: s.css }}>{s.value}</div>
               <div className="text-sm font-semibold text-foreground mb-1">{s.label}</div>
               <div className="text-xs text-muted-foreground/50">{s.sub}</div>
             </div>
@@ -1209,14 +1264,22 @@ function ROI() {
 
 function BuiltFor() {
   const trades = [
-    { name: 'HVAC Contractors', stat: '$3,800/mo in missed calls', desc: 'Peak summer demand means 27% of calls go unanswered. Your AI picks up every one.' },
-    { name: 'Plumbers', stat: '48% of emergencies after hours', desc: 'Burst pipes don\'t wait until morning. Your AI answers at 2 AM the same way it does at 2 PM.' },
-    { name: 'Electricians', stat: '78% close rate for first responder', desc: 'Panel upgrades, EV chargers, outages — whoever answers first wins the bid.' },
+    { name: 'HVAC Contractors', stat: '$3,800/mo in missed calls', desc: 'Peak summer demand means 27% of calls go unanswered. Your AI picks up every one.', css: 'var(--color-voice)' },
+    { name: 'Plumbers', stat: '48% of emergencies after hours', desc: 'Burst pipes don\'t wait until morning. Your AI answers at 2 AM the same way it does at 2 PM.', css: 'var(--color-chat)' },
+    { name: 'Electricians', stat: '78% close rate for first responder', desc: 'Panel upgrades, EV chargers, outages — whoever answers first wins the bid.', css: 'var(--color-review)' },
   ]
 
   return (
-    <section className="py-24 sm:py-32 px-5 bg-muted">
-      <div className="max-w-5xl mx-auto">
+    <section className="py-24 sm:py-32 px-5 bg-muted relative overflow-hidden">
+      <svg className="absolute inset-0 w-full h-full opacity-[0.04] pointer-events-none" aria-hidden="true">
+        <defs>
+          <pattern id="diag-built" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="16" stroke="currentColor" strokeWidth="1"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#diag-built)"/>
+      </svg>
+      <div className="max-w-5xl mx-auto relative">
         <div className="text-center mb-16">
           <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">Built for your trade</p>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight mb-4">
@@ -1228,9 +1291,16 @@ function BuiltFor() {
         </div>
         <div className="grid sm:grid-cols-3 gap-6">
           {trades.map((t) => (
-            <div key={t.name} className="rounded-2xl border border-border/60 bg-card p-6 shadow-sm">
+            <div
+              key={t.name}
+              className="rounded-2xl border p-6 shadow-sm"
+              style={{
+                borderColor: `color-mix(in srgb, ${t.css} 30%, transparent)`,
+                background: `linear-gradient(135deg, color-mix(in srgb, ${t.css} 6%, var(--card)) 0%, var(--card) 100%)`,
+              }}
+            >
               <h3 className="text-lg font-bold mb-1">{t.name}</h3>
-              <p className="font-mono text-xs text-primary mb-3">{t.stat}</p>
+              <p className="font-mono text-xs mb-3" style={{ color: t.css }}>{t.stat}</p>
               <p className="text-sm text-muted-foreground leading-relaxed">{t.desc}</p>
             </div>
           ))}
@@ -1258,15 +1328,15 @@ function Contact() {
             </p>
             <div className="space-y-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-3">
-                <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">1</span>
+                <span className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style={{ backgroundColor: 'color-mix(in srgb, var(--color-voice) 15%, transparent)', color: 'var(--color-voice)' }}>1</span>
                 <span>Tell us about your business</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">2</span>
+                <span className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style={{ backgroundColor: 'color-mix(in srgb, var(--color-chat) 15%, transparent)', color: 'var(--color-chat)' }}>2</span>
                 <span>We build your custom AI agent</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">3</span>
+                <span className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold" style={{ backgroundColor: 'color-mix(in srgb, var(--color-review) 15%, transparent)', color: 'var(--color-review)' }}>3</span>
                 <span>Go live — your AI handles the rest</span>
               </div>
             </div>
@@ -1274,7 +1344,11 @@ function Contact() {
           <form
             action="https://formspree.io/f/mwvdpgay"
             method="POST"
-            className="space-y-4 rounded-2xl border border-border/60 bg-card p-6 sm:p-8 shadow-sm"
+            className="space-y-4 rounded-2xl border p-6 sm:p-8 shadow-sm"
+            style={{
+              borderColor: 'color-mix(in srgb, var(--color-chat) 30%, transparent)',
+              background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-chat) 6%, var(--card)) 0%, var(--card) 100%)',
+            }}
           >
             <input type="hidden" name="site" value="vox.chat" />
             <div className="grid sm:grid-cols-2 gap-4">
