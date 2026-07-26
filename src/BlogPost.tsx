@@ -196,6 +196,19 @@ export default function BlogPost({ slug: slugProp }: { slug?: string } = {}) {
             )}
           </header>
 
+          {post.image && (
+            <figure className="mb-12 rounded-2xl overflow-hidden border border-border/60">
+              <img
+                src={post.image}
+                alt={post.imageAlt || post.title}
+                width={1200}
+                height={630}
+                loading="eager"
+                className="w-full h-auto"
+              />
+            </figure>
+          )}
+
           {/* Key takeaways */}
           {post.takeaways && post.takeaways.length > 0 && (
             <aside className="mb-12 rounded-2xl border border-primary/20 bg-primary/5 p-5 sm:p-6">

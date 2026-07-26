@@ -43,8 +43,19 @@ export default function BlogIndex() {
             <a
               key={post.slug}
               href={`/blog/${post.slug}.html`}
-              className="group block rounded-2xl border border-border/60 bg-card p-6 sm:p-8 shadow-sm transition-shadow duration-300 hover:shadow-[0_0_25px_-5px_var(--primary)] hover:border-primary/30"
+              className="group block rounded-2xl border border-border/60 bg-card overflow-hidden shadow-sm transition-shadow duration-300 hover:shadow-[0_0_25px_-5px_var(--primary)] hover:border-primary/30"
             >
+              {post.image && (
+                <img
+                  src={post.image}
+                  alt={post.imageAlt || post.title}
+                  width={1200}
+                  height={630}
+                  loading="lazy"
+                  className="w-full h-auto"
+                />
+              )}
+              <div className="p-6 sm:p-8">
               <div className="flex items-center gap-3 mb-3">
                 <span className="px-2.5 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-medium">{post.tag}</span>
                 <span className="text-xs text-muted-foreground">{post.date}</span>
@@ -60,6 +71,7 @@ export default function BlogIndex() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </span>
+              </div>
             </a>
           ))}
         </div>

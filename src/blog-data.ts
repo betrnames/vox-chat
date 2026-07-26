@@ -16,6 +16,8 @@ export interface BlogPost {
   date: string
   readTime: string
   tag: string
+  image?: string
+  imageAlt?: string
   author?: { name: string; title: string }
   takeaways?: string[]
   content: ContentBlock[]
@@ -25,6 +27,8 @@ export interface BlogPost {
 export const blogPosts: BlogPost[] = [
   {
     slug: 'manteca-contractors-double-google-reviews',
+    image: '/blog/manteca-contractors-double-google-reviews.svg',
+    imageAlt: 'Manteca contractors can grow from 25 to 80+ Google reviews in 90 days with automated review requests',
     title: 'How Manteca Contractors Can Double Google Reviews in 90 Days',
     excerpt: 'Automated review generation sends timed text messages after completed jobs, directing satisfied customers to Google while routing unhappy ones to you privately. For Manteca contractors, this system consistently doubles review counts within 90 days.',
     date: 'Jul 18, 2026',
@@ -104,6 +108,8 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'turlock-missed-calls-costing-thousands',
+    image: '/blog/turlock-missed-calls-costing-thousands.svg',
+    imageAlt: 'Turlock service businesses lose $10,000 per month to missed calls that go to voicemail',
     title: 'Why Turlock Service Businesses Lose $10K/Month to Missed Calls',
     excerpt: 'Sixty-two percent of calls to local service businesses go unanswered. In Turlock, where a single HVAC emergency call is worth $450–$600, missing just 5 calls per week means $10,000 or more in lost revenue every month.',
     date: 'Jul 16, 2026',
@@ -185,6 +191,8 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'ai-automation-guide-central-valley-contractors',
+    image: '/blog/ai-automation-guide-central-valley-contractors.svg',
+    imageAlt: 'Three AI automation tools for Central Valley contractors — voice agent, chat receptionist, and review generation',
     title: 'The Small Contractor\'s Guide to AI Automation | Central Valley',
     excerpt: 'AI automation for contractors means three specific systems — an AI phone agent, a AI Receptionist, and automated review generation — that answer calls, book jobs, and grow your reputation without hiring more staff. This guide breaks down what each system does, what it costs, and how to implement it in the 209 corridor.',
     date: 'Jul 14, 2026',
@@ -277,6 +285,8 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'automation-roi',
+    image: '/blog/automation-roi.svg',
+    imageAlt: 'AI automation delivers 67 percent more revenue from the same advertising spend by answering every call',
     title: 'You\'re Paying for Leads — AI Automation Makes Sure You Actually Close Them',
     excerpt: 'Most contractors spend $1,500–$5,000/month on ads. But when 40% of those calls go to voicemail, you\'re paying for customers you never talk to. Automation fixes the back end.',
     date: 'Jul 15, 2026',
@@ -307,6 +317,8 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'missed-calls',
+    image: '/blog/missed-calls.svg',
+    imageAlt: 'HVAC companies lose $2,500 per week to unanswered calls that go to voicemail',
     title: 'Why HVAC Companies Are Losing $2,500/Week to Missed Calls',
     excerpt: 'The average service business misses 40% of incoming calls. During peak summer months, that number climbs to 60%. Every missed call is a job that goes to your competitor.',
     date: 'Jul 10, 2026',
@@ -337,6 +349,8 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'chatbots-vs-forms',
+    image: '/blog/chatbots-vs-forms.svg',
+    imageAlt: 'AI receptionists capture 3x more leads than traditional contact forms on contractor websites',
     title: 'AI Receptionists vs. Contact Forms: Which Captures More Leads?',
     excerpt: 'We tested both on 50 contractor websites over 90 days. AI Receptionists converted 3x more visitors into qualified leads — and the leads were higher quality.',
     date: 'Jul 5, 2026',
@@ -367,6 +381,8 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'plumber-after-hours',
+    image: '/blog/plumber-after-hours.svg',
+    imageAlt: 'Plumbers miss $50,000 per year in after-hours emergency calls that go unanswered',
     title: 'After-Hours Plumbing Calls: The $50K/Year Opportunity You\'re Sleeping Through',
     excerpt: '48% of emergency plumbing calls come between 6 PM and 8 AM. If your phone goes to voicemail, 85% of those callers dial your competitor next.',
     date: 'Jul 3, 2026',
@@ -397,6 +413,8 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'electrician-leads',
+    image: '/blog/electrician-leads.svg',
+    imageAlt: 'Electricians lose 30 percent of leads before ever speaking to the customer due to missed calls',
     title: 'Why Electricians Lose 30% of Leads Before Ever Talking to the Customer',
     excerpt: 'Between panel upgrades, EV charger installs, and emergency outages, electrical contractors are busier than ever — and missing more calls than ever.',
     date: 'Jun 30, 2026',
@@ -427,6 +445,8 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'google-reviews',
+    image: '/blog/google-reviews.svg',
+    imageAlt: 'Automated review requests sent 2 hours after a job get 5x more Google reviews than asking in person',
     title: 'How to Get More Google Reviews Without Asking Awkwardly',
     excerpt: 'The secret is timing. Automated follow-ups sent 2 hours after a completed job get 5x more reviews than manual asks. Here\'s the psychology behind why.',
     date: 'Jun 28, 2026',
@@ -457,6 +477,8 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'modesto-hvac-never-lose-customer-voicemail',
+    image: '/blog/modesto-hvac-never-lose-customer-voicemail.svg',
+    imageAlt: 'Modesto HVAC companies can answer 100 percent of calls 24/7 with an AI phone agent',
     title: 'Modesto HVAC Companies: How to Never Lose a Customer to Voicemail Again',
     excerpt: 'Modesto hits 110 degrees in July. When a homeowner\'s AC dies and they call your HVAC company, voicemail means they call the next contractor on Google. An AI phone agent answers every call in under 2 seconds — 24/7, even during peak summer when your lines are jammed.',
     date: 'Jul 26, 2026',
@@ -526,6 +548,8 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'stockton-plumbers-emergency-calls',
+    image: '/blog/stockton-plumbers-emergency-calls.svg',
+    imageAlt: 'Stockton plumbers lose $800 per emergency call when callers reach voicemail and hang up',
     title: 'Stockton Plumbers Are Losing Emergency Calls to Competitors — Here\'s the Fix',
     excerpt: 'In Stockton, a burst pipe or sewer backup at 11 PM is worth $600–$1,200 in emergency rates. But 85% of callers who hit voicemail hang up and call the next plumber. An AI phone agent answers every emergency call instantly — before your competitor\'s phone even rings.',
     date: 'Jul 25, 2026',
@@ -595,6 +619,8 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'tracy-contractors-rank-google-maps',
+    image: '/blog/tracy-contractors-rank-google-maps.svg',
+    imageAlt: 'Tracy contractors can rank number 1 on Google Maps within 90 days using automated reviews and AI',
     title: 'Tracy Contractors: How to Rank #1 on Google Maps in a Fast-Growing Market',
     excerpt: 'Tracy added 15,000+ residents since 2020. New homeowners search Google Maps for HVAC, plumbing, and electrical contractors — and the businesses that show up in the map pack get 42% of all clicks. Here\'s how to dominate local search in Tracy with AI automation.',
     date: 'Jul 24, 2026',
@@ -660,6 +686,8 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'modesto-roofers-storm-season-calls',
+    image: '/blog/modesto-roofers-storm-season-calls.svg',
+    imageAlt: 'Modesto roofers receive 100+ calls in 48 hours during storm season — AI handles the surge',
     title: 'Why Modesto Roofers Need AI to Handle Storm Season Call Surges',
     excerpt: 'When a Central Valley storm hits, a Modesto roofing company can receive 50–100+ calls in 48 hours. No office staff can handle that volume. An AI phone agent answers every call, triages emergency leaks from routine quotes, and books your crew\'s schedule — while you\'re on a roof.',
     date: 'Jul 23, 2026',

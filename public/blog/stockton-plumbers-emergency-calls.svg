@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" rx="0" fill="#4A9EFF"/>
+  <!-- accent line -->
+  <rect x="80" y="80" width="4" height="120" rx="2" fill="#FFFFFF"/>
+  <!-- headline -->
+  <text x="100" y="128" font-family="system-ui,-apple-system,sans-serif" font-size="32" font-weight="600" fill="#FFFFFF" letter-spacing="-0.5">Emergency Calls Recovered</text>
+  <!-- sub -->
+  <text x="100" y="170" font-family="monospace" font-size="16" fill="#FFFFFFCC" letter-spacing="2">STOCKTON PLUMBERS</text>
+  <!-- stat -->
+  <text x="100" y="400" font-family="system-ui,-apple-system,sans-serif" font-size="140" font-weight="800" fill="#FFFFFF" letter-spacing="-4">$800</text>
+  <!-- label -->
+  <text x="104" y="460" font-family="system-ui,-apple-system,sans-serif" font-size="28" fill="#FFFFFFAA" letter-spacing="0">per emergency call — lost to voicemail</text>
+  <!-- brand -->
+  <circle cx="1060" cy="560" r="8" fill="#FF6B4A"/>
+  <circle cx="1084" cy="560" r="8" fill="#FFB84A"/>
+  <circle cx="1108" cy="560" r="8" fill="#FFFFFF"/>
+  <text x="950" y="566" font-family="monospace" font-size="14" fill="#FFFFFFAA" text-anchor="end">vox.chat</text>
+</svg>

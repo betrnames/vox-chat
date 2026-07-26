@@ -445,6 +445,10 @@ export default defineConfig(({ mode }) => {
           'blog-manteca-reviews': resolve(__dirname, 'blog/manteca-contractors-double-google-reviews.html'),
           'blog-turlock-missed-calls': resolve(__dirname, 'blog/turlock-missed-calls-costing-thousands.html'),
           'blog-ai-automation-guide': resolve(__dirname, 'blog/ai-automation-guide-central-valley-contractors.html'),
+          'blog-modesto-hvac': resolve(__dirname, 'blog/modesto-hvac-never-lose-customer-voicemail.html'),
+          'blog-stockton-plumbers': resolve(__dirname, 'blog/stockton-plumbers-emergency-calls.html'),
+          'blog-tracy-contractors': resolve(__dirname, 'blog/tracy-contractors-rank-google-maps.html'),
+          'blog-modesto-roofers': resolve(__dirname, 'blog/modesto-roofers-storm-season-calls.html'),
           legal: resolve(__dirname, 'legal.html'),
           // Unlisted intake — not linked from nav/footer/sitemap
           setup: resolve(__dirname, 'setup.html'),
