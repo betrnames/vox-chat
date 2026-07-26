@@ -1351,46 +1351,46 @@ function Contact() {
             }}
           >
             <input type="hidden" name="site" value="vox.chat" />
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <input
                 type="text"
                 name="name"
                 placeholder="Your name"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
+                className="w-full px-3 sm:px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
               />
               <input
                 type="text"
                 name="business"
                 placeholder="Business name"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
+                className="w-full px-3 sm:px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
               />
             </div>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <input
                 type="tel"
                 name="phone"
-                placeholder="Phone number"
+                placeholder="Phone"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
+                className="w-full px-3 sm:px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
               />
               <input
                 type="email"
                 name="email"
-                placeholder="Email address"
+                placeholder="Email"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
+                className="w-full px-3 sm:px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:border-ring transition-colors"
               />
             </div>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <select
                 name="trade"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:border-ring transition-colors appearance-none"
+                className="w-full px-3 sm:px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:border-ring transition-colors appearance-none"
               >
                 <option value="">Your trade</option>
-                <option value="hvac">HVAC / Air Conditioning</option>
+                <option value="hvac">HVAC</option>
                 <option value="plumbing">Plumbing</option>
                 <option value="electrical">Electrical</option>
                 <option value="other">Other</option>
@@ -1398,9 +1398,9 @@ function Contact() {
               <select
                 name="service"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:border-ring transition-colors appearance-none"
+                className="w-full px-3 sm:px-4 py-3 rounded-lg border border-input bg-background text-foreground text-sm focus:outline-none focus:border-ring transition-colors appearance-none"
               >
-                <option value="">Which service?</option>
+                <option value="">Service?</option>
                 <option value="voice">AI Phone Agent</option>
                 <option value="chat">AI Receptionist</option>
                 <option value="reviews">AI Review Agent</option>
