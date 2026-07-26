@@ -54,14 +54,14 @@ export default function SetupPage() {
               <p className="font-mono text-[11px] uppercase tracking-widest text-primary mb-3">Private setup</p>
               <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight mb-3">Start setup</h1>
               <p className="text-muted-foreground text-sm sm:text-base leading-relaxed mb-5">
-                You were sent this link after we agreed to move forward. Takes about 2 minutes. Gabe configures your
+                You were sent this link after we agreed to move forward. Takes about 2 minutes. Luis configures your
                 fixed package from these answers — invite-only, not in the site menu.
               </p>
 
               <div className="mb-8 rounded-xl border border-primary/25 bg-primary/5 px-4 py-3.5 text-sm leading-relaxed">
                 <p className="font-semibold text-foreground mb-1">Payment first — then setup</p>
                 <p className="text-muted-foreground text-xs sm:text-sm">
-                  Work starts only after first-month payment clears (Stripe link, Zelle, or Venmo — whatever Gabe
+                  Work starts only after first-month payment clears (Stripe link, Zelle, or Venmo — whatever Luis
                   sent you). No Net 30. No custom estimates, proposals, or RFPs. Fixed packages only — what you
                   pick below is the full scope.
                 </p>
@@ -88,7 +88,7 @@ export default function SetupPage() {
                       required
                       defaultValue={defaults.name}
                       className={fieldClass}
-                      placeholder="Gabe"
+                      placeholder="Luis"
                     />
                   </div>
                   <div>
@@ -166,7 +166,7 @@ export default function SetupPage() {
                       onChange={(e) => setSource(e.target.value)}
                     >
                       <option value="BNI">BNI</option>
-                      <option value="Outbound">Outbound / Gabe reached out</option>
+                      <option value="Outbound">Outbound / Luis reached out</option>
                       <option value="Referral">Referral</option>
                       <option value="Website">Website</option>
                       <option value="Other">Other</option>
@@ -247,7 +247,7 @@ export default function SetupPage() {
 
                 <div>
                   <label className={labelClass} htmlFor="notes">
-                    Anything else Gabe should know
+                    Anything else Luis should know
                   </label>
                   <textarea
                     id="notes"
@@ -266,7 +266,7 @@ export default function SetupPage() {
                     <option value="" disabled>
                       Select…
                     </option>
-                    <option value="Stripe">Stripe / card link Gabe sent</option>
+                    <option value="Stripe">Stripe / card link Luis sent</option>
                     <option value="Zelle">Zelle</option>
                     <option value="Venmo">Venmo</option>
                     <option value="PayPal">PayPal</option>
@@ -309,7 +309,7 @@ export default function SetupPage() {
             <div className="rounded-2xl border border-primary/20 bg-primary/5 p-8 text-center">
               <h1 className="font-serif text-2xl font-bold mb-3">Got it — you&apos;re in the queue</h1>
               <p className="text-muted-foreground text-sm leading-relaxed mb-6">
-                Once first-month payment is confirmed, Gabe configures your package (usually within one business
+                Once first-month payment is confirmed, Luis configures your package (usually within one business
                 day). Watch for a text or email from Vox.chat.
               </p>
               <a href="tel:+12099967102" className="text-sm font-medium text-primary hover:text-primary/70">

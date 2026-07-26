@@ -106,14 +106,14 @@ export function advanceReceptionist(
   if (step === 'complete') {
     if (/\b(tell|more|package|pricing|price)\b/.test(lower)) {
       return {
-        reply: "Reviews is $400/mo for automated Google review texts. Receptionist is $650/mo for AI website chat. Voice is $1,100/mo for 24/7 AI phone answering. Or bundle all three for $1,500/mo — saves you $650/mo, less than a part-time hire. All month-to-month, no contracts, no setup fee. Gabe will reach out to get you set up.",
+        reply: "Reviews is $400/mo for automated Google review texts. Receptionist is $650/mo for AI website chat. Voice is $1,100/mo for 24/7 AI phone answering. Or bundle all three for $1,500/mo — saves you $650/mo, less than a part-time hire. All month-to-month, no contracts, no setup fee. Luis will reach out to get you set up.",
         step: 'complete',
         memory: nextMem,
         chips: completeChips,
       }
     }
     return {
-      reply: "You're all set — Gabe will follow up shortly. Tap Start over for a new conversation.",
+      reply: "You're all set — Luis will follow up shortly. Tap Start over for a new conversation.",
       step: 'complete',
       memory: nextMem,
       chips: completeChips,
@@ -257,7 +257,7 @@ export function advanceReceptionist(
       : nextMem.pain === 'missed calls' ? 'Voice at $1,100/mo'
       : 'the Bundle at $1,500/mo'
     return {
-      reply: `Based on what you told me, I'd start with ${recommended}. The bundle gets you all three for $1,500/mo — less than a part-time hire. Month-to-month, no contracts, $0 setup. Drop your name and best phone and Gabe will reach out today.`,
+      reply: `Based on what you told me, I'd start with ${recommended}. The bundle gets you all three for $1,500/mo — less than a part-time hire. Month-to-month, no contracts, $0 setup. Drop your name and best phone and Luis will reach out today.`,
       step: 'collect_name',
       memory: nextMem,
       chips: [],
@@ -270,7 +270,7 @@ export function advanceReceptionist(
       nextMem.phone = phone
       nextMem.name = t.replace(phone, '').replace(/[^\w\s]/g, '').trim() || 'there'
       return {
-        reply: `Got it — Gabe will text ${nextMem.phone} shortly to get you set up. ${nextMem.trade ? `Your ${nextMem.trade} business is about to stop losing money to missed calls.` : "You're about to stop losing money to missed calls."} Anything else?`,
+        reply: `Got it — Luis will text ${nextMem.phone} shortly to get you set up. ${nextMem.trade ? `Your ${nextMem.trade} business is about to stop losing money to missed calls.` : "You're about to stop losing money to missed calls."} Anything else?`,
         step: 'complete',
         memory: nextMem,
         chips: completeChips,
@@ -289,7 +289,7 @@ export function advanceReceptionist(
     const phone = extractPhone(t)
     if (!phone && t.replace(/\D/g, '').length < 7) {
       return {
-        reply: "I need a callback number so Gabe can follow up. Example: (209) 555-0147",
+        reply: "I need a callback number so Luis can follow up. Example: (209) 555-0147",
         step: 'collect_phone',
         memory: nextMem,
         chips: ['(209) 555-0147'],
@@ -297,7 +297,7 @@ export function advanceReceptionist(
     }
     nextMem.phone = phone || t
     return {
-      reply: `Perfect — Gabe will reach out to ${nextMem.phone} today. ${nextMem.trade ? `Your ${nextMem.trade} business is about to stop losing money to missed calls.` : "You're about to stop losing money to missed calls."} Anything else?`,
+      reply: `Perfect — Luis will reach out to ${nextMem.phone} today. ${nextMem.trade ? `Your ${nextMem.trade} business is about to stop losing money to missed calls.` : "You're about to stop losing money to missed calls."} Anything else?`,
       step: 'complete',
       memory: nextMem,
       chips: completeChips,

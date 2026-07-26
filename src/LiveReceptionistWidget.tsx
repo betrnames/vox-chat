@@ -215,8 +215,8 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
         {
           role: 'assistant',
           content: billing
-            ? "I'm online, but the AI provider account needs credits before I can reply. Gabe can still help — call or text (209) 996-7102 or use the contact form."
-            : "I'm having trouble connecting right now. Call or text (209) 996-7102 or use the contact form — Gabe will get back to you fast.",
+            ? "I'm online, but the AI provider account needs credits before I can reply. Luis can still help — call or text (209) 996-7102 or use the contact form."
+            : "I'm having trouble connecting right now. Call or text (209) 996-7102 or use the contact form — Luis will get back to you fast.",
         },
       ])
       return

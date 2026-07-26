@@ -489,10 +489,10 @@ function VoiceDemo() {
     { from: 'caller' as const, text: 'I got about 5 guys.' },
     { from: 'ai' as const, text: "5 techs — that's roughly 15 missed calls a week after hours. At $500 average and a 50% close rate, you're leaving about $3,750 a week on the table. Vox Voice fixes that for $1,100/mo — pays for itself day one." },
     { from: 'caller' as const, text: 'That sounds right actually. What do I need to get started?' },
-    { from: 'ai' as const, text: "Just your name and best callback number. Gabe will text you today to get set up — month-to-month, no contracts." },
+    { from: 'ai' as const, text: "Just your name and best callback number. Luis will text you today to get set up — month-to-month, no contracts." },
     { from: 'caller' as const, text: 'Mike Torres, (209) 555-0147.' },
-    { from: 'ai' as const, text: "Got it Mike — Gabe will reach out shortly. Your HVAC business is about to stop losing money to missed calls. Anything else?" },
-    { from: 'system' as const, text: '✓ Lead captured → Gabe notified via SMS + email → Follow-up queued' },
+    { from: 'ai' as const, text: "Got it Mike — Luis will reach out shortly. Your HVAC business is about to stop losing money to missed calls. Anything else?" },
+    { from: 'system' as const, text: '✓ Lead captured → Luis notified via SMS + email → Follow-up queued' },
   ]
 
   const [visibleCount, setVisibleCount] = useState(0)
@@ -563,7 +563,7 @@ function VoiceDemo() {
             <span className="font-mono text-[11px] uppercase tracking-wider text-voice">Live AI phone agent</span>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-            Talk to Vox.chat’s AI agent in your browser — it qualifies and notifies Gabe. This is the real product POC (not the animated demo below).
+            Talk to Vox.chat’s AI agent in your browser — it qualifies and notifies Luis. This is the real product POC (not the animated demo below).
           </p>
           <VoiceCallTrigger
             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-voice text-white text-sm font-semibold hover:bg-voice/90 transition-colors disabled:opacity-60"

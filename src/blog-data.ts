@@ -30,7 +30,7 @@ export const blogPosts: BlogPost[] = [
     date: 'Jul 18, 2026',
     readTime: '9 min read',
     tag: 'Reviews',
-    author: { name: 'Gabe Mariscal', title: 'AI Automation Consultant, Vox.chat' },
+    author: { name: 'Luis Mariscal', title: 'AI Automation Consultant, Vox.chat' },
     takeaways: [
       'Manteca contractors with 80+ Google reviews appear in the local map pack up to 3x more often than competitors with fewer than 20 reviews, according to BrightLocal\'s 2024 local search ranking factors study.',
       'Automated text-based review requests achieve 10–15% response rates compared to just 1–3% for in-person verbal asks, based on ServiceTitan industry benchmarks.',
@@ -109,7 +109,7 @@ export const blogPosts: BlogPost[] = [
     date: 'Jul 16, 2026',
     readTime: '10 min read',
     tag: 'Revenue',
-    author: { name: 'Gabe Mariscal', title: 'AI Automation Consultant, Vox.chat' },
+    author: { name: 'Luis Mariscal', title: 'AI Automation Consultant, Vox.chat' },
     takeaways: [
       'An Invoca study found that 62% of calls to local service businesses go unanswered — and Marchex research shows 85% of those callers will not call back or leave a voicemail.',
       'In Turlock and the 209 corridor, 5 missed calls per week at a $500 average job ticket equals $10,000 per month in lost revenue — $120,000 per year.',
@@ -190,7 +190,7 @@ export const blogPosts: BlogPost[] = [
     date: 'Jul 14, 2026',
     readTime: '12 min read',
     tag: 'Guide',
-    author: { name: 'Gabe Mariscal', title: 'AI Automation Consultant, Vox.chat' },
+    author: { name: 'Luis Mariscal', title: 'AI Automation Consultant, Vox.chat' },
     takeaways: [
       'AI automation for contractors is not enterprise software or robotics — it\'s three targeted systems (voice, receptionist, reviews) that handle the operational tasks you\'re currently losing revenue on.',
       'The average Central Valley contractor misses 40% of inbound calls, loses 97% of website visitors who don\'t fill out a form, and gets 1–2 Google reviews per month manually — AI automation fixes all three.',
