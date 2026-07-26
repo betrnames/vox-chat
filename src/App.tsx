@@ -579,7 +579,7 @@ function VoiceDemo() {
             connectingLabel="Connecting…"
           />
           <p className="mt-2 text-[11px] text-muted-foreground/70 font-mono">
-            {vapiStatus === 'active' ? 'On call · mic live' : 'Allow microphone · may be recorded · support@vox.chat'}
+            {vapiStatus === 'active' ? 'On call · mic live' : 'Allow microphone · up-to-date browser required · may be recorded'}
           </p>
         </div>
       )}

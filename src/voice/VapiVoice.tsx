@@ -233,7 +233,7 @@ function VoiceCallHud() {
         )}
       </div>
       <p className="mt-1.5 text-[10px] text-muted-foreground/80 font-mono">
-        Mic required · call may be recorded
+        Mic required · up-to-date browser · call may be recorded
       </p>
     </div>
   )
