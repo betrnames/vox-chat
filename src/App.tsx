@@ -1257,6 +1257,7 @@ function ROI() {
             </div>
           ))}
         </div>
+        <p className="text-center text-xs text-muted-foreground/30 mt-6">Sources: ServiceTitan Industry Report, BrightLocal Consumer Survey, Marchex Research</p>
       </div>
     </section>
   )
@@ -1489,6 +1490,7 @@ function Footer() {
               <a href="/blog.html" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">Blog</a>
               <a href="/faq.html" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">FAQ</a>
               <a href="#contact" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">Contact</a>
+              <a href="/llms.txt" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">llms.txt</a>
             </div>
           </div>
 
@@ -1707,13 +1709,15 @@ export default function App() {
   return (
     <VapiVoiceProvider>
       <Nav />
-      <Hero />
-      <Services />
-      <HowItWorks />
-      <Demos />
-      <ROI />
-      <BuiltFor />
-      <Contact />
+      <main>
+        <Hero />
+        <Services />
+        <HowItWorks />
+        <Demos />
+        <ROI />
+        <BuiltFor />
+        <Contact />
+      </main>
       <Footer />
       <MobileBottomBar chatOpen={chatOpen} onChatToggle={() => setChatOpen((o) => !o)} />
       <LiveReceptionistWidget open={chatOpen} onOpenChange={setChatOpen} />
