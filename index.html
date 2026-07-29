@@ -70,6 +70,18 @@
     }
     </script>
 
+    <!-- Structured Data: WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Vox.chat",
+      "url": "https://vox.chat",
+      "description": "AI automation platform for local service businesses — voice agents, AI receptionists, and review automation.",
+      "dateModified": "2026-07-29"
+    }
+    </script>
+
     <!-- Structured Data: LocalBusiness -->
     <script type="application/ld+json">
     {
@@ -91,6 +103,11 @@
         "addressLocality": "Turlock",
         "addressRegion": "CA",
         "addressCountry": "US"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 37.4947,
+        "longitude": -120.8466
       }
     }
     </script>
@@ -107,21 +124,24 @@
           "position": 1,
           "name": "Vox Voice — AI Phone Agent",
           "description": "AI answers your business phone 24/7, qualifies callers, collects details, and books appointments to your calendar.",
-          "provider": { "@type": "Organization", "name": "Vox.chat" }
+          "provider": { "@type": "Organization", "name": "Vox.chat" },
+          "offers": { "@type": "Offer", "price": "800", "priceCurrency": "USD", "description": "$800–$1,500/mo", "eligibleDuration": { "@type": "QuantitativeValue", "value": 1, "unitCode": "MON" } }
         },
         {
           "@type": "Service",
           "position": 2,
           "name": "Vox Receptionist — AI Receptionist",
           "description": "AI Receptionist trained on your services and pricing. Answers FAQs, collects customer info, and books appointments automatically.",
-          "provider": { "@type": "Organization", "name": "Vox.chat" }
+          "provider": { "@type": "Organization", "name": "Vox.chat" },
+          "offers": { "@type": "Offer", "price": "500", "priceCurrency": "USD", "description": "$500–$800/mo", "eligibleDuration": { "@type": "QuantitativeValue", "value": 1, "unitCode": "MON" } }
         },
         {
           "@type": "Service",
           "position": 3,
           "name": "Vox Reviews — AI Review Agent",
           "description": "Automated text follow-ups after jobs. Directs customers to leave Google reviews and alerts owners to negative feedback.",
-          "provider": { "@type": "Organization", "name": "Vox.chat" }
+          "provider": { "@type": "Organization", "name": "Vox.chat" },
+          "offers": { "@type": "Offer", "price": "300", "priceCurrency": "USD", "description": "$300–$500/mo", "eligibleDuration": { "@type": "QuantitativeValue", "value": 1, "unitCode": "MON" } }
         }
       ]
     }
