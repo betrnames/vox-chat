@@ -20,11 +20,31 @@ Solo operators and small service contractors (5-15 techs) — HVAC, plumbing, el
 - https://vox.chat/ — homepage with service overview and demos
 - https://vox.chat/faq — frequently asked questions
 - https://vox.chat/blog — articles on AI automation for service businesses
+- https://vox.chat/legal — terms and legal
 
 ## Blog articles
-- https://vox.chat/blog/stop-losing-money — why contractors lose $2,500/week on missed calls
-- https://vox.chat/blog/ai-voice-agents-plumbing — AI voice agents for plumbing businesses
-- https://vox.chat/blog/ai-chatbots-lead-capture — AI chatbots vs. contact forms for lead capture
+- https://vox.chat/blog/missed-calls — why HVAC companies lose $2,500/week to missed calls
+- https://vox.chat/blog/plumber-after-hours — after-hours plumbing calls as a revenue opportunity
+- https://vox.chat/blog/chatbots-vs-forms — AI receptionists vs contact forms for lead capture
+- https://vox.chat/blog/automation-roi — how AI automation makes ad spend actually convert
+- https://vox.chat/blog/electrician-leads — why electricians lose 30% of leads before first contact
+- https://vox.chat/blog/google-reviews — how to get more Google reviews without awkward asks
+- https://vox.chat/blog/ai-answering-vs-traditional-answering-service-hvac — AI answering vs traditional services for HVAC
+- https://vox.chat/blog/do-i-need-receptionist-hvac-company — receptionist alternatives for HVAC companies
+- https://vox.chat/blog/how-to-answer-calls-while-on-a-job — answering business calls while on a job site
+- https://vox.chat/blog/managed-ai-vs-diy-dashboards-contractors — managed AI vs DIY dashboards for contractors
+- https://vox.chat/blog/google-reviews-vs-referrals-electricians — Google reviews vs referrals for electricians
+- https://vox.chat/blog/ai-automation-guide-central-valley-contractors — AI automation guide for Central Valley contractors
+- https://vox.chat/blog/turlock-missed-calls-costing-thousands — why Turlock service businesses lose revenue to missed calls
+- https://vox.chat/blog/manteca-contractors-double-google-reviews — how Manteca contractors can double Google reviews
+- https://vox.chat/blog/modesto-hvac-never-lose-customer-voicemail — Modesto HVAC: never lose a customer to voicemail
+- https://vox.chat/blog/stockton-plumbers-emergency-calls — Stockton plumbers and emergency call capture
+- https://vox.chat/blog/tracy-contractors-rank-google-maps — Tracy contractors ranking on Google Maps
+- https://vox.chat/blog/modesto-roofers-storm-season-calls — Modesto roofers handling storm-season call surges
+- https://vox.chat/blog/turlock-after-hours-answering-contractors — after-hours answering for Turlock contractors
+
+## Sitemap
+- https://vox.chat/sitemap.xml
 
 ## Contact
 - https://vox.chat/#contact — contact form
