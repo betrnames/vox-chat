@@ -1500,6 +1500,7 @@ function Footer() {
             <div className="flex flex-col gap-2">
               <a href="/legal.html" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">Terms & Privacy</a>
               <a href="mailto:support@vox.chat" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">support@vox.chat</a>
+              <a href="https://betrnames.com" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">BetrNames</a>
             </div>
           </div>
         </div>
