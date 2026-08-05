@@ -1,6 +1,7 @@
 import './index.css'
 import { blogPosts, type ContentBlock } from './blog-data'
-import { VapiVoiceProvider, VoiceCallTrigger } from './voice/VapiVoice'
+import { VapiVoiceProvider } from './voice/VapiVoice'
+import { CallNowButton } from './voice/CallNowButton'
 
 function getSlugFromPath() {
   if (typeof window === 'undefined') return null
@@ -249,9 +250,9 @@ export default function BlogPost({ slug: slugProp }: { slug?: string } = {}) {
             <h3 className="font-serif text-xl font-bold mb-2">Ready to automate your business?</h3>
             <p className="text-sm text-muted-foreground mb-5">Book a free consultation — no contracts, cancel anytime.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <VoiceCallTrigger
+              <CallNowButton
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/80 transition-colors disabled:opacity-60"
-                idleLabel="Call now"
+                browserLabel="Call now"
                 activeLabel="End call"
                 connectingLabel="Connecting…"
               />
