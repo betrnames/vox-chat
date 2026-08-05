@@ -8,7 +8,8 @@ When a website voice visitor asks for a **live person** / **Luis**, the Vox assi
 |------|--------|
 | Existing Vox assistant | `VITE_VAPI_ASSISTANT_ID` in `.env` |
 | **Private** Vapi API key | Dashboard → Account → API Keys (not the public web key) |
-| Luis destination number | E.164, e.g. `+12095551234` — the phone that should ring |
+| Luis destination number | **`+12099967102`** (209-996-7102) — cell that should ring |
+| Free Vapi number | **`+12095023028`** (209-502-3028) — inbound line + outbound “from” for ring-Luis |
 
 > The **public** key (`VITE_VAPI_PUBLIC_KEY`) only starts browser calls. Creating tools / updating assistants needs the **private** key.
 
