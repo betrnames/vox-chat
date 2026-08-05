@@ -10,9 +10,14 @@ import {
   type ReactNode,
 } from 'react'
 import Vapi from '@vapi-ai/web'
+import { VOX_VOICE_SYSTEM_PROMPT } from './vapiSystemPrompt'
 
 const publicKey = (import.meta.env.VITE_VAPI_PUBLIC_KEY || '').trim()
 const assistantId = (import.meta.env.VITE_VAPI_ASSISTANT_ID || '').trim()
+/** notifyLuisLive only — transferCall crashes browser webCalls (error-transfer-failed). */
+const WEB_NOTIFY_TOOL_ID = (
+  import.meta.env.VITE_VAPI_NOTIFY_TOOL_ID || 'bddd4673-f8c4-42f0-9e49-af3dcdc3eb2d'
+).trim()
 
 export type VapiCallStatus = 'idle' | 'connecting' | 'active' | 'error'
 
@@ -105,7 +110,16 @@ export function VapiVoiceProvider({ children }: { children: ReactNode }) {
     setError(null)
     setStatus('connecting')
     try {
-      await vapiRef.current.start(assistantId)
+      // Browser web calls cannot PSTN-transfer (ends with error-transfer-failed).
+      // Override tools to notifyLuisLive only + keep system prompt. Phone inbound keeps full tools.
+      await vapiRef.current.start(assistantId, {
+        model: {
+          provider: 'openai',
+          model: 'gpt-4.1-mini',
+          messages: [{ role: 'system', content: VOX_VOICE_SYSTEM_PROMPT }],
+          toolIds: WEB_NOTIFY_TOOL_ID ? [WEB_NOTIFY_TOOL_ID] : [],
+        },
+      })
     } catch (err) {
       console.error('[vapi] start', err)
       setStatus('error')

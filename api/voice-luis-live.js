@@ -182,20 +182,23 @@ export default async function handler(req, res) {
     const reason = clean(args.reason || args.note || args.message || 'asked for live person', 200)
     const callId = clean(message?.call?.id || body?.call?.id || '', 80)
 
-    const [sms, ring] = await Promise.all([
-      smsLuis({ name, phone, reason, callId }),
-      ringLuisViaVapi({ name, phone, reason }),
-    ])
+    // Prefer SMS first (reliable). Outbound ring often hits free-number daily limits.
+    const sms = await smsLuis({ name, phone, reason, callId })
+    let ring = { ok: false, error: 'skipped' }
+    // Only attempt ring if SMS failed or explicitly enabled
+    if (!sms.ok || process.env.VAPI_RING_LUIS === 'true') {
+      ring = await ringLuisViaVapi({ name, phone, reason })
+    }
 
     const result = {
       ok: Boolean(sms.ok || ring.ok),
       sms: sms.ok ? 'sent' : sms.error || 'failed',
-      ring: ring.ok ? 'dialed' : ring.error || 'failed',
-      message: ring.ok
-        ? 'Luis is being called on his phone now. Ask the visitor to stay available for a callback if he misses it.'
-        : sms.ok
-          ? 'Luis was texted. Collect a callback number if missing and tell the visitor he will reach out shortly.'
-          : 'Could not reach Luis automatically. Collect name and callback number for manual follow-up.',
+      ring: ring.ok ? 'dialed' : ring.error || 'not_attempted',
+      message: sms.ok
+        ? 'Luis was texted with the visitor details. Tell them he will call back ASAP. Keep the conversation open.'
+        : ring.ok
+          ? 'Luis is being called now. Tell the visitor to stay free for a callback.'
+          : 'Could not reach Luis automatically. Collect name and callback number and promise a manual follow-up.',
     }
 
     console.log('[voice-luis-live]', { name, phone: phone ? 'yes' : 'no', sms: result.sms, ring: result.ring })
