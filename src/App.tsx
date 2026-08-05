@@ -6,7 +6,7 @@ import LiveReceptionistWidget from './LiveReceptionistWidget'
 import ConsentNote from './ConsentNote'
 import { VapiVoiceProvider, VoiceCallTrigger, useVapiVoice } from './voice/VapiVoice'
 import { CallNowButton } from './voice/CallNowButton'
-import { VAPI_FREE_NUMBER_DISPLAY, VAPI_FREE_NUMBER_TEL } from './lib/phones'
+import { VAPI_FREE_NUMBER_DISPLAY } from './lib/phones'
 
 function HeroWaves() {
   return (
