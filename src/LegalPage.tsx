@@ -112,6 +112,19 @@ export default function LegalPage() {
                 <p>Our AI voice agents and AI Receptionists are artificial intelligence systems, not human operators. While designed to sound natural and provide accurate information based on your training data, they may occasionally provide imperfect responses. You acknowledge that AI-handled interactions are automated.</p>
               </div>
               <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Website “Call now” vs phone agent line</h3>
+                <p>
+                  <strong className="text-foreground">Browser “Call now”</strong> on vox.chat uses your device microphone to talk to our AI in the browser.
+                  If you ask to speak with a live person during a browser session, we may send our team a text message (SMS) with your contact details so they can call you back.
+                  Browser sessions are not phone-network calls and typically cannot be transferred into a live three-way phone conversation with a human.
+                </p>
+                <p className="mt-3">
+                  <strong className="text-foreground">Phone agent line (209) 502-3028</strong> is a real inbound phone number answered by our AI.
+                  When you dial that number and request a live person, a transfer to a human team member’s phone may be attempted when available.
+                  Availability of live transfer depends on staffing, network conditions, and telephony limits; if transfer is not available, we may notify the team by SMS for a callback instead.
+                </p>
+              </div>
+              <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Limitation of Liability</h3>
                 <p>Vox.chat is not liable for lost revenue, missed calls, or business outcomes resulting from AI agent performance, service interruptions, or technical issues. Our services are provided "as is" and we make no guarantees regarding specific business results.</p>
               </div>

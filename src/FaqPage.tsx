@@ -48,6 +48,16 @@ const categories = [
         q: 'How many calls can the AI handle at once?',
         a: 'There\'s no limit. Unlike a human receptionist, the AI can handle unlimited simultaneous calls. During peak hours — like when a heat wave hits and every AC in town breaks — you\'ll never hear a busy signal or get sent to voicemail.',
       },
+      {
+        id: 'browser-vs-phone-live',
+        q: 'If I use “Call now” in the browser and ask for a live person, will I be transferred to a human?',
+        a: 'No. Browser “Call now” is a website mic session with the AI. If you ask for a live person, we notify our team by text (SMS) with your details so they can call you back — it does not bridge you into a live phone call. For a real phone conversation with the AI (and a possible live transfer to a human when available), dial our agent line at (209) 502-3028.',
+      },
+      {
+        id: 'phone-line-live-transfer',
+        q: 'How do I reach a live person for a real phone transfer?',
+        a: 'Call (209) 502-3028. That is our free Vapi agent phone number. The AI answers first. If you ask for a live person and a transfer is available, the call can be forwarded to our team’s cell. Website browser calls cannot do that phone-to-phone transfer.',
+      },
     ],
   },
   {
