@@ -121,35 +121,42 @@ async function main() {
   console.log(`  Luis phone: ${maskPhone(luisPhone)}`);
   console.log(`  Mode: ${transferMode}`);
 
-  // 1) Create transfer tool
-  console.log('\n1) Creating transferCall tool…');
-  const tool = await vapi('POST', '/tool', {
-    type: 'transferCall',
-    function: {
-      name: 'transferCall',
-      description:
-        'Transfer the caller to Luis Mariscal (owner of Vox.chat) for a live human conversation. Use when the caller asks for a real person, human, live agent, or Luis.',
-    },
-    messages: [
-      {
-        type: 'request-start',
-        content: 'Connecting you to Luis now. Stay on the line.',
+  // 1) Create transfer tool (or reuse TOOL_ID if re-running)
+  let toolId = (process.env.VAPI_TRANSFER_TOOL_ID || '').trim();
+  if (toolId) {
+    console.log(`\n1) Reusing transfer tool: ${toolId}`);
+  } else {
+    console.log('\n1) Creating transferCall tool…');
+    const tool = await vapi('POST', '/tool', {
+      type: 'transferCall',
+      function: {
+        name: 'transferCall',
+        description:
+          'Transfer the caller to Luis Mariscal (owner of Vox.chat) for a live human conversation. Use when the caller asks for a real person, human, live agent, or Luis.',
       },
-    ],
-    destinations: [
-      {
-        type: 'number',
-        number: luisPhone,
-        message: 'Please hold while I connect you to Luis.',
-        description: 'Luis Mariscal — Vox.chat owner / live human',
-        transferPlan: {
-          mode: transferMode,
-          message: 'Hi Luis — Vox AI is transferring a website caller who asked to speak with you live.',
+      messages: [
+        {
+          type: 'request-start',
+          content: 'Connecting you to Luis now. Stay on the line.',
         },
-      },
-    ],
-  });
-  console.log(`   Tool id: ${tool.id}`);
+      ],
+      destinations: [
+        {
+          type: 'number',
+          number: luisPhone,
+          message: 'Please hold while I connect you to Luis.',
+          description: 'Luis Mariscal — Vox.chat owner / live human',
+          transferPlan: {
+            mode: transferMode,
+            message:
+              'Hi Luis — Vox AI is transferring a website caller who asked to speak with you live.',
+          },
+        },
+      ],
+    });
+    toolId = tool.id;
+    console.log(`   Tool id: ${toolId}`);
+  }
 
   // 2) Load existing assistant so we keep model/voice/etc.
   console.log('\n2) Loading assistant…');
@@ -161,42 +168,110 @@ async function main() {
       content: systemPrompt,
     },
   ];
-  // Ensure toolIds includes new tool (keep any existing)
-  const prevToolIds = Array.isArray(existing.model?.toolIds)
-    ? existing.model.toolIds
-    : Array.isArray(existing.toolIds)
-      ? existing.toolIds
-      : [];
-  const toolIds = [...new Set([...prevToolIds, tool.id])];
 
-  // Some Vapi shapes put tools on assistant root vs model
-  const patch = {
-    name: existing.name || 'Vox Voice',
-    firstMessage:
-      existing.firstMessage ||
-      "Hey, thanks for reaching out to Vox.chat. I'm Vox — I help contractors learn how AI can handle their phones, website chat, and Google reviews. What can I help you with?",
-    model: {
-      ...model,
-      toolIds,
+  // Collect existing tool ids from all known shapes
+  const prevToolIds = [
+    ...(Array.isArray(existing.model?.toolIds) ? existing.model.toolIds : []),
+    ...(Array.isArray(existing.toolIds) ? existing.toolIds : []),
+  ];
+  const toolIds = [...new Set([...prevToolIds, toolId])];
+
+  // Inline model.tools transferCall is an alternative to toolIds
+  const inlineTools = Array.isArray(model.tools)
+    ? model.tools.filter((t) => t?.type !== 'transferCall')
+    : [];
+
+  // Prefer model.toolIds (API rejected root toolIds). Also try model.tools inline if needed.
+  const patchAttempts = [
+    {
+      label: 'model.toolIds + system prompt',
+      body: {
+        name: existing.name || 'Vox Voice',
+        firstMessage:
+          existing.firstMessage ||
+          "Hey, thanks for reaching out to Vox.chat. I'm Vox — I help contractors learn how AI can handle their phones, website chat, and Google reviews. What can I help you with?",
+        model: {
+          provider: model.provider,
+          model: model.model,
+          temperature: model.temperature,
+          maxTokens: model.maxTokens,
+          emotionRecognitionEnabled: model.emotionRecognitionEnabled,
+          messages: model.messages,
+          toolIds,
+          ...(inlineTools.length ? { tools: inlineTools } : {}),
+        },
+        serverUrl: existing.serverUrl || serverUrl,
+      },
     },
-    toolIds,
-    serverUrl: existing.serverUrl || serverUrl,
-    serverMessages: existing.serverMessages || [
-      'end-of-call-report',
-      'status-update',
-      'hang',
-    ],
-  };
+    {
+      label: 'model.tools inline transferCall',
+      body: {
+        name: existing.name || 'Vox Voice',
+        firstMessage:
+          existing.firstMessage ||
+          "Hey, thanks for reaching out to Vox.chat. I'm Vox — I help contractors learn how AI can handle their phones, website chat, and Google reviews. What can I help you with?",
+        model: {
+          provider: model.provider,
+          model: model.model,
+          temperature: model.temperature,
+          maxTokens: model.maxTokens,
+          messages: model.messages,
+          tools: [
+            ...inlineTools,
+            {
+              type: 'transferCall',
+              destinations: [
+                {
+                  type: 'number',
+                  number: luisPhone,
+                  message: 'Please hold while I connect you to Luis.',
+                  description: 'Luis Mariscal — live human',
+                  transferPlan: {
+                    mode: transferMode,
+                    message:
+                      'Hi Luis — Vox AI is transferring a website caller who asked to speak with you live.',
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        serverUrl: existing.serverUrl || serverUrl,
+      },
+    },
+    {
+      label: 'system prompt only (attach tool in dashboard if needed)',
+      body: {
+        model: {
+          provider: model.provider,
+          model: model.model,
+          temperature: model.temperature,
+          maxTokens: model.maxTokens,
+          messages: model.messages,
+          ...(Array.isArray(model.toolIds) ? { toolIds: model.toolIds } : {}),
+          ...(Array.isArray(model.tools) ? { tools: model.tools } : {}),
+        },
+      },
+    },
+  ];
 
-  // If model had inline tools, drop obsolete transfer tools of same name
-  if (Array.isArray(model.tools)) {
-    patch.model.tools = model.tools.filter((t) => t?.type !== 'transferCall');
+  console.log('\n3) Patching assistant…');
+  let updated = null;
+  let used = null;
+  for (const attempt of patchAttempts) {
+    try {
+      updated = await vapi('PATCH', `/assistant/${assistantId}`, attempt.body);
+      used = attempt.label;
+      console.log(`   OK via: ${used}`);
+      break;
+    } catch (e) {
+      console.log(`   skip (${attempt.label}): ${e.message}`);
+      if (e.details) console.log(`     ${JSON.stringify(e.details)}`);
+    }
   }
-
-  console.log('\n3) Patching assistant system prompt + transfer tool…');
-  const updated = await vapi('PATCH', `/assistant/${assistantId}`, patch);
+  if (!updated) fail('All assistant PATCH attempts failed');
   console.log(`   Updated: ${updated.name || assistantId}`);
-  console.log(`   Tools: ${(updated.toolIds || updated.model?.toolIds || []).length}`);
+  console.log(`   Transfer tool id: ${toolId}`);
 
   console.log(`
 ✅ Done.
