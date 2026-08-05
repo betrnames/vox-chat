@@ -50,13 +50,13 @@ const categories = [
       },
       {
         id: 'browser-vs-phone-live',
-        q: 'If I use “Call now” in the browser and ask for a live person, will I be transferred to a human?',
-        a: 'No. Browser “Call now” is a website mic session with the AI. If you ask for a live person, we notify our team by text (SMS) with your details so they can call you back — it does not bridge you into a live phone call. For a real phone conversation with the AI (and a possible live transfer to a human when available), dial our agent line at (209) 502-3028.',
+        q: 'Chrome on my phone vs the phone dialer — what’s the difference?',
+        a: 'Opening vox.chat in Chrome (or any browser) and tapping Call now still uses the website microphone (browser audio). That is not the same as dialing (209) 502-3028 in the Phone app. Only a real dial to (209) 502-3028 is a phone-network call that can transfer you live to a human. On phones, our Call now button opens your dialer to that agent number so live transfer can work. On desktop, Call now uses the browser mic; if you ask for a live person there, we may call your phone back from the agent line to connect you, and/or text our team for a callback.',
       },
       {
         id: 'phone-line-live-transfer',
-        q: 'How do I reach a live person for a real phone transfer?',
-        a: 'Call (209) 502-3028. That is our free Vapi agent phone number. The AI answers first. If you ask for a live person and a transfer is available, the call can be forwarded to our team’s cell. Website browser calls cannot do that phone-to-phone transfer.',
+        q: 'How do I get a live transfer to a human?',
+        a: 'Dial (209) 502-3028 (or use Call now on a phone so the dialer opens that number). The AI answers. Say you want a live person — the call can transfer to our team’s cell. Do not rely on the browser mic alone for a three-way live transfer.',
       },
     ],
   },

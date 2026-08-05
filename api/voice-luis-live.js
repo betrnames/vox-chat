@@ -1,21 +1,22 @@
 /**
- * Vercel serverless — POST /api/voice-luis-live
- * Custom Vapi tool: notify Luis for live handoff from website web calls.
+ * POST /api/voice-luis-live — browser “live person” handoff
  *
- * Why: transferCall from a browser (webCall) often fails with
- * call.in-progress.error-transfer-failed — there is no PSTN leg to forward.
- * This endpoint:
- *  1) SMS Luis (Twilio — same stack as review owner alerts)
- *  2) Places an outbound Vapi phone call FROM the free Vapi number TO Luis
- *     so his phone actually rings with a short spoken summary
- *
- * TransferCall to Luis’s cell is still correct for true phone→phone transfers
- * (caller dials the free Vapi number first).
+ * Browser WebRTC cannot transferCall to a cell (no PSTN leg).
+ * When the visitor gives a callback number we:
+ *  1) SMS Luis (Twilio)
+ *  2) Place an outbound call FROM free Vapi number (209-502-3028) TO the visitor
+ *     with an assistant that immediately transferCall's to Luis's cell
+ *     → real live call via the free Vapi line
  */
 import { normalizePhone, sendTwilioSms, twilioConfigured } from './reviewsShared.js'
 
 const VAPI_API = 'https://api.vapi.ai'
 const PHONE_NUMBER_ID = process.env.VAPI_PHONE_NUMBER_ID || '73b67fb1-249b-43c1-b6cd-a547c08093e3'
+const LUIS_E164 = () =>
+  normalizePhone(process.env.LUIS_PHONE_NUMBER || process.env.REVIEW_OWNER_PHONE || '') ||
+  '+12099967102'
+const TRANSFER_TOOL_ID =
+  process.env.VAPI_TRANSFER_TOOL_ID || '7f584654-5ab7-4264-baf5-4b810b7363b2'
 
 function clean(s, max = 200) {
   if (typeof s !== 'string') return ''
@@ -71,19 +72,17 @@ function extractToolArgs(message) {
 }
 
 async function smsLuis({ name, phone, reason, callId }) {
-  const owner = normalizePhone(
-    process.env.LUIS_PHONE_NUMBER || process.env.REVIEW_OWNER_PHONE || '',
-  )
+  const owner = LUIS_E164()
   if (!owner || !twilioConfigured()) {
     return { ok: false, error: 'sms_not_configured' }
   }
   const body = [
     'Vox LIVE request',
     name ? `Name: ${name}` : null,
-    phone ? `Callback: ${phone}` : null,
+    phone ? `Visitor phone: ${phone}` : null,
     reason ? `Why: ${reason}` : null,
-    callId ? `Call: ${callId}` : null,
-    '— answer if ringing or call them back ASAP',
+    callId ? `WebCall: ${callId}` : null,
+    '— visitor may get a callback from 209-502-3028 to connect you live',
   ]
     .filter(Boolean)
     .join(' · ')
@@ -91,23 +90,18 @@ async function smsLuis({ name, phone, reason, callId }) {
 }
 
 /**
- * Ring Luis via outbound phone call from free Vapi number.
- * Uses a short transient assistant so Luis hears context, then ends.
+ * Call the visitor from free Vapi number, then transfer them to Luis.
+ * This creates a real PSTN path so transferCall can work.
  */
-async function ringLuisViaVapi({ name, phone, reason }) {
+async function callVisitorThenTransferToLuis({ name, phone, reason }) {
   const privateKey = (process.env.VAPI_PRIVATE_KEY || process.env.VAPI_API_KEY || '').trim()
-  const luis = normalizePhone(
-    process.env.LUIS_PHONE_NUMBER || process.env.REVIEW_OWNER_PHONE || '',
-  )
-  if (!privateKey || !luis || !PHONE_NUMBER_ID) {
-    return { ok: false, error: 'vapi_outbound_not_configured' }
+  const luis = LUIS_E164()
+  const visitor = normalizePhone(phone)
+  if (!privateKey || !luis || !visitor || !PHONE_NUMBER_ID) {
+    return { ok: false, error: 'missing_config_or_visitor_phone' }
   }
 
-  const who = name || 'A website visitor'
-  const cb = phone ? ` Their callback number is ${phone.split('').join(' ')}.` : ''
-  const why = reason ? ` They said: ${reason}.` : ''
-  const firstMessage = `Hi Luis, this is Vox from the website. ${who} asked to speak with you live.${cb}${why} Please call them back when you can. Goodbye.`
-
+  const who = name || 'there'
   const res = await fetch(`${VAPI_API}/call`, {
     method: 'POST',
     headers: {
@@ -116,33 +110,39 @@ async function ringLuisViaVapi({ name, phone, reason }) {
     },
     body: JSON.stringify({
       phoneNumberId: PHONE_NUMBER_ID,
-      customer: { number: luis },
+      customer: { number: visitor, name: name || undefined },
       assistant: {
-        name: 'Vox → Luis live ping',
-        firstMessage,
-        endCallMessage: ' ',
+        name: 'Vox bridge to Luis',
+        firstMessage: `Hi ${who}, this is Vox calling you back from our agent line. Connecting you to Luis now — please stay on the line.`,
         model: {
           provider: 'openai',
           model: 'gpt-4.1-mini',
           messages: [
             {
               role: 'system',
-              content:
-                'You only deliver the first message to Luis about a website visitor, then end the call. Do not take questions. Keep under 3 sentences.',
+              content: `You connect a website visitor to Luis Mariscal for a live call.
+Immediately after your first message, call transferCall with destination ${luis}.
+Do not ask questions. Do not chat. One short connecting line only.
+Reason they wanted Luis: ${reason || 'live person'}.`,
             },
           ],
+          toolIds: [TRANSFER_TOOL_ID],
         },
         voice: { provider: 'vapi', voiceId: 'Nico' },
-        maxDurationSeconds: 45,
-        silenceTimeoutSeconds: 10,
+        maxDurationSeconds: 120,
+        silenceTimeoutSeconds: 20,
       },
     }),
   })
 
   const data = await res.json().catch(() => ({}))
   if (!res.ok) {
-    console.error('[voice-luis-live] outbound', res.status, data)
-    return { ok: false, error: 'outbound_failed', status: res.status, data }
+    console.error('[voice-luis-live] visitor outbound', res.status, data)
+    const errMsg =
+      data?.message ||
+      data?.error ||
+      (typeof data === 'string' ? data : JSON.stringify(data).slice(0, 200))
+    return { ok: false, error: 'outbound_failed', detail: errMsg, status: res.status }
   }
   return { ok: true, callId: data.id }
 }
@@ -152,7 +152,8 @@ export default async function handler(req, res) {
     res.status(200).json({
       ok: true,
       webhook: 'voice-luis-live',
-      purpose: 'Notify Luis for live handoff from web voice',
+      purpose:
+        'Browser live-person: SMS Luis + call visitor from free Vapi line then transfer to Luis cell',
     })
     return
   }
@@ -167,9 +168,7 @@ export default async function handler(req, res) {
     const message = unwrap(body)
     const type = message?.type || body?.type || ''
 
-    // Only act on tool-calls; ack the rest
     if (type && type !== 'tool-calls' && type !== 'function-call' && type !== 'tool-calls-message') {
-      // Some payloads nest differently — still try extract
       if (!message?.toolCallList && !message?.toolCalls) {
         res.status(200).json({ ok: true, ignored: type })
         return
@@ -178,40 +177,51 @@ export default async function handler(req, res) {
 
     const { toolCallId, args } = extractToolArgs(message)
     const name = clean(args.name || args.customerName || '', 80)
-    const phone = normalizePhone(args.phone || args.callback || args.phoneNumber || '') || clean(args.phone || '', 40)
+    const phone =
+      normalizePhone(args.phone || args.callback || args.phoneNumber || '') ||
+      clean(args.phone || '', 40)
     const reason = clean(args.reason || args.note || args.message || 'asked for live person', 200)
     const callId = clean(message?.call?.id || body?.call?.id || '', 80)
 
-    // Prefer SMS first (reliable). Outbound ring often hits free-number daily limits.
     const sms = await smsLuis({ name, phone, reason, callId })
-    let ring = { ok: false, error: 'skipped' }
-    // Only attempt ring if SMS failed or explicitly enabled
-    if (!sms.ok || process.env.VAPI_RING_LUIS === 'true') {
-      ring = await ringLuisViaVapi({ name, phone, reason })
+
+    let bridge = { ok: false, error: 'no_visitor_phone' }
+    if (phone) {
+      bridge = await callVisitorThenTransferToLuis({ name, phone, reason })
+    }
+
+    let messageOut
+    if (bridge.ok) {
+      messageOut =
+        'We are calling the visitor from the free Vapi agent line (209-502-3028) and will transfer them to Luis for a live call. Tell them to answer their phone now.'
+    } else if (!phone) {
+      messageOut =
+        'Need their callback phone number first. Ask for the best number so we can call them on the agent line and connect Luis live.'
+    } else if (sms.ok) {
+      messageOut =
+        'Could not place the live bridge call (often free-number outbound limits). Luis was texted — tell them Luis will call back ASAP. Suggest they can also dial 209-502-3028 for a direct agent line.'
+    } else {
+      messageOut =
+        'Could not reach Luis automatically. Collect name and phone for manual follow-up. They can dial 209-502-3028 for the agent phone line.'
     }
 
     const result = {
-      ok: Boolean(sms.ok || ring.ok),
+      ok: Boolean(sms.ok || bridge.ok),
       sms: sms.ok ? 'sent' : sms.error || 'failed',
-      ring: ring.ok ? 'dialed' : ring.error || 'not_attempted',
-      message: sms.ok
-        ? 'Luis was texted with the visitor details. Tell them he will call back ASAP. Keep the conversation open.'
-        : ring.ok
-          ? 'Luis is being called now. Tell the visitor to stay free for a callback.'
-          : 'Could not reach Luis automatically. Collect name and callback number and promise a manual follow-up.',
+      liveBridge: bridge.ok ? 'calling_visitor_then_transfer' : bridge.error || 'failed',
+      message: messageOut,
     }
 
-    console.log('[voice-luis-live]', { name, phone: phone ? 'yes' : 'no', sms: result.sms, ring: result.ring })
+    console.log('[voice-luis-live]', {
+      name: name || null,
+      hasPhone: Boolean(phone),
+      sms: result.sms,
+      liveBridge: result.liveBridge,
+    })
 
-    // Vapi tool result shape
     if (toolCallId) {
       res.status(200).json({
-        results: [
-          {
-            toolCallId,
-            result: JSON.stringify(result),
-          },
-        ],
+        results: [{ toolCallId, result: JSON.stringify(result) }],
       })
       return
     }
@@ -225,7 +235,7 @@ export default async function handler(req, res) {
           toolCallId: 'unknown',
           result: JSON.stringify({
             ok: false,
-            message: 'Internal error notifying Luis. Collect callback number instead.',
+            message: 'Internal error. Collect callback number for manual follow-up.',
           }),
         },
       ],

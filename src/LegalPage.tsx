@@ -114,14 +114,16 @@ export default function LegalPage() {
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Website “Call now” vs phone agent line</h3>
                 <p>
-                  <strong className="text-foreground">Browser “Call now”</strong> on vox.chat uses your device microphone to talk to our AI in the browser.
-                  If you ask to speak with a live person during a browser session, we may send our team a text message (SMS) with your contact details so they can call you back.
-                  Browser sessions are not phone-network calls and typically cannot be transferred into a live three-way phone conversation with a human.
+                  <strong className="text-foreground">Using a smartphone browser</strong> (Chrome, Safari, etc.) on vox.chat is still a website session, not a traditional phone call.
+                  Microphone “Call now” on a desktop uses browser audio. On many phones, “Call now” opens the device dialer to our agent line so you place a real phone call.
                 </p>
                 <p className="mt-3">
-                  <strong className="text-foreground">Phone agent line (209) 502-3028</strong> is a real inbound phone number answered by our AI.
-                  When you dial that number and request a live person, a transfer to a human team member’s phone may be attempted when available.
-                  Availability of live transfer depends on staffing, network conditions, and telephony limits; if transfer is not available, we may notify the team by SMS for a callback instead.
+                  <strong className="text-foreground">Phone agent line (209) 502-3028</strong> is a real inbound number answered by our AI.
+                  When you dial that number and request a live person, we may transfer the call to a human team member’s phone when available.
+                </p>
+                <p className="mt-3">
+                  During a pure browser mic session, we generally cannot bridge you into a live phone call with a human on the same connection.
+                  We may text our team and/or call your phone back from the agent line to attempt a live connection, subject to telephony limits and staffing.
                 </p>
               </div>
               <div>

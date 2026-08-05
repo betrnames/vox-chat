@@ -5,6 +5,8 @@ import { TypingDots } from './TypingDots'
 import LiveReceptionistWidget from './LiveReceptionistWidget'
 import ConsentNote from './ConsentNote'
 import { VapiVoiceProvider, VoiceCallTrigger, useVapiVoice } from './voice/VapiVoice'
+import { CallNowButton } from './voice/CallNowButton'
+import { VAPI_FREE_NUMBER_DISPLAY, VAPI_FREE_NUMBER_TEL } from './lib/phones'
 
 function HeroWaves() {
   return (
@@ -36,9 +38,9 @@ function Nav() {
           <a href="/faq.html" className="hover:text-foreground transition-colors">FAQ</a>
         </div>
         <div className="flex items-center gap-3">
-          <VoiceCallTrigger
+          <CallNowButton
             className="hidden sm:inline-flex items-center justify-center px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors disabled:opacity-60"
-            idleLabel="Call now"
+            browserLabel="Call now"
             activeLabel="End call"
             connectingLabel="Connecting…"
           />
@@ -67,13 +69,16 @@ function Nav() {
           <a href="#demos" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Demos</a>
           <a href="/blog.html" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Blog</a>
           <a href="/faq.html" onClick={() => setMenuOpen(false)} className="block px-3 py-2.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">FAQ</a>
-          <VoiceCallTrigger
+          <CallNowButton
             onClick={() => setMenuOpen(false)}
             className="w-full mt-1 block px-3 py-2.5 rounded-lg text-sm font-semibold text-center bg-primary text-primary-foreground hover:bg-primary/80 transition-colors disabled:opacity-60"
-            idleLabel="Call now"
+            browserLabel="Call now"
             activeLabel="End call"
             connectingLabel="Connecting…"
           />
+          <p className="px-3 pt-2 text-[11px] text-muted-foreground/70 leading-relaxed">
+            On a phone, Call now opens the dialer for {VAPI_FREE_NUMBER_DISPLAY} (live transfer works). Desktop uses browser mic.
+          </p>
         </div>
       )}
     </nav>
@@ -155,9 +160,9 @@ function Hero() {
               >
                 Demo
               </a>
-              <VoiceCallTrigger
+              <CallNowButton
                 className="flex items-center justify-center py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors disabled:opacity-60"
-                idleLabel="Call now"
+                browserLabel="Call now"
                 activeLabel="End call"
                 connectingLabel="Connecting…"
               />
