@@ -26,10 +26,18 @@ node scripts/setup-vapi-luis-transfer.mjs
 
 The script will:
 
-1. Create a `transferCall` tool → `LUIS_PHONE_NUMBER`
+1. Create a `transferCall` tool → `LUIS_PHONE_NUMBER` (**blind transfer** by default)
 2. PATCH your existing assistant with:
    - full system prompt from `src/voice/vapi-system-prompt.txt` (includes LIVE HUMAN TRANSFER rules)
    - the new tool attached
+
+### Important: warm vs blind transfer
+
+- **Blind transfer (default)** works on website web calls and Vapi-provider numbers.
+- **Warm transfer** modes only work with **Twilio-based** telephony (per Vapi docs).  
+  Using warm transfer on a web call caused: `call.in-progress.error-transfer-failed`.
+
+Optional: `$env:VAPI_TRANSFER_MODE = "warm-transfer-with-message"` only if the call path is Twilio.
 
 ## Manual path (dashboard)
 

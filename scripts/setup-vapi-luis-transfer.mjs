@@ -55,9 +55,9 @@ const assistantId = (
 ).trim();
 const luisPhone = (process.env.LUIS_PHONE_NUMBER || process.env.REVIEW_OWNER_PHONE || '').trim();
 const serverUrl = (process.env.VAPI_SERVER_URL || 'https://vox.chat/api/voice-webhook').trim();
-const transferMode = (
-  process.env.VAPI_TRANSFER_MODE || 'warm-transfer-wait-for-operator-to-speak-first-and-then-say-message'
-).trim();
+// Warm transfer requires Twilio telephony. Default: blind (works for web + Vapi numbers).
+// Set VAPI_TRANSFER_MODE to a warm-* value only if using Twilio-linked numbers.
+const transferMode = (process.env.VAPI_TRANSFER_MODE || 'blind').trim();
 
 function fail(msg) {
   console.error(`\n❌ ${msg}\n`);
@@ -127,32 +127,50 @@ async function main() {
     console.log(`\n1) Reusing transfer tool: ${toolId}`);
   } else {
     console.log('\n1) Creating transferCall tool…');
+    const destination = {
+      type: 'number',
+      number: luisPhone,
+      message: 'Please hold while I connect you to Luis.',
+      description: 'Luis Mariscal — Vox.chat owner / live human',
+    };
+    // Warm transfer modes need Twilio telephony; skip transferPlan for blind.
+    if (transferMode && transferMode !== 'blind') {
+      destination.transferPlan = {
+        mode: transferMode,
+        message:
+          'Hi Luis — Vox AI is transferring a website caller who asked to speak with you live.',
+      };
+    }
     const tool = await vapi('POST', '/tool', {
       type: 'transferCall',
       function: {
         name: 'transferCall',
         description:
-          'Transfer the caller to Luis Mariscal (owner of Vox.chat) for a live human conversation. Use when the caller asks for a real person, human, live agent, or Luis.',
+          'Transfer the caller to Luis Mariscal (owner of Vox.chat) for a live human conversation. Use when the caller asks for a real person, human, live agent, or Luis. Always pass destination as the Luis number.',
+        parameters: {
+          type: 'object',
+          properties: {
+            destination: {
+              type: 'string',
+              enum: [luisPhone],
+              description: 'Phone number to transfer to (Luis)',
+            },
+          },
+          required: ['destination'],
+        },
       },
       messages: [
         {
           type: 'request-start',
           content: 'Connecting you to Luis now. Stay on the line.',
         },
-      ],
-      destinations: [
         {
-          type: 'number',
-          number: luisPhone,
-          message: 'Please hold while I connect you to Luis.',
-          description: 'Luis Mariscal — Vox.chat owner / live human',
-          transferPlan: {
-            mode: transferMode,
-            message:
-              'Hi Luis — Vox AI is transferring a website caller who asked to speak with you live.',
-          },
+          type: 'request-failed',
+          content:
+            "I couldn't connect that transfer right now. Can I grab your name and best number so Luis calls you back within the hour?",
         },
       ],
+      destinations: [destination],
     });
     toolId = tool.id;
     console.log(`   Tool id: ${toolId}`);
