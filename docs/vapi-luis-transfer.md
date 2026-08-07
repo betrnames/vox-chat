@@ -27,10 +27,12 @@ node scripts/setup-vapi-luis-transfer.mjs
 
 The script will:
 
-1. Create a `transferCall` tool → `LUIS_PHONE_NUMBER` (**blind transfer** by default)
-2. PATCH your existing assistant with:
+1. Reuse an existing `transferCall` tool if the assistant already has one (or create one)
+2. PATCH the assistant with:
    - full system prompt from `src/voice/vapi-system-prompt.txt` (includes LIVE HUMAN TRANSFER rules)
-   - the new tool attached
+   - **exactly one** `transferCall` tool + any non-transfer tools (e.g. `notifyLuisLive`)
+
+> **Do not attach two `transferCall` tools.** Vapi fails inbound calls immediately with a message about more than one transfer call type / tool, and never plays `firstMessage`.
 
 ### Important: warm vs blind transfer
 
@@ -69,11 +71,29 @@ If Vapi gave you a **custom inbound** number:
 
 Outbound transfer to Luis does **not** require that number; it only needs the destination in the transfer tool.
 
+## Browser vs phone (important)
+
+| Path | How | What the agent should say | What actually happens |
+|------|-----|---------------------------|------------------------|
+| **Phone** | Dial **(209) 502-3028** from a phone that is **not** 209-996-7102 | “Please hold while I connect you to Luis live” | `transferCall` → Luis cell rings |
+| **Browser** | Mic on vox.chat | “I can’t live-transfer from the website — I’ll **text Luis** so he can call you back” | `notifyLuisLive` = **SMS** to Luis (+ optional bridge call). **Not** a live hold-transfer |
+
+Do **not** test phone transfer by calling 502-3028 **from** 996-7102 — destination is busy (you’re on it). Use a second phone.
+
+Do **not** expect the browser mic session to ring Luis’s cell by itself. That always ends in `call.in-progress.error-transfer-failed` if `transferCall` runs on a webCall.
+
 ## Test script
 
-1. Start voice on https://vox.chat (or dial the Vapi number)
+### Phone (true live transfer)
+1. From a **different** phone than Luis’s cell, dial **(209) 502-3028**
 2. Say: **“I want to speak to a live person”** or **“Connect me to Luis”**
-3. Expect: short connect line → Luis’s phone rings
+3. Expect: connect line → **Luis’s** phone (209-996-7102) rings
+
+### Browser (notify + callback bridge)
+1. On desktop (or mobile browser), start voice on https://vox.chat  
+2. Say you want a live person  
+3. Give a **callback number that is not** Luis’s cell (for a full bridge), or Luis’s cell to test **SMS only**  
+4. Expect: agent asks for your number → `notifyLuisLive` → SMS and/or agent line calls you back
 
 ## Prompt behavior (summary)
 

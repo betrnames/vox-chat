@@ -115,70 +115,115 @@ function maskPhone(p) {
   return p.slice(0, 3) + '***' + p.slice(-4);
 }
 
+function buildTransferDestination() {
+  const destination = {
+    type: 'number',
+    number: luisPhone,
+    message: 'Please hold while I connect you to Luis.',
+    description: 'Luis Mariscal — Vox.chat owner / live human',
+  };
+  // Warm transfer modes need Twilio telephony; skip transferPlan for blind.
+  if (transferMode && transferMode !== 'blind') {
+    destination.transferPlan = {
+      mode: transferMode,
+      message:
+        'Hi Luis — Vox AI is transferring a website caller who asked to speak with you live.',
+    };
+  }
+  return destination;
+}
+
+function buildTransferToolBody() {
+  return {
+    type: 'transferCall',
+    function: {
+      name: 'transferCall',
+      description:
+        'Transfer the caller to Luis Mariscal (owner of Vox.chat) for a live human conversation. Use when the caller asks for a real person, human, live agent, or Luis. Always pass destination as the Luis number.',
+      parameters: {
+        type: 'object',
+        properties: {
+          destination: {
+            type: 'string',
+            enum: [luisPhone],
+            description: 'Phone number to transfer to (Luis)',
+          },
+        },
+        required: ['destination'],
+      },
+    },
+    messages: [
+      {
+        type: 'request-start',
+        content: 'Connecting you to Luis now. Stay on the line.',
+      },
+      {
+        type: 'request-failed',
+        content:
+          "I couldn't connect that transfer right now. Can I grab your name and best number so Luis calls you back within the hour?",
+      },
+    ],
+    destinations: [buildTransferDestination()],
+  };
+}
+
 async function main() {
   console.log('Vox → Luis live transfer setup');
   console.log(`  Assistant: ${assistantId}`);
   console.log(`  Luis phone: ${maskPhone(luisPhone)}`);
   console.log(`  Mode: ${transferMode}`);
 
-  // 1) Create transfer tool (or reuse TOOL_ID if re-running)
+  // 2 first: need assistant + tool catalog to avoid duplicate transferCall tools.
+  // Vapi hangs up inbound calls with "more than one type of transfer call"
+  // if 2+ transferCall tools are attached (same function name).
+  console.log('\n1) Loading assistant + tools…');
+  const existing = await vapi('GET', `/assistant/${assistantId}`);
+  const allTools = await vapi('GET', '/tool');
+  const toolList = Array.isArray(allTools) ? allTools : [];
+  const toolsById = Object.fromEntries(toolList.map((t) => [t.id, t]));
+
+  const prevToolIds = [
+    ...new Set([
+      ...(Array.isArray(existing.model?.toolIds) ? existing.model.toolIds : []),
+      ...(Array.isArray(existing.toolIds) ? existing.toolIds : []),
+    ]),
+  ];
+  const attachedTransferIds = prevToolIds.filter(
+    (id) => toolsById[id]?.type === 'transferCall'
+  );
+  const nonTransferIds = prevToolIds.filter(
+    (id) => toolsById[id]?.type !== 'transferCall'
+  );
+
+  // 2) Reuse existing transferCall if present; else create once
   let toolId = (process.env.VAPI_TRANSFER_TOOL_ID || '').trim();
   if (toolId) {
-    console.log(`\n1) Reusing transfer tool: ${toolId}`);
-  } else {
-    console.log('\n1) Creating transferCall tool…');
-    const destination = {
-      type: 'number',
-      number: luisPhone,
-      message: 'Please hold while I connect you to Luis.',
-      description: 'Luis Mariscal — Vox.chat owner / live human',
-    };
-    // Warm transfer modes need Twilio telephony; skip transferPlan for blind.
-    if (transferMode && transferMode !== 'blind') {
-      destination.transferPlan = {
-        mode: transferMode,
-        message:
-          'Hi Luis — Vox AI is transferring a website caller who asked to speak with you live.',
-      };
+    console.log(`\n2) Reusing transfer tool from env: ${toolId}`);
+  } else if (attachedTransferIds.length > 0) {
+    toolId = attachedTransferIds[0];
+    console.log(`\n2) Reusing existing transferCall tool: ${toolId}`);
+    if (attachedTransferIds.length > 1) {
+      console.log(
+        `   (will detach ${attachedTransferIds.length - 1} duplicate transferCall tool(s))`
+      );
     }
-    const tool = await vapi('POST', '/tool', {
-      type: 'transferCall',
-      function: {
-        name: 'transferCall',
-        description:
-          'Transfer the caller to Luis Mariscal (owner of Vox.chat) for a live human conversation. Use when the caller asks for a real person, human, live agent, or Luis. Always pass destination as the Luis number.',
-        parameters: {
-          type: 'object',
-          properties: {
-            destination: {
-              type: 'string',
-              enum: [luisPhone],
-              description: 'Phone number to transfer to (Luis)',
-            },
-          },
-          required: ['destination'],
-        },
-      },
-      messages: [
-        {
-          type: 'request-start',
-          content: 'Connecting you to Luis now. Stay on the line.',
-        },
-        {
-          type: 'request-failed',
-          content:
-            "I couldn't connect that transfer right now. Can I grab your name and best number so Luis calls you back within the hour?",
-        },
-      ],
-      destinations: [destination],
-    });
+    // Keep destination in sync with LUIS_PHONE_NUMBER
+    try {
+      await vapi('PATCH', `/tool/${toolId}`, buildTransferToolBody());
+      console.log('   Updated destination / messages on tool');
+    } catch (e) {
+      console.log(`   skip tool PATCH: ${e.message}`);
+    }
+  } else {
+    console.log('\n2) Creating transferCall tool…');
+    const tool = await vapi('POST', '/tool', buildTransferToolBody());
     toolId = tool.id;
     console.log(`   Tool id: ${toolId}`);
   }
 
-  // 2) Load existing assistant so we keep model/voice/etc.
-  console.log('\n2) Loading assistant…');
-  const existing = await vapi('GET', `/assistant/${assistantId}`);
+  // Exactly one transferCall — never stack duplicates
+  const toolIds = [...new Set([...nonTransferIds, toolId])];
+
   const model = { ...(existing.model || {}) };
   model.messages = [
     {
@@ -187,14 +232,7 @@ async function main() {
     },
   ];
 
-  // Collect existing tool ids from all known shapes
-  const prevToolIds = [
-    ...(Array.isArray(existing.model?.toolIds) ? existing.model.toolIds : []),
-    ...(Array.isArray(existing.toolIds) ? existing.toolIds : []),
-  ];
-  const toolIds = [...new Set([...prevToolIds, toolId])];
-
-  // Inline model.tools transferCall is an alternative to toolIds
+  // Inline model.tools transferCall is an alternative to toolIds — strip duplicates
   const inlineTools = Array.isArray(model.tools)
     ? model.tools.filter((t) => t?.type !== 'transferCall')
     : [];

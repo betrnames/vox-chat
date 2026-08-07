@@ -184,25 +184,34 @@ export default async function handler(req, res) {
     const callId = clean(message?.call?.id || body?.call?.id || '', 80)
 
     const sms = await smsLuis({ name, phone, reason, callId })
+    const luis = LUIS_E164()
+    const visitorIsLuis = Boolean(phone && luis && phone === luis)
 
     let bridge = { ok: false, error: 'no_visitor_phone' }
-    if (phone) {
+    // Bridge: call visitor from free Vapi line, then transferCall → Luis.
+    // Skip when visitor number is Luis's cell — transfer-to-self fails and drops the call.
+    if (phone && !visitorIsLuis) {
       bridge = await callVisitorThenTransferToLuis({ name, phone, reason })
+    } else if (visitorIsLuis) {
+      bridge = { ok: false, error: 'visitor_is_luis_phone' }
     }
 
     let messageOut
     if (bridge.ok) {
       messageOut =
-        'We are calling the visitor from the free Vapi agent line (209-502-3028) and will transfer them to Luis for a live call. Tell them to answer their phone now.'
+        'SMS was sent to Luis. We are ALSO calling the visitor from 209-502-3028 to try a phone bridge. Tell them clearly: the website step is an SMS alert to Luis (not a live browser transfer). If their phone rings from the agent line, answer it. For a true live hold-and-transfer they can dial 209-502-3028 and ask for Luis.'
     } else if (!phone) {
       messageOut =
-        'Need their callback phone number first. Ask for the best number so we can call them on the agent line and connect Luis live.'
+        'Need their callback phone first. Remind them: from the website this is an SMS to Luis for callback — not a live transfer. Ask for the best number for Luis to text/call back.'
+    } else if (visitorIsLuis && sms.ok) {
+      messageOut =
+        'Luis was texted (SMS alert only — not a live transfer). Tell them that clearly. He will call back ASAP. For a live hold-and-transfer, dial 209-502-3028 from a different phone and ask for Luis.'
     } else if (sms.ok) {
       messageOut =
-        'Could not place the live bridge call (often free-number outbound limits). Luis was texted — tell them Luis will call back ASAP. Suggest they can also dial 209-502-3028 for a direct agent line.'
+        'Luis was texted with their info (SMS alert — not a live transfer). Tell them that clearly and that he will call back ASAP. Suggest dialing 209-502-3028 from their phone for a real live transfer if they want that now.'
     } else {
       messageOut =
-        'Could not reach Luis automatically. Collect name and phone for manual follow-up. They can dial 209-502-3028 for the agent phone line.'
+        'Could not reach Luis automatically. Collect name and phone for manual follow-up. Remind them website path is SMS callback, not live transfer. They can dial 209-502-3028 for the live phone agent line.'
     }
 
     const result = {

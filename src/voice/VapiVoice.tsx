@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from 'react'
 import Vapi from '@vapi-ai/web'
-import { VOX_VOICE_SYSTEM_PROMPT } from './vapiSystemPrompt'
+import { VOX_VOICE_WEB_SYSTEM_PROMPT } from './vapiSystemPrompt'
 
 const publicKey = (import.meta.env.VITE_VAPI_PUBLIC_KEY || '').trim()
 const assistantId = (import.meta.env.VITE_VAPI_ASSISTANT_ID || '').trim()
@@ -18,6 +18,9 @@ const assistantId = (import.meta.env.VITE_VAPI_ASSISTANT_ID || '').trim()
 const WEB_NOTIFY_TOOL_ID = (
   import.meta.env.VITE_VAPI_NOTIFY_TOOL_ID || 'bddd4673-f8c4-42f0-9e49-af3dcdc3eb2d'
 ).trim()
+
+const WEB_FIRST_MESSAGE =
+  "Hey, thanks for reaching out to Vox.chat. I'm Vox — I help contractors learn how AI can handle their phones, website chat, and Google reviews. What can I help you with?"
 
 export type VapiCallStatus = 'idle' | 'connecting' | 'active' | 'error'
 
@@ -39,7 +42,10 @@ export function VapiVoiceProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<VapiCallStatus>('idle')
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const ready = Boolean(publicKey && assistantId)
+  // Web uses a transient assistant (no transferCall). Public key is enough.
+  // assistantId remains available for env/docs; phone inbound uses it on Vapi's side.
+  const ready = Boolean(publicKey)
+  void assistantId
 
   useEffect(() => {
     if (!ready) return
@@ -101,7 +107,7 @@ export function VapiVoiceProvider({ children }: { children: ReactNode }) {
 
   const start = useCallback(async () => {
     if (!ready || !vapiRef.current) {
-      setError('Voice agent not configured. Set VITE_VAPI_PUBLIC_KEY and VITE_VAPI_ASSISTANT_ID.')
+      setError('Voice agent not configured. Set VITE_VAPI_PUBLIC_KEY.')
       setStatus('error')
       return
     }
@@ -110,15 +116,25 @@ export function VapiVoiceProvider({ children }: { children: ReactNode }) {
     setError(null)
     setStatus('connecting')
     try {
-      // Browser web calls cannot PSTN-transfer (ends with error-transfer-failed).
-      // Override tools to notifyLuisLive only + keep system prompt. Phone inbound keeps full tools.
-      await vapiRef.current.start(assistantId, {
+      // Browser WebRTC cannot PSTN-transfer (error-transfer-failed). Do NOT start the phone
+      // assistant (it has transferCall) — even toolIds overrides still let transferCall run.
+      // Transient web assistant: notifyLuisLive only + web-only system prompt.
+      await vapiRef.current.start({
+        name: 'Vox Voice Web',
+        firstMessage: WEB_FIRST_MESSAGE,
         model: {
           provider: 'openai',
           model: 'gpt-4.1-mini',
-          messages: [{ role: 'system', content: VOX_VOICE_SYSTEM_PROMPT }],
+          messages: [{ role: 'system', content: VOX_VOICE_WEB_SYSTEM_PROMPT }],
           toolIds: WEB_NOTIFY_TOOL_ID ? [WEB_NOTIFY_TOOL_ID] : [],
         },
+        voice: {
+          provider: 'vapi',
+          // Matches phone assistant; SDK types lag behind available Vapi voices.
+          voiceId: 'Nico' as 'Harry',
+        },
+        // Keep lead webhook; notifyLuisLive has its own server URL on the tool.
+        server: { url: 'https://vox.chat/api/voice-webhook' },
       })
     } catch (err) {
       console.error('[vapi] start', err)
