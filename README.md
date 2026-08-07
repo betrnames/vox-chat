@@ -1,37 +1,53 @@
-# VoxChat
+# Vox.chat
 
-AI-powered automation platform for home services businesses — HVAC, plumbing, and electrical.
+**AI phone agents, receptionists, and review automation for contractors** — HVAC, plumbing, electrical, and home services.
 
-**Live:** [vox-chat-claude.vercel.app](https://vox-chat-claude.vercel.app)
+**Live:** [vox.chat](https://vox.chat)
+
+![Vox.chat open graph](public/og-image.png)
+
+![Homepage proof](assets/proof-homepage.png)
 
 ## What it does
 
-VoxChat replaces missed calls with an AI receptionist that qualifies leads, books appointments, and captures contact info — 24/7, no hold music.
+Missed after-hours calls cost contractors jobs. Vox answers 24/7, qualifies leads, notifies the owner, and can hand off to a live person on a real phone path.
 
-- **Voice AI** — Real-time phone handling via Vapi WebRTC
-- - **Chat lead capture** — On-site chat widget that routes qualified leads to a Google Sheet CRM
-  - - **SMS alerts** — Instant notifications when new leads come in
-    - - **SEO blog engine** — 19 locally-optimized blog posts targeting service-area keywords
-      - - **Schema markup** — LocalBusiness structured data for search visibility
-       
-        - ## Tech stack
-       
-        - | Layer | Tech |
-        - |-------|------|
-        - | Frontend | TypeScript, Vite, Tailwind CSS |
-        - | Voice | Vapi WebRTC |
-        - | CRM | Google Sheets API (service account) |
-        - | Hosting | Vercel |
-        - | SEO | Static blog with OG/Twitter Card meta |
-       
-        - ## Architecture
-       
-        - ```
-          User call/chat → Vapi voice agent / chat widget
-                              ↓
-                        Lead qualification
-                              ↓
-                   Google Sheet + SMS alert
-          ```
+| Capability | Detail |
+|------------|--------|
+| **Voice AI** | Vapi agent — browser WebRTC on desktop; free PSTN line `(209) 502-3028` on mobile dialer |
+| **Live transfer** | Phone path can transfer to a human cell; browser path notifies team + optional callback |
+| **Chat receptionist** | On-site lead capture widget |
+| **SEO / content** | Local blog + schema for Central Valley service keywords |
+| **Legal / FAQ** | Consent, recording, and call-path docs |
 
-          Built with Claude as a co-developer (see commit history).
+## Stack
+
+| Layer | Tech |
+|-------|------|
+| Frontend | React, TypeScript, Vite, Tailwind |
+| Voice | Vapi (`@vapi-ai/web`) + serverless tools |
+| Hosting | Vercel |
+| CRM / alerts | Google Sheets + SMS hooks |
+
+## Quick start
+
+```bash
+npm install
+cp .env.example .env   # Vapi + lead endpoints as needed
+npm run dev
+```
+
+```bash
+npm run build          # tsc + vite + prerender
+```
+
+## Repo layout
+
+- `src/` — marketing site, demos, voice UI (`CallNowButton`, Vapi provider)
+- `api/` — serverless tools (e.g. live-person notify)
+- `public/` — static assets, OG image, blog art
+- `blog.html` / `faq.html` / `legal.html` — multi-page entrypoints
+
+## License
+
+Private commercial product surface; source published for portfolio. All rights reserved.
