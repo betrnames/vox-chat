@@ -10,13 +10,42 @@
  */
 import { normalizePhone, sendTwilioSms, twilioConfigured } from './reviewsShared.js'
 
+const RATE_LIMIT_MAX = 5
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000
+const rateLimitHits = new Map()
+
+function getClientIp(req) {
+  const headers = req.headers || {}
+  const xf = headers['x-forwarded-for'] || headers['x-real-ip'] || headers['x-vercel-forwarded-for']
+  if (typeof xf === 'string' && xf.length) return xf.split(',')[0].trim()
+  if (Array.isArray(xf) && xf[0]) return String(xf[0]).trim()
+  return (req.socket && req.socket.remoteAddress) || 'unknown'
+}
+
+function checkRateLimit(ip) {
+  const now = Date.now()
+  let entry = rateLimitHits.get(ip)
+  if (!entry || now >= entry.resetAt) {
+    entry = { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS }
+    rateLimitHits.set(ip, entry)
+  }
+  entry.count += 1
+  return entry.count <= RATE_LIMIT_MAX
+}
+
+const rateLimitCleanup = setInterval(function () {
+  const now = Date.now()
+  for (const [ip, entry] of rateLimitHits.entries()) {
+    if (now >= entry.resetAt) rateLimitHits.delete(ip)
+  }
+}, RATE_LIMIT_WINDOW_MS)
+if (typeof rateLimitCleanup.unref === 'function') rateLimitCleanup.unref()
+
 const VAPI_API = 'https://api.vapi.ai'
-const PHONE_NUMBER_ID = process.env.VAPI_PHONE_NUMBER_ID || '73b67fb1-249b-43c1-b6cd-a547c08093e3'
+const PHONE_NUMBER_ID = process.env.VAPI_PHONE_NUMBER_ID || ''
 const LUIS_E164 = () =>
-  normalizePhone(process.env.LUIS_PHONE_NUMBER || process.env.REVIEW_OWNER_PHONE || '') ||
-  '+12099967102'
-const TRANSFER_TOOL_ID =
-  process.env.VAPI_TRANSFER_TOOL_ID || '7f584654-5ab7-4264-baf5-4b810b7363b2'
+  normalizePhone(process.env.LUIS_PHONE_NUMBER || process.env.REVIEW_OWNER_PHONE || '')
+const TRANSFER_TOOL_ID = process.env.VAPI_TRANSFER_TOOL_ID || ''
 
 function clean(s, max = 200) {
   if (typeof s !== 'string') return ''
@@ -160,6 +189,12 @@ export default async function handler(req, res) {
 
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
+    return
+  }
+
+  const ip = getClientIp(req)
+  if (!checkRateLimit(ip)) {
+    res.status(429).json({ error: 'Too many requests' })
     return
   }
 

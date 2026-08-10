@@ -5,6 +5,37 @@
 import { writeLeadToSheet } from './googleSheet.js'
 import { twilioConfigured, sendTwilioSms, normalizePhone } from './reviewsShared.js'
 
+const RATE_LIMIT_MAX = 5
+const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000
+const rateLimitHits = new Map()
+
+function getClientIp(req) {
+  const headers = req.headers || {}
+  const xf = headers['x-forwarded-for'] || headers['x-real-ip'] || headers['x-vercel-forwarded-for']
+  if (typeof xf === 'string' && xf.length) return xf.split(',')[0].trim()
+  if (Array.isArray(xf) && xf[0]) return String(xf[0]).trim()
+  return (req.socket && req.socket.remoteAddress) || 'unknown'
+}
+
+function checkRateLimit(ip) {
+  const now = Date.now()
+  let entry = rateLimitHits.get(ip)
+  if (!entry || now >= entry.resetAt) {
+    entry = { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS }
+    rateLimitHits.set(ip, entry)
+  }
+  entry.count += 1
+  return entry.count <= RATE_LIMIT_MAX
+}
+
+const rateLimitCleanup = setInterval(function () {
+  const now = Date.now()
+  for (const [ip, entry] of rateLimitHits.entries()) {
+    if (now >= entry.resetAt) rateLimitHits.delete(ip)
+  }
+}, RATE_LIMIT_WINDOW_MS)
+if (typeof rateLimitCleanup.unref === 'function') rateLimitCleanup.unref()
+
 function clean(s, max) {
   max = max || 200
   if (typeof s !== 'string') return ''
@@ -17,6 +48,11 @@ export default async function handler(req, res) {
 
     if (req.method !== 'POST') {
       return res.status(405).json({ error: 'Method not allowed' })
+    }
+
+    const ip = getClientIp(req)
+    if (!checkRateLimit(ip)) {
+      return res.status(429).json({ error: 'Too many requests', ok: false })
     }
 
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {}
