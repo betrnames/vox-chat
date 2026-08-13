@@ -39,9 +39,9 @@
 
 | SKU | List (quote) | Floor |
 |-----|--------------|-------|
-| Reviews | **$400/mo** | $300 |
-| Receptionist | **$650/mo** | $500 |
-| Voice | **$1,100/mo** | $800 |
+| Reviews | **$595/mo** | $495 |
+| Receptionist | **$550/mo** | $450 |
+| Voice | **$995/mo** | $800 |
 | Bundle | **$1,500/mo** | **$1,500 (no discount)** |
 
 - **Setup fee:** $0 listed — included; **first month paid in advance** unlocks setup  

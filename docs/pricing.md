@@ -18,13 +18,13 @@ Say these numbers in audits and closes.
 
 | Package | Monthly price | One-line pitch | When to sell it |
 |---------|---------------|----------------|-----------------|
-| **Reviews** | **$400** | Lowest cost · fastest Google-review win | Budget / “prove it first” |
-| **Receptionist** | **$650** | Website visitors + chat path | Strong web traffic |
-| **Voice** | **$1,100** | Highest revenue impact — answers the phone | Missed / after-hours calls |
+| **Reviews** | **$595** | Highest-value per dollar · compounds Google ranking | Fastest visible win |
+| **Receptionist** | **$550** | Website visitors + chat path | Strong web traffic |
+| **Voice** | **$995** | Highest revenue impact — answers the phone | Missed / after-hours calls |
 | **Bundle** (all three) | **$1,500** | Full AI front desk · less than a part-time hire | **Default close** |
 
 **Website ranges** (OK on site/blog; still true as bands):  
-Reviews $300–$500 · Receptionist $500–$800 · Voice $800–$1,500 · Bundle $1,500  
+Reviews $595 · Receptionist $550 · Voice $995 · Bundle $1,500  
 
 | Use this | For this |
 |----------|----------|
@@ -41,12 +41,12 @@ Never go below floor without a written reason.
 
 | Package | List | Floor (hard stop) |
 |---------|------|-------------------|
-| Reviews | $400 | **$300** |
-| Receptionist | $650 | **$500** |
-| Voice | $1,100 | **$800** |
+| Reviews | $595 | **$495** |
+| Receptionist | $550 | **$450** |
+| Voice | $995 | **$800** |
 | Bundle | $1,500 | **$1,500** — do not discount |
 
-If they can’t do Bundle: sell **Reviews** or **Voice** alone — don’t cut Bundle to $999.
+If they can’t do Bundle: sell **Reviews** or **Voice** alone — don’t cut Bundle below $1,500.
 
 ---
 
@@ -70,9 +70,9 @@ If they can’t do Bundle: sell **Reviews** or **Voice** alone — don’t cut B
 
 | Path | Monthly |
 |------|---------|
-| Reviews + Receptionist + Voice at list | **$2,150** |
+| Reviews + Receptionist + Voice at list | **$2,140** |
 | Bundle | **$1,500** |
-| **They save** | **$650/mo (~30%)** |
+| **They save** | **$640/mo (30%)** |
 
 That savings is your package deal — not a random coupon.
 
@@ -98,7 +98,7 @@ Conservative: **2–3 booked jobs/mo** from missed calls pays for Voice; **1 sol
 
 | Offer | How to frame it |
 |-------|-----------------|
-| Start at Reviews $400 | Path in without discounting Bundle |
+| Start at Reviews $595 | Path in without discounting Bundle |
 | Bundle vs $2,150 separate | Built-in package savings |
 | $0 setup | Included in first month |
 | Month-to-month | No annual lock-in |
@@ -148,9 +148,9 @@ Most of the rest is yours      (before tax and your time)
 
 | Package | Client pays | Tools (light–moderate) | Roughly yours* |
 |---------|-------------|------------------------|----------------|
-| Reviews $400 | $400 | ~$5–25 | ~$375–395 |
-| Receptionist $650 | $650 | ~$10–50 | ~$600–640 |
-| Voice $1,100 | $1,100 | ~$25–200 | ~$900–1,075 |
+| Reviews $595 | $595 | ~$5–25 | ~$570–590 |
+| Receptionist $550 | $550 | ~$10–50 | ~$500–540 |
+| Voice $995 | $995 | ~$25–200 | ~$795–970 |
 | Bundle $1,500 | $1,500 | ~$40–250 | ~$1,250–1,460 |
 
 \*Before tax and your labor. Heavy call volume raises Voice tool cost — then raise list or define fair use; don’t add surprise fees.
@@ -170,10 +170,10 @@ Most of the rest is yours      (before tax and your time)
 ## Phone cheat sheet
 
 ```
-LIST:   Reviews $400 · Receptionist $650 · Voice $1,100 · Bundle $1,500
-FLOOR:  $300 · $500 · $800 · Bundle never below $1,500
+LIST:   Reviews $595 · Receptionist $550 · Voice $995 · Bundle $1,500
+FLOOR:  $495 · $450 · $800 · Bundle never below $1,500
 SETUP:  $0 included · first month paid starts work
-CLOSE:  Bundle default · budget = Reviews $400 then add Voice
+CLOSE:  Bundle default · budget = Reviews $595 then add Voice
 PAY → setup form → configure → live
 NO HIDDEN FEES · tools paid by you, not passed through
 ```

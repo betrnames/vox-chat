@@ -40,9 +40,9 @@ One geography. One ICP. One stack.
 
 | SKU | What they get | Price | Best entry |
 |-----|----------------|-------|------------|
-| **Reviews** | Timed texts after jobs · negative path to owner · monthly review report | $300–$500/mo | Lowest friction, fastest visible win |
-| **Receptionist** | AI Receptionist trained on services/pricing · qualify · book · notify you | $500–$800/mo | Website/visitor + after-hours chat path |
-| **Voice** | AI phone agent 24/7 or after-hours · qualify · book · notify | $800–$1,500/mo | Highest revenue impact |
+| **Reviews** | Timed texts after jobs · negative path to owner · monthly review report | $595/mo | Lowest friction, fastest visible win |
+| **Receptionist** | AI Receptionist trained on services/pricing · qualify · book · notify you | $550/mo | Website/visitor + after-hours chat path |
+| **Voice** | AI phone agent 24/7 or after-hours · qualify · book · notify | $995/mo | Highest revenue impact |
 | **Bundle** | All three | **$1,500/mo** | Default close; “less than a part-time hire” |
 
 **Rules**
@@ -82,7 +82,7 @@ AI front desk for HVAC, plumbing, and electrical — phones, customer conversati
 
 **Bundle: $1,500/mo**  
 All three. No long-term contract. Cancel anytime.  
-*(Individual tools from $300–$1,500/mo.)*
+*(Individual tools from $550–$995/mo.)*
 
 **Setup**  
 One 20–30 minute call. Live in days — not months. No hardware. No code on your side.

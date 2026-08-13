@@ -132,7 +132,7 @@ const posts = [
   {
     slug: 'do-i-need-receptionist-hvac-company',
     stat: '$38K',
-    label: 'per year — or $1,100/mo for AI',
+    label: 'per year — or $995/mo for AI',
     headline: 'Skip the Hire',
     sub: 'HVAC Companies',
   },

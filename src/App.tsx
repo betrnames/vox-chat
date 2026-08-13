@@ -536,7 +536,7 @@ function VoiceDemo() {
     { from: 'caller' as const, text: "Yeah, I run an HVAC company in Manteca. I keep missing after-hours calls." },
     { from: 'ai' as const, text: "That's a common one. How big is your crew — solo or how many techs?" },
     { from: 'caller' as const, text: 'I got about 5 guys.' },
-    { from: 'ai' as const, text: "5 techs — that's roughly 15 missed calls a week after hours. At $500 average and a 50% close rate, you're leaving about $3,750 a week on the table. Vox Voice fixes that for $1,100/mo — pays for itself day one." },
+    { from: 'ai' as const, text: "5 techs — that's roughly 15 missed calls a week after hours. At $500 average and a 50% close rate, you're leaving about $3,750 a week on the table. Vox Voice fixes that for $995/mo — pays for itself day one." },
     { from: 'caller' as const, text: 'That sounds right actually. What do I need to get started?' },
     { from: 'ai' as const, text: "Just your name and best callback number. Luis will text you today to get set up — month-to-month, no contracts." },
     { from: 'caller' as const, text: 'Mike Torres, (209) 555-0147.' },

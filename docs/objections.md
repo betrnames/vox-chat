@@ -13,7 +13,7 @@
 
 | They say | You do |
 |----------|--------|
-| Too expensive | Hire math + one recovered job + start Reviews at $400 |
+| Too expensive | Hire math + one recovered job + start Reviews at $595 |
 | Need to think | Ask: price, trust, or timing by Friday · one follow-up max |
 | Free trial | No product freebie · free **15-min audit** only |
 | Net 30 | No · payment unlocks setup |
@@ -42,7 +42,7 @@ Tire-kickers · no real call volume · “I want a $49 chatbot.”
 | Ghost after price | Often pay-first friction · follow once, then park |
 
 **One-liner:**  
-> “Fair. Compared to a hire, it’s usually less. Compared to doing nothing, one recovered job a month often covers it. If budget’s tight we start Reviews at $400 — not a free version of the whole front desk.”
+> “Fair. Compared to a hire, it’s usually less. Compared to doing nothing, one recovered job a month often covers it. If budget’s tight we start Reviews at $595 — not a free version of the whole front desk.”
 
 ---
 
@@ -74,7 +74,7 @@ Tire-kickers · no real call volume · “I want a $49 chatbot.”
 
 ### “Too expensive.”
 
-> “Compared to what — a hire or a missed job? Bundle is $1,500; a part-time person is often that before taxes and still can’t cover nights. If $1,500 is a stretch, we start Reviews at $400 and add Voice when you see the leak stop.”
+> “Compared to what — a hire or a missed job? Bundle is $1,500; a part-time person is often that before taxes and still can’t cover nights. If $1,500 is a stretch, we start Reviews at $595 and add Voice when you see the leak stop.”
 
 ### “I need to think about it.”
 
@@ -120,10 +120,10 @@ Don’t chase.
 
 | Frame | Script angle |
 |-------|----------------|
-| Bundle vs separate | “$1,500 vs about $2,150 if sold alone.” |
+| Bundle vs separate | “$1,500 vs $2,140 if sold alone — saves $640.” |
 | $0 setup | “Included in first month.” |
 | Month-to-month | “No annual trap.” |
-| Start small | “Reviews at $400, add Voice in 30–60 days.” |
+| Start small | “Reviews at $595, add Voice in 30–60 days.” |
 | Free audit | Diagnosis only — not free software |
 
 **Never give away:** free product months · free custom code · free websites.

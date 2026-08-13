@@ -18,7 +18,7 @@
 
 ## Three Services
 
-### Vox Voice — AI Phone Agent ($800–$1,500/mo)
+### Vox Voice — AI Phone Agent ($995/mo)
 - AI answers business phone 24/7
 - Qualifies caller, captures name/phone/address/issue
 - Books appointment to contractor's calendar
@@ -27,7 +27,7 @@
 - Custom script per business
 - Color: #FF6B4A
 
-### Vox Receptionist — AI Receptionist ($500–$800/mo)
+### Vox Receptionist — AI Receptionist ($550/mo)
 - AI Receptionist greets and qualifies every customer conversation
 - Custom-trained on their services and pricing
 - Captures lead info: name, phone, service needed
@@ -36,7 +36,7 @@
 - Leads sent to email or CRM
 - Color: #4A9EFF
 
-### Vox Reviews — Review Automation ($300–$500/mo)
+### Vox Reviews — Review Automation ($595/mo)
 - Automated text sent 2 hours after job completion
 - Follow-up text at 48 hours if no response
 - Direct link to Google Business Profile review page

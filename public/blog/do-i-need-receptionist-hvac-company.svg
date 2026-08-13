@@ -9,7 +9,7 @@
   <!-- stat -->
   <text x="100" y="400" font-family="system-ui,-apple-system,sans-serif" font-size="140" font-weight="800" fill="#0A0A0F" letter-spacing="-4">$38K</text>
   <!-- label -->
-  <text x="104" y="460" font-family="system-ui,-apple-system,sans-serif" font-size="28" fill="#0A0A0FAA" letter-spacing="0">per year — or $1,100/mo for AI</text>
+  <text x="104" y="460" font-family="system-ui,-apple-system,sans-serif" font-size="28" fill="#0A0A0FAA" letter-spacing="0">per year — or $995/mo for AI</text>
   <!-- brand -->
   <circle cx="1060" cy="560" r="8" fill="#FF6B4A"/>
   <circle cx="1084" cy="560" r="8" fill="#4A9EFF"/>

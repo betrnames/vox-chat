@@ -6,9 +6,9 @@
 Vox.chat provides AI automation tools built for HVAC, plumbing, electrical, and service contractors. Three core products: an AI phone agent that answers calls 24/7 and books appointments, an AI receptionist that captures website leads and answers FAQs, and an automated review system that gets more Google reviews after every job.
 
 ## Services
-- **Vox Voice** ($800-$1,500/mo) — AI answers business phone 24/7, qualifies callers, books appointments
-- **Vox Receptionist** ($500-$800/mo) — AI chat trained on your services, captures leads, schedules appointments
-- **Vox Reviews** ($300-$500/mo) — automated post-job texts driving Google reviews, negative feedback alerts
+- **Vox Voice** ($995/mo) — AI answers business phone 24/7, qualifies callers, books appointments
+- **Vox Receptionist** ($550/mo) — AI chat trained on your services, captures leads, schedules appointments
+- **Vox Reviews** ($595/mo) — automated post-job texts driving Google reviews, negative feedback alerts
 - **Bundle** — all three for $1,500/mo
 - **HIPAA Compliance add-on** ($2,500/mo) — for healthcare/dental
 - **Zero Data Retention add-on** ($1,500/mo) — for legal/finance
