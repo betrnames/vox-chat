@@ -22,6 +22,7 @@ const pages = [
   { out: 'blog.html', module: '/src/BlogIndex.tsx' },
   { out: 'legal.html', module: '/src/LegalPage.tsx' },
   { out: 'setup.html', module: '/src/SetupPage.tsx' },
+  { out: 'roi.html', module: '/src/ROIPage.tsx' },
   { out: 'blog/automation-roi.html', module: '/src/BlogPost.tsx', props: { slug: 'automation-roi' } },
   { out: 'blog/missed-calls.html', module: '/src/BlogPost.tsx', props: { slug: 'missed-calls' } },
   { out: 'blog/chatbots-vs-forms.html', module: '/src/BlogPost.tsx', props: { slug: 'chatbots-vs-forms' } },

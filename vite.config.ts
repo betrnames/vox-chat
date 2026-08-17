@@ -456,6 +456,7 @@ export default defineConfig(({ mode }) => {
           'blog-need-receptionist': resolve(__dirname, 'blog/do-i-need-receptionist-hvac-company.html'),
           'blog-answer-calls-on-job': resolve(__dirname, 'blog/how-to-answer-calls-while-on-a-job.html'),
           legal: resolve(__dirname, 'legal.html'),
+          roi: resolve(__dirname, 'roi.html'),
           // Unlisted intake — not linked from nav/footer/sitemap
           setup: resolve(__dirname, 'setup.html'),
         },

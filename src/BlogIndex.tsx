@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './index.css'
+import { Footer } from './components/Footer'
 import { blogPosts } from './blog-data'
 
 const tags = Array.from(new Set(blogPosts.map((p) => p.tag)))
@@ -118,41 +119,7 @@ export default function BlogIndex() {
         </div>
       </main>
 
-      <footer className="border-t border-border py-10 px-5">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="inline-flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-voice" />
-            <span className="w-2.5 h-2.5 rounded-full bg-chat" />
-            <span className="w-2.5 h-2.5 rounded-full bg-review" />
-          </div>
-          <div className="flex items-center gap-6 text-sm text-muted-foreground/50">
-            <a href="/#services" className="hover:text-foreground transition-colors">Services</a>
-            <a href="/blog.html" className="text-foreground">Blog</a>
-            <a href="/faq.html" className="hover:text-foreground transition-colors">FAQ</a>
-            <a href="/#contact" className="hover:text-foreground transition-colors">Contact</a>
-            <a href="/legal.html" className="hover:text-foreground transition-colors">Legal</a>
-          </div>
-          <div className="flex items-center gap-3">
-            <a href="mailto:support@vox.chat" aria-label="Email us" className="text-muted-foreground/50 hover:text-foreground transition-colors">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-              </svg>
-            </a>
-            <a
-              href="https://x.com/voxdotchat"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Vox.chat on X"
-              className="text-muted-foreground/50 hover:text-foreground transition-colors"
-            >
-              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.727-8.835L1.254 2.25H8.08l4.253 5.622L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z" />
-              </svg>
-            </a>
-            <span className="font-mono text-xs text-muted-foreground/50">&copy; {new Date().getFullYear()} Vox.chat</span>
-          </div>
-        </div>
-      </footer>
+      <Footer activePage="blog" />
     </>
   )
 }
