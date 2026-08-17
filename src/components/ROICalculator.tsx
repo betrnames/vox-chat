@@ -198,7 +198,7 @@ export function HourlyCostComparison() {
           return (
             <div
               key={c.name}
-              className="flex flex-col rounded-2xl border p-6 shadow-sm"
+              className="relative flex flex-col rounded-2xl border p-6 shadow-sm"
               style={{
                 borderColor: isVox ? `color-mix(in srgb, ${c.color} 30%, transparent)` : undefined,
                 background: isVox
@@ -208,7 +208,7 @@ export function HourlyCostComparison() {
             >
               {c.badge && (
                 <span
-                  className="self-end text-[11px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full mb-3"
+                  className="absolute top-4 right-4 text-[11px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full"
                   style={{
                     background: `color-mix(in srgb, ${c.color} 12%, transparent)`,
                     color: c.color,
