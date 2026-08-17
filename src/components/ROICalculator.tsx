@@ -221,7 +221,7 @@ export function HourlyCostComparison() {
                 {c.hourly}
               </div>
               <div className="text-sm font-semibold text-foreground">{c.name}</div>
-              <div className="font-mono text-xs text-muted-foreground/50 mb-4">{c.monthly}</div>
+              <div className="mb-4" />
               <div className="mt-auto pt-4 border-t border-border/20 space-y-2">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground/60">
                   <svg className="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
