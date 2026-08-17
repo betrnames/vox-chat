@@ -208,7 +208,7 @@ export function HourlyCostComparison() {
             >
               {c.badge && (
                 <span
-                  className="self-start text-[11px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full mb-3"
+                  className="self-end text-[11px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full mb-3"
                   style={{
                     background: `color-mix(in srgb, ${c.color} 12%, transparent)`,
                     color: c.color,
