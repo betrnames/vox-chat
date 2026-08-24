@@ -122,6 +122,7 @@ export function VapiVoiceProvider({ children }: { children: ReactNode }) {
       await vapiRef.current.start({
         name: 'Vox Voice Web',
         firstMessage: WEB_FIRST_MESSAGE,
+        maxDurationSeconds: 600,
         model: {
           provider: 'openai',
           model: 'gpt-4.1-mini',
@@ -130,10 +131,8 @@ export function VapiVoiceProvider({ children }: { children: ReactNode }) {
         },
         voice: {
           provider: 'vapi',
-          // Matches phone assistant; SDK types lag behind available Vapi voices.
           voiceId: 'Nico' as 'Harry',
         },
-        // Keep lead webhook; notifyLuisLive has its own server URL on the tool.
         server: { url: 'https://vox.chat/api/voice-webhook' },
       })
     } catch (err) {
