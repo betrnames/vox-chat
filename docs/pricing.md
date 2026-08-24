@@ -1,6 +1,6 @@
 # Vox.chat Pricing
 
-**Owner:** Gabe · Turlock  
+**Owner:** Luis · Turlock  
 **Last locked:** 2026-07-20  
 **Review:** monthly (or after every 3 sales conversations)
 
@@ -18,13 +18,13 @@ Say these numbers in audits and closes.
 
 | Package | Monthly price | One-line pitch | When to sell it |
 |---------|---------------|----------------|-----------------|
-| **Reviews** | **$595** | Highest-value per dollar · compounds Google ranking | Fastest visible win |
-| **Receptionist** | **$550** | Website visitors + chat path | Strong web traffic |
-| **Voice** | **$995** | Highest revenue impact — answers the phone | Missed / after-hours calls |
-| **Bundle** (all three) | **$1,500** | Full AI front desk · less than a part-time hire | **Default close** |
+| **Receptionist** | **$295** | Lowest barrier to entry | Strong web traffic |
+| **Reviews** | **$395** | Fastest visible win · compounds Google ranking | Quick ROI proof |
+| **Voice** | **$595** | Highest revenue impact — answers the phone | Missed / after-hours calls |
+| **Bundle** (all three) | **$895** | Full AI front desk · less than a part-time hire | **Default close** |
 
 **Website ranges** (OK on site/blog; still true as bands):  
-Reviews $595 · Receptionist $550 · Voice $995 · Bundle $1,500  
+Receptionist $295 · Reviews $395 · Voice $595 · Bundle $895  
 
 | Use this | For this |
 |----------|----------|
@@ -41,12 +41,12 @@ Never go below floor without a written reason.
 
 | Package | List | Floor (hard stop) |
 |---------|------|-------------------|
-| Reviews | $595 | **$495** |
-| Receptionist | $550 | **$450** |
-| Voice | $995 | **$800** |
-| Bundle | $1,500 | **$1,500** — do not discount |
+| Receptionist | $295 | **$295** — no room to discount |
+| Reviews | $395 | **$295** |
+| Voice | $595 | **$495** |
+| Bundle | $895 | **$895** — do not discount |
 
-If they can’t do Bundle: sell **Reviews** or **Voice** alone — don’t cut Bundle below $1,500.
+If they can’t do Bundle: sell **Receptionist** or **Reviews** alone — don’t cut Bundle below $895.
 
 ---
 
@@ -70,9 +70,9 @@ If they can’t do Bundle: sell **Reviews** or **Voice** alone — don’t cut B
 
 | Path | Monthly |
 |------|---------|
-| Reviews + Receptionist + Voice at list | **$2,140** |
-| Bundle | **$1,500** |
-| **They save** | **$640/mo (30%)** |
+| Receptionist + Reviews + Voice at list | **$1,285** |
+| Bundle | **$895** |
+| **They save** | **$390/mo (30%)** |
 
 That savings is your package deal — not a random coupon.
 
@@ -80,7 +80,7 @@ That savings is your package deal — not a random coupon.
 
 ## Price vs alternatives (anchors)
 
-| Alternative | Rough cost | Compared to Vox Bundle $1,500 |
+| Alternative | Rough cost | Compared to Vox Bundle $895 |
 |-------------|------------|-------------------------------|
 | Part-time receptionist | ~$1,500–$1,800/mo | Similar $ · only partial hours |
 | Full-time front desk | ~$2,750–$3,500/mo + benefits | More expensive · still not 24/7 |
@@ -98,8 +98,8 @@ Conservative: **2–3 booked jobs/mo** from missed calls pays for Voice; **1 sol
 
 | Offer | How to frame it |
 |-------|-----------------|
-| Start at Reviews $595 | Path in without discounting Bundle |
-| Bundle vs $2,150 separate | Built-in package savings |
+| Start at Receptionist $295 | Path in without discounting Bundle |
+| Bundle vs $1,285 separate | Built-in package savings |
 | $0 setup | Included in first month |
 | Month-to-month | No annual lock-in |
 | Free 15-min Missed Call Audit | Diagnosis only — not free product |
@@ -128,9 +128,9 @@ Conservative: **2–3 booked jobs/mo** from missed calls pays for Voice; **1 sol
 There is **no revenue split** with Twilio, xAI, or Vapi. Vendors bill **you**. Client bills **you** only.
 
 ```
-Client pays (example Bundle)   $1,500
+Client pays (example Bundle)   $895
 Tools (typical moderate use)   ~$40–$250
-Card fee (~3% if Stripe)       ~$45
+Card fee (~3% if Stripe)       ~$27
 ────────────────────────────────────
 Most of the rest is yours      (before tax and your time)
 ```
@@ -148,10 +148,10 @@ Most of the rest is yours      (before tax and your time)
 
 | Package | Client pays | Tools (light–moderate) | Roughly yours* |
 |---------|-------------|------------------------|----------------|
-| Reviews $595 | $595 | ~$5–25 | ~$570–590 |
-| Receptionist $550 | $550 | ~$10–50 | ~$500–540 |
-| Voice $995 | $995 | ~$25–200 | ~$795–970 |
-| Bundle $1,500 | $1,500 | ~$40–250 | ~$1,250–1,460 |
+| Receptionist $295 | $295 | ~$10–50 | ~$245–285 |
+| Reviews $395 | $395 | ~$5–25 | ~$370–390 |
+| Voice $595 | $595 | ~$25–200 | ~$395–570 |
+| Bundle $895 | $895 | ~$40–250 | ~$645–855 |
 
 \*Before tax and your labor. Heavy call volume raises Voice tool cost — then raise list or define fair use; don’t add surprise fees.
 
@@ -170,10 +170,10 @@ Most of the rest is yours      (before tax and your time)
 ## Phone cheat sheet
 
 ```
-LIST:   Reviews $595 · Receptionist $550 · Voice $995 · Bundle $1,500
-FLOOR:  $495 · $450 · $800 · Bundle never below $1,500
+LIST:   Receptionist $295 · Reviews $395 · Voice $595 · Bundle $895
+FLOOR:  $295 · $295 · $495 · Bundle never below $895
 SETUP:  $0 included · first month paid starts work
-CLOSE:  Bundle default · budget = Reviews $595 then add Voice
+CLOSE:  Bundle default · budget = Receptionist $295 then add Voice
 PAY → setup form → configure → live
 NO HIDDEN FEES · tools paid by you, not passed through
 ```

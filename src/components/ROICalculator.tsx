@@ -10,7 +10,7 @@ const TRADES: { value: Trade; label: string; avgJob: number }[] = [
   { value: 'other', label: 'Other', avgJob: 400 },
 ]
 
-const VOX_VOICE_MONTHLY = 995
+const VOX_VOICE_MONTHLY = 595
 const HOURS_PER_MONTH = 720
 
 function fmt(n: number) {
@@ -151,7 +151,7 @@ export function HourlyCostComparison() {
     {
       name: 'Vox Voice',
       hourly: `$${(VOX_VOICE_MONTHLY / HOURS_PER_MONTH).toFixed(2)}/hr`,
-      monthly: '$995/mo',
+      monthly: '$595/mo',
       coverage: '24/7/365',
       features: 'AI qualification, instant alerts, call recording',
       color: 'var(--color-voice)',
@@ -160,7 +160,7 @@ export function HourlyCostComparison() {
     {
       name: 'Vox Receptionist',
       hourly: '$0.76/hr',
-      monthly: '$550/mo',
+      monthly: '$295/mo',
       coverage: '24/7/365',
       features: 'Chat qualification, lead capture, FAQ automation',
       color: 'var(--color-chat)',

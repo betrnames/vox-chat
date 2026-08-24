@@ -39,10 +39,10 @@
 
 | SKU | List (quote) | Floor |
 |-----|--------------|-------|
-| Reviews | **$595/mo** | $495 |
-| Receptionist | **$550/mo** | $450 |
-| Voice | **$995/mo** | $800 |
-| Bundle | **$1,500/mo** | **$1,500 (no discount)** |
+| Receptionist | **$295/mo** | $295 (no room) |
+| Reviews | **$395/mo** | $295 |
+| Voice | **$595/mo** | $495 |
+| Bundle | **$895/mo** | **$895 (no discount)** |
 
 - **Setup fee:** $0 listed — included; **first month paid in advance** unlocks setup  
 - **Default close:** Bundle · budget path: Reviews → add Voice in 30–60 days
@@ -130,7 +130,7 @@ npx vercel --prod --yes
 
 - Show trial Twilio template SMS on the marketing site  
 - Commit `.env` or service account JSON  
-- Discount Bundle below $1,500  
+- Discount Bundle below $895  
 - Free product months / Net 30 / custom RFPs  
 - Cloudflare Workers unless explicitly asked  
 - Inter / Roboto / purple gradients  

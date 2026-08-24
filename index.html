@@ -4,10 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Vox.chat — AI Phone, Chat & Reviews for Contractors</title>
-    <meta name="description" content="AI answers your phone, captures website leads, and gets you more Google reviews — 24/7. Built for HVAC, plumbing, electrical, and service contractors." />
+    <meta name="description" content="AI answers your phone, captures website leads, and gets you more Google reviews — 24/7 for HVAC, plumbing, and electrical contractors." />
     <meta name="keywords" content="AI voice agent, AI Receptionist for contractors, AI review agent, HVAC AI automation, plumber AI, service business automation, AI phone answering, contractor automation" />
     <meta name="author" content="Vox.chat" />
-    <link rel="canonical" href="https://vox.chat" />
+    <link rel="canonical" href="https://vox.chat/" />
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-N28W6ZESL4"></script>
@@ -19,9 +19,8 @@
     </script>
 
     <!-- Favicon -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -31,16 +30,16 @@
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Vox.chat" />
-    <meta property="og:title" content="Vox.chat — AI Automation for Service Businesses" />
-    <meta property="og:description" content="AI answers your phone, captures website leads, and gets you more Google reviews — 24/7. Built for contractors." />
+    <meta property="og:title" content="Vox.chat — AI Phone, Chat & Reviews for Contractors" />
+    <meta property="og:description" content="AI answers your phone, captures website leads, and gets you more Google reviews — 24/7 for HVAC, plumbing, and electrical contractors." />
     <meta property="og:image" content="https://vox.chat/og-image.png" />
-    <meta property="og:url" content="https://vox.chat" />
+    <meta property="og:url" content="https://vox.chat/" />
     <meta property="og:locale" content="en_US" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Vox.chat — AI Automation for Service Businesses" />
-    <meta name="twitter:description" content="Never miss a call, lead, or review. AI phone agents, AI receptionist, and review automation for contractors." />
+    <meta name="twitter:title" content="Vox.chat — AI Phone, Chat & Reviews for Contractors" />
+    <meta name="twitter:description" content="AI answers your phone, captures website leads, and gets you more Google reviews — 24/7 for HVAC, plumbing, and electrical contractors." />
     <meta name="twitter:image" content="https://vox.chat/og-image.png" />
 
     <!-- GEO tags -->
@@ -52,51 +51,25 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 
-    <!-- Structured Data: Organization -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "name": "Vox.chat",
-      "url": "https://vox.chat",
-      "logo": "https://vox.chat/favicon.svg",
-      "description": "AI automation platform for local service businesses — voice agents, AI Receptionists, and AI review agent.",
-      "areaServed": {
-        "@type": "State",
-        "name": "California"
-      },
-      "serviceType": ["AI Voice Agent", "AI Receptionist", "AI Review Agent"],
-      "dateModified": "2026-07-29"
-    }
-    </script>
-
-    <!-- Structured Data: WebSite -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Vox.chat",
-      "url": "https://vox.chat",
-      "description": "AI automation platform for local service businesses — voice agents, AI receptionists, and review automation.",
-      "dateModified": "2026-07-29"
-    }
-    </script>
-
-    <!-- Structured Data: LocalBusiness -->
+    <!-- Structured Data: LocalBusiness (includes Organization properties) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
+      "@id": "https://vox.chat/#organization",
       "name": "Vox.chat",
-      "url": "https://vox.chat",
-      "description": "AI automation for local service businesses — voice agents, AI receptionists, and review automation.",
+      "url": "https://vox.chat/",
+      "logo": "https://vox.chat/icon-512.png",
+      "description": "AI automation platform for local service businesses — voice agents, AI Receptionists, and AI review agent.",
       "areaServed": [
+        { "@type": "State", "name": "California" },
         { "@type": "City", "name": "Turlock" },
         { "@type": "City", "name": "Manteca" },
         { "@type": "City", "name": "Modesto" },
         { "@type": "City", "name": "Stockton" },
         { "@type": "City", "name": "Tracy" }
       ],
+      "serviceType": ["AI Voice Agent", "AI Receptionist", "AI Review Agent"],
       "priceRange": "$$",
       "address": {
         "@type": "PostalAddress",
@@ -108,7 +81,22 @@
         "@type": "GeoCoordinates",
         "latitude": 37.4947,
         "longitude": -120.8466
-      }
+      },
+      "dateModified": "2026-07-29"
+    }
+    </script>
+
+    <!-- Structured Data: WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Vox.chat",
+      "alternateName": "Vox",
+      "url": "https://vox.chat/",
+      "publisher": { "@id": "https://vox.chat/#organization" },
+      "description": "AI automation platform for local service businesses — voice agents, AI receptionists, and review automation.",
+      "dateModified": "2026-07-29"
     }
     </script>
 
@@ -122,92 +110,26 @@
         {
           "@type": "Service",
           "position": 1,
-          "name": "Vox Voice — AI Phone Agent",
-          "description": "AI answers your business phone 24/7, qualifies callers, collects details, and books appointments to your calendar.",
-          "provider": { "@type": "Organization", "name": "Vox.chat" },
-          "offers": { "@type": "Offer", "price": "995", "priceCurrency": "USD", "description": "$995/mo", "eligibleDuration": { "@type": "QuantitativeValue", "value": 1, "unitCode": "MON" } }
+          "name": "Vox Receptionist — AI Receptionist",
+          "description": "AI Receptionist trained on your services and pricing. Answers FAQs, collects customer info, and books appointments automatically.",
+          "provider": { "@id": "https://vox.chat/#organization" },
+          "offers": { "@type": "Offer", "price": "295", "priceCurrency": "USD", "description": "$295/mo", "eligibleDuration": { "@type": "QuantitativeValue", "value": 1, "unitCode": "MON" } }
         },
         {
           "@type": "Service",
           "position": 2,
-          "name": "Vox Receptionist — AI Receptionist",
-          "description": "AI Receptionist trained on your services and pricing. Answers FAQs, collects customer info, and books appointments automatically.",
-          "provider": { "@type": "Organization", "name": "Vox.chat" },
-          "offers": { "@type": "Offer", "price": "550", "priceCurrency": "USD", "description": "$550/mo", "eligibleDuration": { "@type": "QuantitativeValue", "value": 1, "unitCode": "MON" } }
+          "name": "Vox Reviews — AI Review Agent",
+          "description": "Automated text follow-ups after jobs. Directs customers to leave Google reviews and alerts owners to negative feedback.",
+          "provider": { "@id": "https://vox.chat/#organization" },
+          "offers": { "@type": "Offer", "price": "395", "priceCurrency": "USD", "description": "$395/mo", "eligibleDuration": { "@type": "QuantitativeValue", "value": 1, "unitCode": "MON" } }
         },
         {
           "@type": "Service",
           "position": 3,
-          "name": "Vox Reviews — AI Review Agent",
-          "description": "Automated text follow-ups after jobs. Directs customers to leave Google reviews and alerts owners to negative feedback.",
-          "provider": { "@type": "Organization", "name": "Vox.chat" },
+          "name": "Vox Voice — AI Phone Agent",
+          "description": "AI answers your business phone 24/7, qualifies callers, collects details, and books appointments to your calendar.",
+          "provider": { "@id": "https://vox.chat/#organization" },
           "offers": { "@type": "Offer", "price": "595", "priceCurrency": "USD", "description": "$595/mo", "eligibleDuration": { "@type": "QuantitativeValue", "value": 1, "unitCode": "MON" } }
-        }
-      ]
-    }
-    </script>
-
-    <!-- Structured Data: FAQ -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      "mainEntity": [
-        {
-          "@type": "Question",
-          "name": "How quickly can I get set up with Vox.chat?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "We handle all the setup — you just share your services, pricing, and preferences, and we build your custom AI agent."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Will the AI sound robotic to my customers?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "No. Our voice agents use natural-sounding AI with custom scripts tailored to your brand voice. Callers often can't tell they're speaking with AI."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What types of businesses use Vox.chat?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "We serve local service businesses — HVAC contractors, plumbers, electricians, roofers, landscapers, auto repair shops, and any business that relies on phone calls and online customers."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Do I need any technical skills to use Vox.chat?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "None at all. We handle the entire setup, including phone forwarding, AI Receptionist setup, and AI review agent configuration. You just run your business."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "What happens if the AI can't answer a question?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "The AI captures the caller's information and immediately notifies you via text and email so you can follow up personally. No customer is ever missed."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Is Vox.chat a lead generation service?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "No. Vox.chat is AI automation for your business operations — we automate the calls, chats, and review follow-ups you're already getting so nothing falls through the cracks. We don't generate leads. We make sure the customers already trying to reach you get answered, booked, and followed up with — automatically."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can I cancel anytime?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes. There are no long-term contracts. You can cancel or pause your subscription at any time with no penalties."
-          }
         }
       ]
     }
@@ -228,7 +150,7 @@
           "description": "Most contractors spend thousands on ads but miss 40% of the calls those ads generate. AI automation fixes the back end so your marketing dollars actually convert.",
           "datePublished": "2026-07-15",
           "url": "https://vox.chat/blog/automation-roi",
-          "author": { "@type": "Person", "name": "Gabe Mariscal", "url": "https://vox.chat" }
+          "author": { "@type": "Person", "name": "Gabe Mariscal", "url": "https://vox.chat/" }
         },
         {
           "@type": "BlogPosting",
@@ -236,7 +158,7 @@
           "description": "The average service business misses 40% of incoming calls. Here's how AI voice agents are solving the problem.",
           "datePublished": "2026-07-10",
           "url": "https://vox.chat/blog/missed-calls",
-          "author": { "@type": "Person", "name": "Gabe Mariscal", "url": "https://vox.chat" }
+          "author": { "@type": "Person", "name": "Gabe Mariscal", "url": "https://vox.chat/" }
         },
         {
           "@type": "BlogPosting",
@@ -244,7 +166,7 @@
           "description": "Data shows AI Receptionists convert 3x more visitors into qualified leads compared to traditional contact forms.",
           "datePublished": "2026-07-05",
           "url": "https://vox.chat/blog/chatbots-vs-forms",
-          "author": { "@type": "Person", "name": "Gabe Mariscal", "url": "https://vox.chat" }
+          "author": { "@type": "Person", "name": "Gabe Mariscal", "url": "https://vox.chat/" }
         },
         {
           "@type": "BlogPosting",
@@ -252,7 +174,7 @@
           "description": "48% of emergency plumbing calls happen after hours. Here's how AI voice agents capture that revenue.",
           "datePublished": "2026-07-03",
           "url": "https://vox.chat/blog/plumber-after-hours",
-          "author": { "@type": "Person", "name": "Gabe Mariscal", "url": "https://vox.chat" }
+          "author": { "@type": "Person", "name": "Gabe Mariscal", "url": "https://vox.chat/" }
         },
         {
           "@type": "BlogPosting",
@@ -260,7 +182,7 @@
           "description": "EV chargers, panel upgrades, and emergency outages — electrical contractors are missing high-value calls.",
           "datePublished": "2026-06-30",
           "url": "https://vox.chat/blog/electrician-leads",
-          "author": { "@type": "Person", "name": "Gabe Mariscal", "url": "https://vox.chat" }
+          "author": { "@type": "Person", "name": "Gabe Mariscal", "url": "https://vox.chat/" }
         },
         {
           "@type": "BlogPosting",
@@ -268,7 +190,7 @@
           "description": "Automated review follow-ups get 5x more reviews than manual asks. Here's the psychology behind why it works.",
           "datePublished": "2026-06-28",
           "url": "https://vox.chat/blog/google-reviews",
-          "author": { "@type": "Person", "name": "Gabe Mariscal", "url": "https://vox.chat" }
+          "author": { "@type": "Person", "name": "Gabe Mariscal", "url": "https://vox.chat/" }
         }
       ]
     }

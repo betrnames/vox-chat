@@ -18,16 +18,7 @@
 
 ## Three Services
 
-### Vox Voice — AI Phone Agent ($995/mo)
-- AI answers business phone 24/7
-- Qualifies caller, captures name/phone/address/issue
-- Books appointment to contractor's calendar
-- Sends instant text/email notification to contractor
-- Call recordings and transcripts
-- Custom script per business
-- Color: #FF6B4A
-
-### Vox Receptionist — AI Receptionist ($550/mo)
+### Vox Receptionist — AI Receptionist ($295/mo)
 - AI Receptionist greets and qualifies every customer conversation
 - Custom-trained on their services and pricing
 - Captures lead info: name, phone, service needed
@@ -36,7 +27,7 @@
 - Leads sent to email or CRM
 - Color: #4A9EFF
 
-### Vox Reviews — Review Automation ($595/mo)
+### Vox Reviews — Review Automation ($395/mo)
 - Automated text sent 2 hours after job completion
 - Follow-up text at 48 hours if no response
 - Direct link to Google Business Profile review page
@@ -44,7 +35,16 @@
 - Monthly review growth report
 - Color: #FFB84A
 
-### Bundle: All three for $1,500/mo
+### Vox Voice — AI Phone Agent ($595/mo)
+- AI answers business phone 24/7
+- Qualifies caller, captures name/phone/address/issue
+- Books appointment to contractor's calendar
+- Sends instant text/email notification to contractor
+- Call recordings and transcripts
+- Custom script per business
+- Color: #FF6B4A
+
+### Bundle: All three for $895/mo (saves $390/mo)
 
 ### Compliance Add-ons (on top of package)
 - **HIPAA Compliance:** $2,500/mo — BAA, encrypted call handling, annual compliance review. Required for healthcare/dental/behavioral health.

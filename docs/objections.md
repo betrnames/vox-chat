@@ -1,6 +1,6 @@
 # Vox.chat Sales Objections
 
-**Owner:** Gabe · Turlock  
+**Owner:** Luis · Turlock  
 **Last locked:** 2026-07-20  
 **Review:** after every few hard conversations  
 
@@ -13,12 +13,12 @@
 
 | They say | You do |
 |----------|--------|
-| Too expensive | Hire math + one recovered job + start Reviews at $595 |
+| Too expensive | Hire math + one recovered job + start Receptionist at $295 |
 | Need to think | Ask: price, trust, or timing by Friday · one follow-up max |
 | Free trial | No product freebie · free **15-min audit** only |
 | Net 30 | No · payment unlocks setup |
 | Custom proposal | No · same packages for every contractor in the triangle |
-| Discount Bundle | No · stay $1,500 or sell a smaller package |
+| Discount Bundle | No · stay $895 or sell a smaller package |
 | Chatbot / cousin’s kid | Front desk ≠ FAQ widget |
 | Answering service already | They take messages · we book, notify, grow reviews |
 | After busy season | Busy season = most leak · start small now |
@@ -42,7 +42,7 @@ Tire-kickers · no real call volume · “I want a $49 chatbot.”
 | Ghost after price | Often pay-first friction · follow once, then park |
 
 **One-liner:**  
-> “Fair. Compared to a hire, it’s usually less. Compared to doing nothing, one recovered job a month often covers it. If budget’s tight we start Reviews at $595 — not a free version of the whole front desk.”
+> “Fair. Compared to a hire, it’s usually less. Compared to doing nothing, one recovered job a month often covers it. If budget’s tight we start Receptionist at $295 — not a free version of the whole front desk.”
 
 ---
 
@@ -55,7 +55,7 @@ Tire-kickers · no real call volume · “I want a $49 chatbot.”
 | Custom proposal / RFP | **No** | Same packages for every contractor in the triangle |
 | Build my website / run ads | **No** | Phones, conversations, reviews only |
 | Unlimited rewrites forever | **No** | Setup + reasonable tweaks · big changes = add-on |
-| Bundle for $999 | **No** | Bundle stays $1,500 · or Reviews / Voice alone |
+| Bundle for $699 | **No** | Bundle stays $895 · or Receptionist / Voice alone |
 | Turn it on with no onboarding | **No** | Short call keeps quality high |
 
 ---
@@ -74,7 +74,7 @@ Tire-kickers · no real call volume · “I want a $49 chatbot.”
 
 ### “Too expensive.”
 
-> “Compared to what — a hire or a missed job? Bundle is $1,500; a part-time person is often that before taxes and still can’t cover nights. If $1,500 is a stretch, we start Reviews at $595 and add Voice when you see the leak stop.”
+> “Compared to what — a hire or a missed job? Bundle is $895; a part-time person is often more than that before taxes and still can’t cover nights. If $895 is a stretch, we start Receptionist at $295 and add Voice when you see the leak stop.”
 
 ### “I need to think about it.”
 
@@ -120,10 +120,10 @@ Don’t chase.
 
 | Frame | Script angle |
 |-------|----------------|
-| Bundle vs separate | “$1,500 vs $2,140 if sold alone — saves $640.” |
+| Bundle vs separate | “$895 vs $1,285 if sold alone — saves $390.” |
 | $0 setup | “Included in first month.” |
 | Month-to-month | “No annual trap.” |
-| Start small | “Reviews at $595, add Voice in 30–60 days.” |
+| Start small | “Receptionist at $295, add Voice in 30–60 days.” |
 | Free audit | Diagnosis only — not free software |
 
 **Never give away:** free product months · free custom code · free websites.

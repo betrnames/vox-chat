@@ -184,7 +184,7 @@ export default function SetupPage() {
                       value={interest}
                       onChange={(e) => setInterest(e.target.value)}
                     >
-                      <option value="Bundle">Bundle — all three ($1,500/mo)</option>
+                      <option value="Bundle">Bundle — all three ($895/mo)</option>
                       <option value="Voice">AI Phone Agent</option>
                       <option value="Receptionist">AI Receptionist</option>
                       <option value="Reviews">AI Review Agent</option>

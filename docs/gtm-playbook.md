@@ -1,7 +1,7 @@
 # Vox.chat — Productized GTM Playbook  
-**Owner:** Gabe · Turlock, CA  
+**Owner:** Luis · Turlock, CA  
 **ICP:** HVAC, plumbing, electrical · 5–15 person crews · Central Valley  
-**Offer:** AI front desk (Voice · Receptionist · Reviews) · Bundle $1,500/mo  
+**Offer:** AI front desk (Receptionist · Reviews · Voice) · Bundle $895/mo  
 
 ---
 
@@ -40,10 +40,10 @@ One geography. One ICP. One stack.
 
 | SKU | What they get | Price | Best entry |
 |-----|----------------|-------|------------|
-| **Reviews** | Timed texts after jobs · negative path to owner · monthly review report | $595/mo | Lowest friction, fastest visible win |
-| **Receptionist** | AI Receptionist trained on services/pricing · qualify · book · notify you | $550/mo | Website/visitor + after-hours chat path |
-| **Voice** | AI phone agent 24/7 or after-hours · qualify · book · notify | $995/mo | Highest revenue impact |
-| **Bundle** | All three | **$1,500/mo** | Default close; “less than a part-time hire” |
+| **Receptionist** | AI Receptionist trained on services/pricing · qualify · book · notify you | $295/mo | Lowest barrier to entry |
+| **Reviews** | Timed texts after jobs · negative path to owner · monthly review report | $395/mo | Fastest visible win |
+| **Voice** | AI phone agent 24/7 or after-hours · qualify · book · notify | $595/mo | Highest revenue impact |
+| **Bundle** | All three | **$895/mo** | Default close; “less than a part-time hire” |
 
 **Rules**
 
@@ -80,9 +80,9 @@ AI front desk for HVAC, plumbing, and electrical — phones, customer conversati
 | **AI Receptionist** | Handles customer conversations | Qualifies · books · notifies |
 | **AI Reviews** | Texts after every job | More Google reviews · blocks bad ones from going public first |
 
-**Bundle: $1,500/mo**  
+**Bundle: $895/mo**  
 All three. No long-term contract. Cancel anytime.  
-*(Individual tools from $550–$995/mo.)*
+*(Individual tools from $295–$595/mo.)*
 
 **Setup**  
 One 20–30 minute call. Live in days — not months. No hardware. No code on your side.
@@ -103,7 +103,7 @@ Order never changes:
 4. **Go-live**
 
 **Payment (zero monthly tool cost — pick one primary)**  
-- Stripe Payment Link (pro; ~2.9% + 30¢) — one link per SKU, e.g. Bundle $1,500  
+- Stripe Payment Link (pro; ~2.9% + 30¢) — one link per SKU, e.g. Bundle $895  
 - Zelle / Venmo / PayPal as local backup  
 - **No Net 30 / Net 90. No invoices as default.** Receipt after pay only if they need bookkeeping paper.
 
@@ -123,7 +123,7 @@ Examples:
 > Setup begins once payment clears. Month-to-month. No custom proposals or RFPs.
 
 **If they ask for a proposal / estimate / RFP**  
-> We don’t do custom proposals. Same packages for every contractor in Turlock, Modesto, and Manteca. Pick Reviews, Receptionist, Voice, or Bundle at $1,500. Paid to start; here’s the link.
+> We don’t do custom proposals. Same packages for every contractor in Turlock, Modesto, and Manteca. Pick Receptionist, Reviews, Voice, or Bundle at $895. Paid to start; here’s the link.
 
 **If they ask for Net 30**  
 > We don’t run terms. Payment unlocks setup — keeps price simple and delivery fast.
@@ -140,7 +140,7 @@ Vox.chat · Turlock, CA · AI front desk for Central Valley service businesses
 
 ### 30-second (weekly, same every time)
 
-> “My name is Gabe. I run Vox.chat out of Turlock.  
+> “My name is Luis. I run Vox.chat out of Turlock.  
 > I install an **AI front desk** for local **HVAC, plumbing, and electrical** companies in **Turlock, Modesto, and Manteca**.  
 > It answers phones after hours, handles customer conversations, and automatically asks for Google reviews after every job — so owners stop losing $500–$1,000 jobs to voicemail.  
 > **My ask this week:** an introduction to an HVAC or plumbing owner with a few trucks who complains about missed calls or not enough Google reviews.  
@@ -165,7 +165,7 @@ Walk the three tools with the live demo on your phone (vox.chat → Demos):
 
 **6:00–8:00 — Proof / process**  
 - Setup: one short call  
-- Price: bundle $1,500/mo or start with reviews  
+- Price: bundle $895/mo or start with receptionist  
 - Geography: Turlock, Modesto, Manteca only (for now) — you show up  
 
 **8:00–10:00 — Specific ask + CTA**  
@@ -176,7 +176,7 @@ Walk the three tools with the live demo on your phone (vox.chat → Demos):
 ### Referral card language (hand to members)
 
 > **Ideal referral:** HVAC / plumbing / electrical owner · Turlock, Modesto, or Manteca · 3+ trucks or growing solo · mentions missed calls, after-hours chaos, or weak Google reviews.  
-> **What happens next:** Gabe runs a free 15-min Missed Call Audit — no pitch deck, just numbers.
+> **What happens next:** Luis runs a free 15-min Missed Call Audit — no pitch deck, just numbers.
 
 ### What *not* to say at BNI
 
@@ -260,7 +260,7 @@ Quick recap from today’s 15-minute audit:
 
 When you’re ready: [phone] or reply here.
 
-— Gabe · Vox.chat · Turlock, CA
+— Luis · Vox.chat · Turlock, CA
 ```
 
 ### Audit checklist (print / Notes app)
@@ -361,7 +361,7 @@ Revenue goal framing (honest):
 **Cities:** Turlock · Modesto · Manteca  
 **ICP:** HVAC · Plumbing · Electrical · 5–15 crew  
 **Pitch:** AI front desk — phones, conversations, reviews  
-**Bundle:** $1,500/mo · month-to-month  
+**Bundle:** $895/mo · month-to-month  
 **Lead magnet:** 15-min Missed Call Audit  
 **Ask:** Intro to an owner who misses calls or needs Google reviews  
 **Demo:** vox.chat → Demos  

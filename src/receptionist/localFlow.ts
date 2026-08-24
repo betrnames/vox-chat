@@ -106,7 +106,7 @@ export function advanceReceptionist(
   if (step === 'complete') {
     if (/\b(tell|more|package|pricing|price)\b/.test(lower)) {
       return {
-        reply: "Reviews is $595/mo for automated Google review texts. Receptionist is $550/mo for AI website chat. Voice is $995/mo for 24/7 AI phone answering. Or bundle all three for $1,500/mo — saves you over $600/mo, less than a part-time hire. All month-to-month, no contracts, no setup fee. Luis will reach out to get you set up.",
+        reply: "Receptionist is $295/mo for AI website chat. Reviews is $395/mo for automated Google review texts. Voice is $595/mo for 24/7 AI phone answering. Or bundle all three for $895/mo — saves you $390/mo, less than a part-time hire. All month-to-month, no contracts, no setup fee. Luis will reach out to get you set up.",
         step: 'complete',
         memory: nextMem,
         chips: completeChips,
@@ -133,7 +133,7 @@ export function advanceReceptionist(
 
   if (intent === 'pricing') {
     return {
-      reply: "Reviews is $595/mo. Receptionist is $550/mo. Voice is $995/mo. Or bundle everything for $1,500/mo — saves you over $600/mo. No setup fee, month-to-month, no contracts. What trade are you in? I can give you a quick revenue estimate.",
+      reply: "Receptionist is $295/mo. Reviews is $395/mo. Voice is $595/mo. Or bundle everything for $895/mo — saves you $390/mo. No setup fee, month-to-month, no contracts. What trade are you in? I can give you a quick revenue estimate.",
       step: 'qualify_trade',
       memory: {},
       chips: ['HVAC', 'Plumbing', 'Electrical'],
@@ -252,12 +252,12 @@ export function advanceReceptionist(
   }
 
   if (step === 'assessment') {
-    const recommended = nextMem.pain === 'reviews' ? 'Reviews at $595/mo'
-      : nextMem.pain === 'website leads' ? 'Receptionist at $550/mo'
-      : nextMem.pain === 'missed calls' ? 'Voice at $995/mo'
-      : 'the Bundle at $1,500/mo'
+    const recommended = nextMem.pain === 'reviews' ? 'Reviews at $395/mo'
+      : nextMem.pain === 'website leads' ? 'Receptionist at $295/mo'
+      : nextMem.pain === 'missed calls' ? 'Voice at $595/mo'
+      : 'the Bundle at $895/mo'
     return {
-      reply: `Based on what you told me, I'd start with ${recommended}. The bundle gets you all three for $1,500/mo — less than a part-time hire. Month-to-month, no contracts, $0 setup. Drop your name and best phone and Luis will reach out today.`,
+      reply: `Based on what you told me, I'd start with ${recommended}. The bundle gets you all three for $895/mo — less than a part-time hire. Month-to-month, no contracts, $0 setup. Drop your name and best phone and Luis will reach out today.`,
       step: 'collect_name',
       memory: nextMem,
       chips: [],
