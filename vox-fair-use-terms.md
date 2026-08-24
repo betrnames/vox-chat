@@ -18,8 +18,8 @@ Each package includes generous usage designed to cover the vast majority of smal
 |---------|--------------|-------------|-------------------|
 | **Receptionist** ($295/mo) | — | — | 5,000/mo |
 | **Reviews** ($395/mo) | — | 5,000/mo | — |
-| **Voice** ($595/mo) | 5,000/mo | — | — |
-| **Bundle** ($895/mo) | 5,000/mo | 5,000/mo | 5,000/mo |
+| **Voice** ($595/mo) | 2,500/mo | — | — |
+| **Bundle** ($895/mo) | 2,500/mo | 5,000/mo | 5,000/mo |
 
 These allowances are **not hard caps**. Occasional spikes — a busy week, a seasonal rush — are expected and will never trigger a surprise charge.
 

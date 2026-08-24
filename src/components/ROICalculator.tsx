@@ -159,7 +159,7 @@ export function HourlyCostComparison() {
     },
     {
       name: 'Vox Receptionist',
-      hourly: '$0.76/hr',
+      hourly: '$0.41/hr',
       monthly: '$295/mo',
       coverage: '24/7/365',
       features: 'Chat qualification, lead capture, FAQ automation',

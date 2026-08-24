@@ -267,8 +267,8 @@ export default function LegalPage() {
                 <ul className="list-disc pl-5 mt-2 space-y-1">
                   <li>Reviews — up to 5,000 SMS messages</li>
                   <li>Receptionist — up to 5,000 web chat sessions</li>
-                  <li>Voice — up to 5,000 voice minutes</li>
-                  <li>Bundle — up to 5,000 voice minutes, 5,000 SMS messages, and 5,000 web chat sessions</li>
+                  <li>Voice — up to 2,500 voice minutes</li>
+                  <li>Bundle — up to 2,500 voice minutes, 5,000 SMS messages, and 5,000 web chat sessions</li>
                 </ul>
                 <p className="mt-2">These allowances are not hard caps. Occasional spikes — a busy week, a seasonal rush — are expected and will never trigger a surprise charge.</p>
               </div>
