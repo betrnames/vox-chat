@@ -142,7 +142,7 @@ export function advanceReceptionist(
 
   if (intent === 'hipaa') {
     return {
-      reply: "We offer compliance add-ons for regulated industries. HIPAA Compliance is $2,500/mo — includes a BAA, encrypted call handling, and annual compliance review. Zero Data Retention is $1,500/mo — no transcripts or recordings stored. Both together (Compliance Bundle) for $3,500/mo, saving $500. All month-to-month. What trade are you in?",
+      reply: "The public vox.chat product is not HIPAA compliant and cannot take patient or health information. A dedicated HIPAA environment is a custom contract after a signed BAA — not a toggle on this site. What trade are you in?",
       step: 'qualify_trade',
       memory: {},
       chips: ['HVAC', 'Plumbing', 'Electrical', 'Healthcare'],

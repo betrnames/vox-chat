@@ -133,6 +133,8 @@ export function VapiVoiceProvider({ children }: { children: ReactNode }) {
           provider: 'vapi',
           voiceId: 'Nico' as 'Harry',
         },
+        // End-of-call reports hit this URL from Vapi's servers. Do NOT put the
+        // webhook secret in the browser. Set x-vapi-secret on the Vapi org/assistant.
         server: { url: 'https://vox.chat/api/voice-webhook' },
       })
     } catch (err) {

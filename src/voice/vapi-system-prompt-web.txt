@@ -49,16 +49,8 @@ Five ninety-five a month. No setup fee.
 Bundle — All Three
 The full AI front desk. Receptionist, reviews, and phone — everything handled. Eight ninety-five a month. No setup fee. That saves three ninety a month compared to buying them separately at twelve eighty-five — less than a part-time hire.
 
-COMPLIANCE AND SECURITY ADD-ONS
-For businesses in healthcare, finance, or other regulated industries. These are billed monthly on top of the package price.
-
-HIPAA Compliance — twenty-five hundred a month. Required for any business handling protected health information over voice or messaging. Includes a Business Associate Agreement, HIPAA-compliant voice AI infrastructure, encrypted call handling and storage, compliance configuration and ongoing monitoring, and an annual compliance review. Who needs this: medical and dental practices, behavioral health providers, home health agencies, telehealth services, medical billing companies.
-
-Zero Data Retention — fifteen hundred a month. No call data, transcripts, or recordings stored after processing. Real-time processing only with immediate purge after the session ends. Who needs this: legal firms, financial advisors, businesses with strict data minimization policies.
-
-Compliance Bundle — thirty-five hundred a month. Both HIPAA and Zero Data Retention together, saving five hundred a month. Recommended for healthcare organizations that need the highest level of data protection.
-
-Important: compliance add-ons apply to the entire account, not per-assistant. Activation takes one to two business days. HIPAA requires a signed BAA before activation. All add-ons are month-to-month, same as core packages. If asked about compliance, share pricing directly and suggest Luis can walk them through the technical details.
+COMPLIANCE AND SECURITY
+The public vox.chat product is not HIPAA compliant and must not take medical, patient, or other protected health information. If a caller asks about HIPAA, PHI, healthcare, or zero data retention, say clearly: we cannot handle that on this stack. A dedicated environment is a custom contract after a signed BAA — not a self-serve add-on, and not something you can turn on from this website. Do not quote HIPAA or ZDR monthly prices as if they are live here. Suggest they email support at vox.chat if they need a regulated environment. If they start giving patient details, stop them and do not capture that information.
 
 FAIR USE POLICY
 All packages are flat monthly rate — no per-minute or per-message charges. Each package includes generous monthly allowances: twenty-five hundred voice minutes, five thousand SMS messages, or five thousand web chat sessions depending on the package. The bundle includes all three. These are not hard caps. Occasional spikes from a busy week or seasonal rush will never trigger a surprise charge. If usage consistently exceeds the allowance for two or more billing cycles, we notify the client and work together on a solution — custom volume agreement, plan upgrade, or usage optimization. No surprise fees, ever. Any pricing change requires mutual written agreement. Voice minutes are measured pickup to hangup rounded to the nearest minute. Test calls, setup activity, and system alerts to the owner don't count. The service may not be used for bulk outbound telemarketing, robocalling, reselling, or artificially inflating usage. Violation may result in suspension.

@@ -1,41 +1,23 @@
 /**
  * Vercel serverless — POST /api/receptionist
- * Live AI Receptionist + lead notify (Formspree email + Google Sheet).
+ * Live AI Receptionist + lead notify. Origin-locked, no key leakage.
  */
-import { writeLeadToSheet } from './googleSheet.js'
-
-/** Per-IP rate limit: 15 messages / 10 minutes */
-const RATE_LIMIT_MAX = 15
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000
-const rateLimitHits = new Map()
-
-function getClientIp(req) {
-  const headers = req.headers || {}
-  const xf = headers['x-forwarded-for'] || headers['x-real-ip'] || headers['x-vercel-forwarded-for']
-  if (typeof xf === 'string' && xf.length) return xf.split(',')[0].trim()
-  if (Array.isArray(xf) && xf[0]) return String(xf[0]).trim()
-  return (req.socket && req.socket.remoteAddress) || 'unknown'
-}
-
-function checkRateLimit(ip) {
-  const now = Date.now()
-  let entry = rateLimitHits.get(ip)
-  if (!entry || now >= entry.resetAt) {
-    entry = { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS }
-    rateLimitHits.set(ip, entry)
-  }
-  entry.count += 1
-  return entry.count <= RATE_LIMIT_MAX
-}
-
-// Drop expired IP windows every 10 minutes
-const rateLimitCleanup = setInterval(function () {
-  const now = Date.now()
-  for (const [ip, entry] of rateLimitHits.entries()) {
-    if (now >= entry.resetAt) rateLimitHits.delete(ip)
-  }
-}, RATE_LIMIT_WINDOW_MS)
-if (typeof rateLimitCleanup.unref === 'function') rateLimitCleanup.unref()
+import { deliverLead } from './_lib/leads.js'
+import {
+  browserOriginOk,
+  clean,
+  handleOptions,
+  healthPayload,
+  jsonError,
+  logSafe,
+  parseBody,
+  rateLimitIp,
+  readRawBody,
+  rejectCors,
+  setCors,
+  setNoStore,
+  validEmail,
+} from './_lib/security.js'
 
 const DEMO_PROMPT = `You are the AI Receptionist for Valley Air Pros, a sample HVAC / plumbing / electrical contractor serving Manteca, Turlock, Modesto, Stockton, Tracy, Lathrop, Ripon, Escalon, and Oakdale in California's Central Valley (209 area code).
 
@@ -48,14 +30,15 @@ CONVERSATION RAILS
 1. One question at a time when collecting info.
 2. For booking gather: service need, phone, preferred window.
 3. When you have service + phone + time, confirm booking and that the contractor gets a text.
-4. Rough pricing if asked: repairs $180â€“$450; installs quoted on-site.
-5. Keep replies short (2â€“4 sentences). English/Spanish OK.
-6. This is a product demo on vox.chat â€” finish real booking flows.`
+4. Rough pricing if asked: repairs $180–$450; installs quoted on-site.
+5. Keep replies short (2–4 sentences). English/Spanish OK.
+6. This is a product demo on vox.chat — finish real booking flows.
+7. Do not claim HIPAA, PHI handling, or zero data retention. This demo is not a medical service.`
 
-const LIVE_PROMPT = `You are the AI Receptionist for Vox.chat â€” AI automation for HVAC, plumbing, and electrical contractors in California's Central Valley (Turlock, Modesto, Manteca, Stockton, Tracy and nearby 209 corridor).
+const LIVE_PROMPT = `You are the AI Receptionist for Vox.chat — AI automation for HVAC, plumbing, and electrical contractors in California's Central Valley (Turlock, Modesto, Manteca, Stockton, Tracy and nearby 209 corridor).
 
 WHO YOU REPRESENT
-- Owner: Luis Mariscal (Turlock). Product: AI front desk â€” Voice, Receptionist (this chat), Reviews. Bundle $895/mo; Receptionist $295, Reviews $395, Voice $595/mo. Month-to-month.
+- Owner: Luis Mariscal (Turlock). Product: AI front desk — Voice, Receptionist (this chat), Reviews. Bundle $895/mo; Receptionist $295, Reviews $395, Voice $595/mo. Month-to-month.
 - You are NOT a lead-gen agency. You automate answering calls, visitor chats, and review follow-ups.
 
 YOUR JOB
@@ -66,9 +49,10 @@ YOUR JOB
 5. When you have name + phone + interest, confirm you'll notify Luis.
 
 RAILS
-- One question at a time. Short replies (2â€“4 sentences). Direct, premium, zero fluff.
+- One question at a time. Short replies (2–4 sentences). Direct, premium, zero fluff.
 - Pricing if asked: Receptionist $295/mo, Reviews $395/mo, Voice $595/mo, Bundle $895/mo. Paid to start.
 - English/Spanish OK.
+- COMPLIANCE: The public vox.chat product is NOT HIPAA compliant and must not take medical, patient, or other regulated health information. If asked about HIPAA / PHI / healthcare: say we cannot handle protected health information on this stack; a dedicated environment is a custom contract, not a self-serve add-on. Do not quote HIPAA or ZDR monthly prices as if they are live on this website.
 
 LEAD CAPTURE
 When you have at least a phone AND (name OR business) AND clear interest, append EXACTLY one line at the very end:
@@ -76,12 +60,6 @@ When you have at least a phone AND (name OR business) AND clear interest, append
 <<<LEAD>>>{"name":"string","phone":"string","email":"string or empty","business":"string or empty","city":"string or empty","trade":"hvac|plumbing|electrical|other|unknown","interest":"voice|receptionist|reviews|bundle|audit|unknown","notes":"one-line summary"}<<<END>>>
 
 Only emit once when complete enough. Do not invent phone numbers.`
-
-function clean(s, max) {
-  max = max || 200
-  if (typeof s !== 'string') return ''
-  return s.trim().slice(0, max)
-}
 
 function extractLead(raw) {
   const re = /<<<LEAD>>>\s*([\s\S]*?)\s*<<<END>>>/i
@@ -91,7 +69,7 @@ function extractLead(raw) {
   try {
     const parsed = JSON.parse(m[1].trim())
     return {
-      cleanReply: cleanReply,
+      cleanReply,
       lead: {
         name: clean(parsed.name),
         phone: clean(parsed.phone, 40),
@@ -103,57 +81,9 @@ function extractLead(raw) {
         notes: clean(parsed.notes, 500),
       },
     }
-  } catch (e) {
-    return { cleanReply: cleanReply, lead: null }
+  } catch {
+    return { cleanReply, lead: null }
   }
-}
-
-async function notifyLead(lead) {
-  const channels = []
-  const payload = {
-    name: clean(lead.name, 120) || 'Unknown',
-    phone: clean(lead.phone, 40),
-    email: clean(lead.email, 120),
-    business: clean(lead.business, 120),
-    city: clean(lead.city, 80),
-    trade: clean(lead.trade, 40),
-    interest: clean(lead.interest, 40),
-    notes: clean(lead.notes, 500),
-    source: clean(lead.source, 80) || 'live-receptionist',
-    site: 'vox.chat',
-    // Formspree notification helpers
-    _subject:
-      'Vox.chat lead: ' +
-      (clean(lead.interest) || 'Receptionist') +
-      ' - ' +
-      (clean(lead.name) || clean(lead.phone) || 'new'),
-    _replyto: clean(lead.email, 120) || 'email@vox.chat',
-    _format: 'plain',
-    timestamp: new Date().toISOString(),
-  }
-
-  if (!payload.phone && !payload.email) return channels
-
-  const formspree = process.env.FORMSPREE_ENDPOINT || 'https://formspree.io/f/mwvdpgay'
-  try {
-    const r = await fetch(formspree, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    if (r.ok) channels.push('email')
-  } catch (e) {
-    /* non-fatal */
-  }
-
-  try {
-    const sheetChannel = await writeLeadToSheet(payload)
-    if (sheetChannel) channels.push(sheetChannel)
-  } catch (e) {
-    console.error('[notifyLead] sheet', e)
-  }
-
-  return channels
 }
 
 function modelName() {
@@ -162,50 +92,55 @@ function modelName() {
 
 export default async function handler(req, res) {
   try {
-    res.setHeader('Cache-Control', 'no-store')
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-
-    if (req.method === 'OPTIONS') {
-      return res.status(204).end()
-    }
+    setNoStore(res)
+    if (handleOptions(req, res)) return
+    if (!setCors(req, res)) return rejectCors(res)
 
     if (req.method === 'GET') {
       return res.status(200).json({
-        ok: true,
-        service: 'receptionist',
-        hasKey: Boolean(process.env.XAI_API_KEY),
+        ...healthPayload('receptionist'),
+        online: Boolean(process.env.XAI_API_KEY),
       })
     }
 
     if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method not allowed' })
+      return jsonError(res, 405, 'Method not allowed')
     }
 
-    const clientIp = getClientIp(req)
-    if (!checkRateLimit(clientIp)) {
-      return res.status(429).json({
-        error: 'Too many messages. Call or text (209) 996-7102 to talk now.',
+    if (!browserOriginOk(req)) {
+      return jsonError(res, 403, 'Forbidden')
+    }
+
+    const limited = await rateLimitIp(req, 'receptionist', 15, 10 * 60 * 1000)
+    if (!limited.ok) {
+      return jsonError(res, 429, 'Too many messages. Call or text (209) 996-7102 to talk now.', {
         code: 'rate_limit',
       })
     }
 
     const apiKey = process.env.XAI_API_KEY
     if (!apiKey) {
-      return res.status(503).json({ error: 'XAI_API_KEY not configured', fallback: true })
+      return jsonError(res, 503, 'Receptionist is temporarily unavailable.', { fallback: true, code: 'offline' })
     }
 
-    let body = {}
+    let raw
     try {
-      body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {}
+      raw = await readRawBody(req)
     } catch (e) {
-      return res.status(400).json({ error: 'Invalid JSON body' })
+      if (e.statusCode === 413) return jsonError(res, 413, 'Payload too large', { fallback: true })
+      throw e
+    }
+
+    let body
+    try {
+      body = parseBody(req, raw).value || {}
+    } catch {
+      return jsonError(res, 400, 'Invalid request')
     }
 
     const messages = body.messages
     if (!Array.isArray(messages) || messages.length === 0) {
-      return res.status(400).json({ error: 'messages required' })
+      return jsonError(res, 400, 'messages required')
     }
 
     const mode = body.mode === 'live' ? 'live' : 'demo'
@@ -219,7 +154,7 @@ export default async function handler(req, res) {
       })
 
     if (trimmed.length === 0) {
-      return res.status(400).json({ error: 'messages required' })
+      return jsonError(res, 400, 'messages required')
     }
 
     const upstream = await fetch('https://api.x.ai/v1/chat/completions', {
@@ -240,30 +175,21 @@ export default async function handler(req, res) {
       const errText = await upstream.text().catch(function () {
         return ''
       })
-      console.error('[receptionist] xAI error', upstream.status, errText.slice(0, 400))
-      var code = 'upstream'
-      if (upstream.status === 403 && /credits|licenses|permission-denied/i.test(errText)) {
-        code = 'no_credits'
-      } else if (upstream.status === 401) {
-        code = 'bad_key'
-      }
-      return res.status(502).json({
-        error: code === 'no_credits'
-          ? 'xAI account has no credits — add billing at console.x.ai'
-          : code === 'bad_key'
-            ? 'Invalid XAI_API_KEY'
-            : 'Upstream AI error',
+      logSafe('[receptionist] xAI error', { status: upstream.status, snippet: errText.slice(0, 80) })
+      let code = 'upstream'
+      if (upstream.status === 403) code = 'provider'
+      else if (upstream.status === 401) code = 'provider'
+      return jsonError(res, 502, 'Receptionist is temporarily unavailable.', {
         fallback: true,
-        status: upstream.status,
-        code: code,
+        code,
       })
     }
 
     const data = await upstream.json()
-    const raw = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
-    const replyRaw = raw && String(raw).trim()
+    const rawReply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content
+    const replyRaw = rawReply && String(rawReply).trim()
     if (!replyRaw) {
-      return res.status(502).json({ error: 'Empty AI response', fallback: true })
+      return jsonError(res, 502, 'Receptionist is temporarily unavailable.', { fallback: true })
     }
 
     if (mode !== 'live') {
@@ -271,26 +197,22 @@ export default async function handler(req, res) {
     }
 
     const extracted = extractLead(replyRaw)
-    var notified
-    var lead = extracted.lead
-    // Prefer gate email from widget when model didn't capture one
-    var visitorEmail = typeof body.visitorEmail === 'string' ? body.visitorEmail.trim().slice(0, 120) : ''
+    let notified
+    let lead = extracted.lead
+    const visitorEmail = validEmail(body.visitorEmail)
     if (visitorEmail && (!lead || !lead.email)) {
       lead = Object.assign({}, lead || {}, { email: visitorEmail })
     }
     if (lead && (lead.phone || lead.email)) {
       lead.source = body.source || 'live-receptionist'
-      notified = await notifyLead(lead)
+      const delivered = await deliverLead(lead)
+      notified = delivered.channels
+      logSafe('[receptionist] lead', { ok: delivered.ok, channels: notified })
     }
 
-    return res.status(200).json({ reply: extracted.cleanReply, lead: lead, notified: notified })
+    return res.status(200).json({ reply: extracted.cleanReply, notified })
   } catch (e) {
-    console.error('[receptionist] uncaught', e)
-    return res.status(500).json({
-      error: 'Server error',
-      fallback: true,
-      message: e && e.message ? e.message : 'unknown',
-    })
+    logSafe('[receptionist] uncaught', { err: e && e.message })
+    return jsonError(res, 500, 'Server error', { fallback: true })
   }
 }
-

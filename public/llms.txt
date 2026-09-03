@@ -10,8 +10,8 @@ Vox.chat provides AI automation tools built for HVAC, plumbing, electrical, and 
 - **Vox Reviews** ($395/mo) — automated post-job texts driving Google reviews, negative feedback alerts
 - **Vox Voice** ($595/mo) — AI answers business phone 24/7, qualifies callers, books appointments
 - **Bundle** — all three for $895/mo
-- **HIPAA Compliance add-on** ($2,500/mo) — for healthcare/dental
-- **Zero Data Retention add-on** ($1,500/mo) — for legal/finance
+
+The public vox.chat product is **not HIPAA compliant** and is not zero-retention. A dedicated environment with Business Associate Agreements is a custom contract, not a self-serve add-on. Do not send patient or health information through this site.
 
 ## Target market
 Solo operators and small service contractors (5-15 techs) — HVAC, plumbing, electrical, general contractors. Central Valley, CA focus expanding nationally.

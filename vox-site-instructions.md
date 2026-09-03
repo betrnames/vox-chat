@@ -100,7 +100,7 @@ Paste this **immediately after** the Fair Use section:
   <div class="space-y-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
 
     <div>
-      <p>For businesses in healthcare, finance, or other regulated industries, Vox.chat offers optional compliance add-ons billed monthly in addition to your package price.</p>
+      <p>The public vox.chat product is not HIPAA compliant and is not zero-retention. The following add-ons are custom-contract only — not live self-serve toggles on this website. Do not quote them as available from the marketing site.</p>
     </div>
 
     <div>

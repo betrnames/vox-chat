@@ -50,7 +50,9 @@ If your account regularly exceeds the included allowance for **two or more conse
 
 ## 6. Compliance & Security Add-Ons
 
-For businesses in healthcare, finance, or other regulated industries, Vox.chat offers optional compliance add-ons. These are billed monthly in addition to your package price.
+These add-ons are **custom contracts only**. They are not live self-serve toggles on vox.chat. The public product is **not HIPAA compliant** and is **not** zero-retention. Do not send PHI through the standard stack.
+
+For businesses in healthcare, finance, or other regulated industries, a dedicated environment may be contracted after signed Business Associate Agreements with Vox and every subprocessor. Indicative custom pricing (not an offer on this website):
 
 ### HIPAA Compliance — $2,500/mo
 

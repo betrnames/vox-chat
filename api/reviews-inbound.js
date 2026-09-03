@@ -1,13 +1,20 @@
 /**
  * Vercel serverless — POST /api/reviews-inbound
- * Twilio Messaging webhook: customer replies 1–5 after review request.
- *
- * Configure on the Twilio number:
- *   A message comes in → https://vox.chat/api/reviews-inbound  (HTTP POST)
+ * Twilio Messaging webhook. Signature required in production.
  */
-import { writeLeadToSheet } from './googleSheet.js'
+import { deliverLead } from './_lib/leads.js'
 import {
   clean,
+  handleOptions,
+  healthPayload,
+  jsonError,
+  logSafe,
+  parseBody,
+  readRawBody,
+  setNoStore,
+  verifyTwilioSignature,
+} from './_lib/security.js'
+import {
   normalizePhone,
   pendingReviews,
   positiveFollowUpBody,
@@ -17,64 +24,11 @@ import {
   useTrialTemplates,
 } from './reviewsShared.js'
 
-function parseFormBody(raw) {
-  const params = new URLSearchParams(raw || '')
-  const out = {}
-  for (const [k, v] of params.entries()) out[k] = v
-  return out
-}
-
 function parseRating(bodyText) {
   const t = String(bodyText || '').trim()
   const m = t.match(/\b([1-5])\b/)
   if (!m) return null
   return Number(m[1])
-}
-
-async function notifyOwner(payload) {
-  const formspree =
-    process.env.FORMSPREE_ENDPOINT ||
-    process.env.VITE_FORMSPREE_ENDPOINT ||
-    'https://formspree.io/f/mwvdpgay'
-
-  const body = {
-    name: payload.name || 'Customer',
-    phone: payload.phone || '',
-    business: payload.business || '',
-    interest: 'reviews',
-    notes: payload.notes || '',
-    source: 'live-reviews-negative',
-    site: 'vox.chat',
-    _subject: payload._subject || 'Vox Reviews: negative path — call customer',
-    _format: 'plain',
-  }
-
-  try {
-    await fetch(formspree, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(body),
-    })
-  } catch (e) {
-    console.error('[reviews-inbound] formspree', e)
-  }
-
-  try {
-    await writeLeadToSheet({
-      ...body,
-      timestamp: new Date().toISOString(),
-    })
-  } catch (e) {
-    console.error('[reviews-inbound] sheet', e)
-  }
-
-  const ownerPhone = normalizePhone(process.env.REVIEW_OWNER_PHONE || '')
-  if (ownerPhone && twilioConfigured()) {
-    const alert = `Owner alert: ${body.name} rated ${payload.rating}/5${
-      payload.business ? ` · ${payload.business}` : ''
-    }. Phone ${body.phone}. Call before this becomes a public review. — Vox Reviews`
-    await sendTwilioSms(ownerPhone, alert, { kind: 'owner_alert' })
-  }
 }
 
 function twiml(message) {
@@ -86,34 +40,37 @@ function twiml(message) {
   return `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escaped}</Message></Response>`
 }
 
-async function readRawBody(req) {
-  if (typeof req.body === 'string') return req.body
-  if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
-    // Already parsed object (JSON or form)
-    return null
-  }
-  const chunks = []
-  for await (const chunk of req) chunks.push(chunk)
-  return Buffer.concat(chunks).toString('utf8')
-}
-
 export default async function handler(req, res) {
+  setNoStore(res)
+  if (handleOptions(req, res)) return
+
   if (req.method === 'GET') {
-    res.status(200).json({ ok: true, webhook: 'reviews-inbound' })
+    res.status(200).json(healthPayload('reviews-inbound'))
     return
   }
 
   if (req.method !== 'POST') {
-    res.status(405).end('Method not allowed')
+    jsonError(res, 405, 'Method not allowed')
     return
   }
 
   let fields = {}
-  const raw = await readRawBody(req)
-  if (raw != null) {
-    fields = parseFormBody(raw)
-  } else if (req.body && typeof req.body === 'object') {
-    fields = req.body
+  try {
+    const raw = await readRawBody(req)
+    const parsed = parseBody(req, raw)
+    fields = parsed.value || {}
+  } catch (e) {
+    logSafe('[reviews-inbound] body', { err: e && e.message })
+    res.setHeader('Content-Type', 'text/xml')
+    res.status(200).send(twiml('Thanks.'))
+    return
+  }
+
+  const auth = verifyTwilioSignature(req, fields)
+  if (!auth.ok) {
+    logSafe('[reviews-inbound] auth', { code: auth.code })
+    jsonError(res, auth.status || 401, 'Unauthorized', { code: auth.code })
+    return
   }
 
   const from = normalizePhone(fields.From || fields.from || '')
@@ -145,30 +102,36 @@ export default async function handler(req, res) {
     reply = positiveFollowUpBody(name)
     pendingReviews.delete(from)
 
-    writeLeadToSheet({
+    deliverLead({
       name: name || 'Customer',
       phone: from,
       business,
       interest: 'reviews',
-      notes: `positive_${rating} | google_link_sent | trial_templates=${useTrialTemplates()}`,
+      notes: `positive_${rating} | google_link_sent`,
       source: 'live-reviews',
-      timestamp: new Date().toISOString(),
     }).catch(() => {})
   } else {
     reply = negativeFollowUpBody()
     pendingReviews.delete(from)
 
-    notifyOwner({
+    deliverLead({
       name: name || 'Customer',
       phone: from,
       business,
-      rating,
+      interest: 'reviews',
       notes: `negative_${rating} | google_link_blocked | private recovery`,
-      _subject: `Vox Reviews ALERT: ${name || from} rated ${rating}/5`,
+      source: 'live-reviews-negative',
     }).catch(() => {})
+
+    const ownerPhone = normalizePhone(process.env.REVIEW_OWNER_PHONE || '')
+    if (ownerPhone && twilioConfigured()) {
+      const alert = `Owner alert: ${name || 'Customer'} rated ${rating}/5${
+        business ? ` · ${business}` : ''
+      }. Phone ${from}. Call before this becomes a public review. — Vox Reviews`
+      await sendTwilioSms(ownerPhone, alert, { kind: 'owner_alert' })
+    }
   }
 
-  // Trial cannot put free-form text in TwiML <Message> — send via API with template name
   if (useTrialTemplates()) {
     await sendTwilioSms(from, reply, { kind: positive ? 'positive' : 'negative' })
     res.setHeader('Content-Type', 'text/xml')

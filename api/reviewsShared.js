@@ -107,7 +107,7 @@ export async function sendTwilioSms(to, body, options = {}) {
   }
 
   if (!res.ok) {
-    console.error('[reviews] twilio error', res.status, text.slice(0, 400))
+    console.error('[reviews] twilio error', res.status)
     const msg = data.message || data.error_message || `Twilio ${res.status}`
     // Helpful hint when someone forgot trial mode with free-form body
     const hint =
@@ -124,17 +124,33 @@ export async function sendTwilioSms(to, body, options = {}) {
 }
 
 export function ratingAskBody(name) {
-  const who = name ? ` ${name}` : ''
+  const who = safeDisplayName(name)
   return `Hi${who}! How was your service with Valley Air Pros today? Reply with a number 1–5. — Vox Reviews`
 }
 
 export function reviewUrl() {
-  return process.env.GOOGLE_REVIEW_URL || 'https://vox.chat'
+  const u = process.env.GOOGLE_REVIEW_URL || 'https://vox.chat'
+  try {
+    const parsed = new URL(u)
+    if (parsed.protocol !== 'https:') return 'https://vox.chat'
+    return parsed.toString()
+  } catch {
+    return 'https://vox.chat'
+  }
+}
+
+function safeDisplayName(name) {
+  const s = String(name || '')
+    .replace(/[\r\n\t]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 40)
+  return s ? ` ${s}` : ''
 }
 
 export function positiveFollowUpBody(name) {
   const link = reviewUrl()
-  const who = name ? ` ${name}` : ''
+  const who = safeDisplayName(name)
   return `Thanks${who} — glad it went well. Mind a 30-second Google review? ${link}`
 }
 

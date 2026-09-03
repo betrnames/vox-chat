@@ -47,10 +47,9 @@
 ### Bundle: All three for $895/mo (saves $390/mo)
 
 ### Compliance Add-ons (on top of package)
-- **HIPAA Compliance:** $2,500/mo — BAA, encrypted call handling, annual compliance review. Required for healthcare/dental/behavioral health.
-- **Zero Data Retention:** $1,500/mo — no transcripts or recordings stored. For legal/finance.
-- **Compliance Bundle:** $3,500/mo — both, saves $500.
-- Add-ons are account-wide, month-to-month, 1–2 day setup.
+- **Do not advertise HIPAA / ZDR as live self-serve add-ons on vox.chat.**
+- The public product is **not HIPAA compliant** and must not take PHI.
+- A dedicated HIPAA/ZDR environment is a custom contract after BAAs — not a toggle.
 
 ## Required Sections
 1. Nav (logo + CTA)

@@ -1,40 +1,22 @@
 /**
  * Vercel serverless — POST /api/voice-webhook
- * Vapi server URL: end-of-call-report → Formspree + Google Sheet + optional SMS.
- *
- * Dashboard: Assistant → Server URL → https://vox.chat/api/voice-webhook
+ * Vapi server URL: end-of-call-report → lead fan-out.
+ * Auth: VAPI_WEBHOOK_SECRET required in production (fail closed).
  */
-import { writeLeadToSheet } from './googleSheet.js'
-import { normalizePhone, sendTwilioSms, twilioConfigured } from './reviewsShared.js'
+import { deliverLead } from './_lib/leads.js'
+import {
+  clean,
+  handleOptions,
+  healthPayload,
+  jsonError,
+  logSafe,
+  parseBody,
+  readRawBody,
+  setNoStore,
+  verifyVapiWebhook,
+} from './_lib/security.js'
+import { normalizePhone } from './reviewsShared.js'
 
-function clean(s, max = 200) {
-  if (typeof s !== 'string') return ''
-  return s.trim().slice(0, max)
-}
-
-async function readBody(req) {
-  if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
-    return req.body
-  }
-  if (typeof req.body === 'string') {
-    try {
-      return JSON.parse(req.body)
-    } catch {
-      return {}
-    }
-  }
-  const chunks = []
-  for await (const c of req) chunks.push(c)
-  const raw = Buffer.concat(chunks).toString('utf8')
-  if (!raw) return {}
-  try {
-    return JSON.parse(raw)
-  } catch {
-    return {}
-  }
-}
-
-/** Normalize Vapi webhook shapes */
 function unwrapMessage(body) {
   if (!body || typeof body !== 'object') return { type: '', payload: body }
   if (body.message && typeof body.message === 'object') {
@@ -59,11 +41,7 @@ function transcriptText(payload) {
 
 function extractLeadFromPayload(payload) {
   const analysis = payload.analysis || {}
-  const structured =
-    analysis.structuredData ||
-    analysis.structured_data ||
-    payload.structuredData ||
-    {}
+  const structured = analysis.structuredData || analysis.structured_data || payload.structuredData || {}
 
   let name = clean(structured.name || structured.customerName || '', 120)
   let phone = clean(structured.phone || structured.phoneNumber || structured.callback || '', 40)
@@ -72,16 +50,14 @@ function extractLeadFromPayload(payload) {
   let city = clean(structured.city || structured.serviceArea || '', 80)
   let trade = clean(structured.trade || structured.industry || '', 40)
   let interest = clean(structured.interest || structured.product || '', 40)
-  let notes = clean(structured.notes || analysis.summary || payload.summary || '', 500)
+  let notes = clean(structured.notes || analysis.summary || payload.summary || '', 400)
 
   const transcript = transcriptText(payload)
 
-  // Fallback: crude phone from transcript
   if (!phone) {
     const m = transcript.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/)
     if (m) phone = m[0]
   }
-  // Fallback: "my name is X"
   if (!name) {
     const m = transcript.match(/(?:my name is|this is|i'm|i am)\s+([A-Za-z][A-Za-z'\-]+(?:\s+[A-Za-z][A-Za-z'\-]+)?)/i)
     if (m) name = m[1]
@@ -97,7 +73,7 @@ function extractLeadFromPayload(payload) {
 
   const callId = payload.call?.id || payload.callId || ''
   if (callId && !notes.includes(callId)) {
-    notes = clean(`${notes}${notes ? ' | ' : ''}call=${callId}`.trim(), 500)
+    notes = clean(`${notes}${notes ? ' | ' : ''}call=${callId}`.trim(), 400)
   }
 
   phone = normalizePhone(phone) || clean(phone, 40)
@@ -115,116 +91,61 @@ function extractLeadFromPayload(payload) {
   }
 }
 
-async function notifyLead(lead) {
-  const channels = []
-  const payload = {
-    name: lead.name || 'Voice caller',
-    phone: lead.phone || '',
-    email: lead.email || '',
-    business: lead.business || '',
-    city: lead.city || '',
-    trade: lead.trade || '',
-    interest: lead.interest || 'voice',
-    notes: lead.notes || '',
-    source: 'live-voice',
-    site: 'vox.chat',
-    _subject: `Vox Voice lead: ${lead.interest || 'call'} — ${lead.name || lead.phone || 'new'}`,
-    _replyto: lead.email || 'email@vox.chat',
-    _format: 'plain',
-    timestamp: new Date().toISOString(),
-  }
-
-  if (!payload.phone && !payload.email && !payload.name) {
-    return channels
-  }
-
-  const formspree =
-    process.env.FORMSPREE_ENDPOINT ||
-    process.env.VITE_FORMSPREE_ENDPOINT ||
-    'https://formspree.io/f/mwvdpgay'
-
-  try {
-    const r = await fetch(formspree, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    if (r.ok) channels.push('email')
-  } catch (e) {
-    console.error('[voice-webhook] formspree', e)
-  }
-
-  try {
-    const ok = await writeLeadToSheet(payload)
-    if (ok) channels.push('sheet')
-  } catch (e) {
-    console.error('[voice-webhook] sheet', e)
-  }
-
-  const owner = normalizePhone(process.env.REVIEW_OWNER_PHONE || '')
-  if (owner && twilioConfigured() && payload.phone) {
-    const body = `Vox Voice lead: ${payload.name} · ${payload.phone}${
-      payload.interest ? ` · ${payload.interest}` : ''
-    }${payload.notes ? ` · ${payload.notes.slice(0, 80)}` : ''} — call them back`
-    // Trial uses templates; free-form after TWILIO_TRIAL=false
-    const result = await sendTwilioSms(owner, body, { kind: 'owner_alert' })
-    if (result.ok) channels.push('sms')
-  }
-
-  return channels
-}
-
 export default async function handler(req, res) {
+  setNoStore(res)
+  if (handleOptions(req, res)) return
+
   if (req.method === 'GET') {
-    res.status(200).json({ ok: true, webhook: 'voice-webhook', product: 'vox-voice' })
+    res.status(200).json(healthPayload('voice-webhook'))
     return
   }
 
   if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' })
+    jsonError(res, 405, 'Method not allowed')
     return
   }
 
   try {
-    const body = await readBody(req)
+    const raw = await readRawBody(req)
+    const auth = verifyVapiWebhook(req, raw)
+    if (!auth.ok) {
+      logSafe('[voice-webhook] auth', { code: auth.code })
+      jsonError(res, auth.status || 401, 'Unauthorized', { code: auth.code })
+      return
+    }
+    if (auth.insecure) {
+      logSafe('[voice-webhook] insecure', { msg: 'VAPI_WEBHOOK_SECRET unset; allowing only outside production' })
+    }
+
+    const body = parseBody(req, raw).value || {}
     const { type, payload } = unwrapMessage(body)
 
-    // Optional shared secret (if you set a custom header in Vapi)
-    const secret = process.env.VAPI_WEBHOOK_SECRET
-    if (secret) {
-      const hdr = req.headers['x-vapi-secret'] || req.headers['x-webhook-secret']
-      if (hdr !== secret) {
-        res.status(401).json({ error: 'Unauthorized' })
-        return
-      }
-    }
+    const isEnd =
+      type === 'end-of-call-report' ||
+      type === 'end-of-call-report-message' ||
+      (payload?.artifact && (payload?.analysis || payload?.endedReason)) ||
+      payload?.endedReason
 
-    if (type === 'end-of-call-report' || type === 'end-of-call-report-message' || payload?.endedReason || payload?.artifact) {
-      // Prefer explicit end-of-call; also accept payloads that look like call reports
-      const isEnd =
-        type === 'end-of-call-report' ||
-        type === 'end-of-call-report-message' ||
-        (payload?.artifact && (payload?.analysis || payload?.endedReason))
-
-      if (isEnd || type === 'end-of-call-report') {
-        const lead = extractLeadFromPayload(payload)
-        // Only notify if we have something useful
-        if (lead.phone || lead.email || (lead.name && lead.name !== 'Voice caller')) {
-          const channels = await notifyLead(lead)
-          console.log('[voice-webhook] lead', { ...lead, channels })
-          res.status(200).json({ ok: true, notified: channels })
+    if (isEnd) {
+      const lead = extractLeadFromPayload(payload || {})
+      if (lead.phone || lead.email || (lead.name && lead.name !== 'Voice caller')) {
+        const delivered = await deliverLead(lead)
+        logSafe('[voice-webhook] lead', { ok: delivered.ok, channels: delivered.channels, source: 'live-voice' })
+        if (!delivered.ok) {
+          res.status(500).json({ ok: false, error: 'persist_failed' })
           return
         }
-        console.log('[voice-webhook] end-of-call no lead fields', type)
-        res.status(200).json({ ok: true, notified: [] })
+        res.status(200).json({ ok: true, notified: delivered.channels })
         return
       }
+      logSafe('[voice-webhook] end-of-call', { empty: true, type })
+      res.status(200).json({ ok: true, notified: [] })
+      return
     }
 
-    // Ack everything else so Vapi doesn't retry forever
     res.status(200).json({ ok: true, ignored: type || 'unknown' })
   } catch (e) {
-    console.error('[voice-webhook]', e)
-    res.status(200).json({ ok: false, error: 'processed with error' })
+    logSafe('[voice-webhook]', { err: e && e.message })
+    res.status(500).json({ ok: false, error: 'processed with error' })
   }
 }

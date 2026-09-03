@@ -14,6 +14,7 @@
  */
 
 import crypto from 'node:crypto'
+import { logSafe, sheetWebhookUrl } from './_lib/security.js'
 
 function loadServiceAccount() {
   const b64 = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_BASE64
@@ -25,7 +26,7 @@ function loadServiceAccount() {
         key: String(json.private_key || '').replace(/\\n/g, '\n'),
       }
     } catch (e) {
-      console.error('[googleSheet] bad GOOGLE_SERVICE_ACCOUNT_JSON_BASE64')
+      logSafe('[googleSheet]', { msg: 'bad GOOGLE_SERVICE_ACCOUNT_JSON_BASE64' })
       return null
     }
   }
@@ -39,7 +40,7 @@ function loadServiceAccount() {
         key: String(json.private_key || '').replace(/\\n/g, '\n'),
       }
     } catch (e) {
-      console.error('[googleSheet] bad GOOGLE_SERVICE_ACCOUNT_JSON')
+      logSafe('[googleSheet]', { msg: 'bad GOOGLE_SERVICE_ACCOUNT_JSON' })
       return null
     }
   }
@@ -78,7 +79,8 @@ async function getAccessToken(email, privateKey) {
     }),
   })
   if (!res.ok) {
-    console.error('[googleSheet] token error', res.status, (await res.text()).slice(0, 300))
+    await res.text().catch(() => '')
+    logSafe('[googleSheet] token error', { status: res.status })
     return null
   }
   const data = await res.json()
@@ -91,6 +93,15 @@ async function getAccessToken(email, privateKey) {
  * Date | Source | Name | Business | Trade | City | Phone | Email | Status |
  * Interest | Quoted $/mo | Est. monthly leak $ | Next step | Next date | Notes
  */
+
+/** Neutralize spreadsheet formula injection (`=HYPERLINK`, `+cmd`, `@IMPORT`). */
+function sheetCell(value) {
+  const s = String(value ?? '')
+  if (!s) return ''
+  if (/^[=+\-@\t\r]/.test(s)) return `'${s}`
+  return s
+}
+
 function rowFromPayload(payload) {
   const format = (process.env.GOOGLE_SHEET_FORMAT || 'vox-ops').toLowerCase()
   const ts = payload.timestamp || new Date().toISOString()
@@ -103,37 +114,37 @@ function rowFromPayload(payload) {
 
   if (format === 'simple') {
     return [
-      ts,
-      payload.name || '',
-      payload.phone || '',
-      payload.email || '',
-      payload.business || '',
-      payload.city || '',
-      payload.trade || '',
-      interest,
-      notes,
-      source,
-      payload.site || 'vox.chat',
+      sheetCell(ts),
+      sheetCell(payload.name || ''),
+      sheetCell(payload.phone || ''),
+      sheetCell(payload.email || ''),
+      sheetCell(payload.business || ''),
+      sheetCell(payload.city || ''),
+      sheetCell(payload.trade || ''),
+      sheetCell(interest),
+      sheetCell(notes),
+      sheetCell(source),
+      sheetCell(payload.site || 'vox.chat'),
     ]
   }
 
   // vox-ops (default) — matches docs/Vox-Ops.xlsx Leads tab
   return [
-    dateOnly,
-    source,
-    payload.name || '',
-    payload.business || '',
-    payload.trade || '',
-    payload.city || '',
-    payload.phone || '',
-    payload.email || '',
+    sheetCell(dateOnly),
+    sheetCell(source),
+    sheetCell(payload.name || ''),
+    sheetCell(payload.business || ''),
+    sheetCell(payload.trade || ''),
+    sheetCell(payload.city || ''),
+    sheetCell(payload.phone || ''),
+    sheetCell(payload.email || ''),
     'New',
-    interest,
+    sheetCell(interest),
     '',
     '',
     interest === 'audit' || interest === 'bundle' ? 'Book audit' : 'Follow up',
     '',
-    notes,
+    sheetCell(notes),
   ]
 }
 
@@ -151,7 +162,8 @@ async function findNextLeadRow(sheetId, token, tab) {
     { headers: { Authorization: `Bearer ${token}` } },
   )
   if (!res.ok) {
-    console.error('[googleSheet] scan error', res.status, (await res.text()).slice(0, 300))
+    await res.text().catch(() => '')
+    logSafe('[googleSheet] scan error', { status: res.status })
     return startRow
   }
   const data = await res.json()
@@ -185,7 +197,7 @@ export async function appendLeadToGoogleSheet(payload) {
   const writeRange = `${tab}!A${row}:O${row}`
   const url =
     `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}` +
-    `/values/${encodeURIComponent(writeRange)}?valueInputOption=USER_ENTERED`
+    `/values/${encodeURIComponent(writeRange)}?valueInputOption=RAW`
 
   const res = await fetch(url, {
     method: 'PUT',
@@ -197,7 +209,8 @@ export async function appendLeadToGoogleSheet(payload) {
   })
 
   if (!res.ok) {
-    console.error('[googleSheet] write error', res.status, (await res.text()).slice(0, 400))
+    await res.text().catch(() => '')
+    logSafe('[googleSheet] write error', { status: res.status })
     return false
   }
   return true
@@ -205,7 +218,7 @@ export async function appendLeadToGoogleSheet(payload) {
 
 /** Apps Script webhook fallback */
 export async function appendLeadViaWebhook(payload) {
-  const sheetUrl = process.env.LEAD_SHEET_WEBHOOK_URL || process.env.GOOGLE_SHEET_WEBHOOK_URL
+  const sheetUrl = sheetWebhookUrl()
   if (!sheetUrl) return false
 
   const body = JSON.stringify(payload)
@@ -217,7 +230,9 @@ export async function appendLeadViaWebhook(payload) {
   })
   const loc = r.headers.get('location')
   if (loc && (r.status === 301 || r.status === 302 || r.status === 307 || r.status === 308)) {
-    r = await fetch(loc, {
+    const next = sheetWebhookUrl(loc.startsWith('http') ? loc : new URL(loc, sheetUrl).toString())
+    if (!next) return false
+    r = await fetch(next, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body,

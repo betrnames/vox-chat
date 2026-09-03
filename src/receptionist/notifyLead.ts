@@ -21,7 +21,35 @@ function serverEnv(key: string): string | undefined {
   return g.process?.env?.[key]
 }
 
-/** Email via Formspree + optional Google Sheet Apps Script webhook. Zero paid infra. */
+function formspreeUrl(): string {
+  const u = (serverEnv('FORMSPREE_ENDPOINT') || '').trim()
+  try {
+    const parsed = new URL(u)
+    if (parsed.protocol !== 'https:' || parsed.hostname !== 'formspree.io') return ''
+    if (!parsed.pathname.startsWith('/f/')) return ''
+    return parsed.toString()
+  } catch {
+    return ''
+  }
+}
+
+function allowedSheetWebhook(raw: string): boolean {
+  try {
+    const parsed = new URL(raw)
+    if (parsed.protocol !== 'https:') return false
+    const host = parsed.hostname.toLowerCase()
+    return (
+      host === 'script.google.com' ||
+      host.endsWith('.script.google.com') ||
+      host === 'script.googleusercontent.com' ||
+      host.endsWith('.googleusercontent.com')
+    )
+  } catch {
+    return false
+  }
+}
+
+/** Email via Formspree (server env only) + optional Google Sheet webhook. */
 export async function notifyLead(lead: CapturedLead): Promise<{ ok: boolean; channels: string[] }> {
   const channels: string[] = []
   const payload = {
@@ -44,33 +72,30 @@ export async function notifyLead(lead: CapturedLead): Promise<{ ok: boolean; cha
     return { ok: false, channels }
   }
 
-  const formspree =
-    serverEnv('FORMSPREE_ENDPOINT') ||
-    serverEnv('VITE_FORMSPREE_ENDPOINT') ||
-    'https://formspree.io/f/mwvdpgay'
-
-  try {
-    const r = await fetch(formspree, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(payload),
-    })
-    if (r.ok) channels.push('email')
-  } catch {
-    /* continue to sheet */
+  const formspree = formspreeUrl()
+  if (formspree) {
+    try {
+      const r = await fetch(formspree, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+      if (r.ok) channels.push('email')
+    } catch {
+      /* continue */
+    }
   }
 
   const sheetUrl = serverEnv('LEAD_SHEET_WEBHOOK_URL') || serverEnv('GOOGLE_SHEET_WEBHOOK_URL')
-  if (sheetUrl) {
+  if (sheetUrl && allowedSheetWebhook(sheetUrl)) {
     try {
       const body = JSON.stringify({
         ...payload,
         timestamp: new Date().toISOString(),
       })
-      // Apps Script web apps often 302; follow redirect while keeping POST
       let r = await fetch(sheetUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -79,11 +104,14 @@ export async function notifyLead(lead: CapturedLead): Promise<{ ok: boolean; cha
       })
       const loc = r.headers.get('location')
       if (loc && (r.status === 301 || r.status === 302 || r.status === 307 || r.status === 308)) {
-        r = await fetch(loc, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body,
-        })
+        const next = new URL(loc, sheetUrl)
+        if (allowedSheetWebhook(next.toString())) {
+          r = await fetch(next.toString(), {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body,
+          })
+        }
       }
       if (r.ok || r.status === 200 || r.status === 302) channels.push('sheet')
     } catch {
@@ -91,7 +119,6 @@ export async function notifyLead(lead: CapturedLead): Promise<{ ok: boolean; cha
     }
   }
 
-  // SMS alert to owner via Twilio
   const sid = serverEnv('TWILIO_ACCOUNT_SID')
   const token = serverEnv('TWILIO_AUTH_TOKEN')
   const from = serverEnv('TWILIO_FROM_NUMBER')
@@ -102,8 +129,8 @@ export async function notifyLead(lead: CapturedLead): Promise<{ ok: boolean; cha
       const isTrial = trialRaw !== '0' && trialRaw !== 'false' && trialRaw !== 'no'
 
       const smsBody = isTrial
-        ? (serverEnv('TWILIO_TEMPLATE_OWNER') || 'sms_internal_alerts')
-        : `New Vox.chat lead (receptionist): ${payload.name} - ${payload.phone || payload.email}. Interest: ${payload.interest || 'unknown'}. ${payload.notes || ''}`
+        ? serverEnv('TWILIO_TEMPLATE_OWNER') || 'sms_internal_alerts'
+        : `New Vox.chat lead (receptionist): ${payload.name} - ${payload.phone || payload.email}. Interest: ${payload.interest || 'unknown'}.`
 
       const params = new URLSearchParams({ To: ownerPhone, From: from, Body: smsBody })
       const url = `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`
