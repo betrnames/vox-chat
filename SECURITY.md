@@ -5,37 +5,46 @@ Processors (Vapi, xAI/OpenAI, Twilio, Vercel, optional Google Sheets / Formspree
 can read conversation content in order to deliver the service. Treat that as the
 threat model.
 
-## Required before production traffic
+## You do this before merge (3 steps)
 
-Set these in Vercel **Production** env (never `VITE_` for secrets):
+I cannot set Vercel env or Vapi dashboard headers from git. Do these once.
 
-| Variable | Why |
-|----------|-----|
-| `VAPI_WEBHOOK_SECRET` | Fail-closed auth on `/api/voice-webhook` and `/api/voice-luis-live` |
-| `TWILIO_AUTH_TOKEN` | Validates `/api/reviews-inbound` (`X-Twilio-Signature`) |
-| `FORMSPREE_ENDPOINT` | Server-only email relay. No hardcoded form ID. |
-| `XAI_API_KEY` | Receptionist. Never sent to the browser. |
-| `VAPI_PRIVATE_KEY` | Server-only. Browser uses `VITE_VAPI_PUBLIC_KEY` only. |
+### 1. Vercel → Project `vox-chat-claude` → Settings → Environment Variables
 
-### Vapi dashboard
+Add for **Production** (and Preview if you want the preview branch to work):
 
-1. Generate a long random secret (`openssl rand -hex 32`).
-2. Put it in Vercel as `VAPI_WEBHOOK_SECRET`.
-3. On the assistant **Server URL** / tool server, add custom header:
-   `x-vapi-secret: <same value>`
-4. Server URLs:
-   - `https://vox.chat/api/voice-webhook`
-   - `https://vox.chat/api/voice-luis-live` (notify-live tool)
+| Name | Value |
+|------|--------|
+| `VAPI_WEBHOOK_SECRET` | generate with `openssl rand -hex 32` — keep it private, not in git |
+| `FORMSPREE_ENDPOINT` | `https://formspree.io/f/mwvdpgay` (the form already live on vox.chat) |
 
-If the secret is missing in production, those endpoints return **503** instead of
-accepting unsigned traffic.
+`TWILIO_AUTH_TOKEN` should already be there. Leave it.
 
-### Twilio
+Redeploy is **not** needed until the PR merges; env is read at request time.
 
-A message comes in → `https://vox.chat/api/reviews-inbound`.
-Unsigned POSTs are rejected in production.
+### 2. Vapi dashboard (one header)
 
-## Optional but recommended
+Organization (preferred, so web Call-now assistants inherit it) **or** each assistant:
+
+- Server URL: `https://vox.chat/api/voice-webhook`
+- Custom header: `x-vapi-secret` = **same value** as `VAPI_WEBHOOK_SECRET`
+- Notify-live tool URL: `https://vox.chat/api/voice-luis-live` (same header)
+
+Do **not** put this secret in the website / `VITE_` vars.
+
+### 3. Twilio (10-second check)
+
+Inbound SMS webhook must be exactly:
+
+`https://vox.chat/api/reviews-inbound`
+
+If the URL in Twilio Console matches, you're done. Unsigned requests will be rejected after merge — that's intended.
+
+---
+
+Then merge [PR #1](https://github.com/betrnames/vox-chat/pull/1). Do not merge before steps 1–2 or voice lead capture and email forms fail closed.
+
+## Optional later
 
 | Variable | Why |
 |----------|-----|
@@ -58,15 +67,7 @@ not a HIPAA store.
 - TwiML XML-escaped
 - Honest legal copy: standard product is **not** HIPAA / ZDR
 - `/.well-known/security.txt` for reports
-
-## Production go-live (do this before merging to master)
-
-1. Generate `openssl rand -hex 32` → Vercel `VAPI_WEBHOOK_SECRET`.
-2. Vapi dashboard: Server URL custom header `x-vapi-secret` with the same value (org-level so **web** transient assistants inherit it).
-3. Confirm Twilio webhook URL is exactly `https://vox.chat/api/reviews-inbound` (signature uses the public URL).
-4. Set `FORMSPREE_ENDPOINT` or email delivery is skipped (no hardcoded form ID).
-5. Optional: Upstash Redis REST for durable rate limits.
-6. Lock the Google Sheet to the service account + owner only.
+- CSP allows Daily/Vapi so in-browser Call now still works
 
 ## What this stack is not
 
