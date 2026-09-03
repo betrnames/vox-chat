@@ -27,11 +27,8 @@ Without the key, the widget falls back to “call/text / contact form.”
 
 ## 2. Email leads (default — already wired)
 
-Uses your existing Formspree form:
-
-`https://formspree.io/f/mwvdpgay`
-
-Override if needed:
+Uses Formspree only when `FORMSPREE_ENDPOINT` is set in the server environment
+(never a hardcoded form ID):
 
 ```env
 FORMSPREE_ENDPOINT=https://formspree.io/f/YOUR_ID

@@ -140,6 +140,27 @@ const categories = [
       },
     ],
   },
+  {
+    id: 'privacy',
+    label: 'Privacy & data',
+    questions: [
+      {
+        id: 'is-data-secure',
+        q: 'Is my customer data secure?',
+        a: 'We lock down public APIs (origin checks, rate limits, webhook secrets, Twilio signatures) and we do not sell your data. This is still a service product, not a secret messenger: Vapi, the language-model providers, Twilio, and Vercel process call and chat content so we can deliver leads and summaries. Google Sheets, if enabled, is an operations inbox — restrict who can open it. Details: /legal.html#privacy',
+      },
+      {
+        id: 'hipaa',
+        q: 'Are you HIPAA compliant?',
+        a: 'No. The public vox.chat product is not HIPAA compliant and must not be used for patient or health information. A dedicated environment with Business Associate Agreements is a custom contract, not a self-serve add-on. See /legal.html#compliance',
+      },
+      {
+        id: 'recordings',
+        q: 'Do you record calls and train AI on them?',
+        a: 'Calls and chats may be recorded or transcribed to capture the lead, send you a summary, and resolve disputes. We do not use your content to train third-party foundation models. You can request deletion at support@vox.chat.',
+      },
+    ],
+  },
 ]
 
 export default function FaqPage() {

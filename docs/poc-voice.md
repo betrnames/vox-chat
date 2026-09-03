@@ -154,9 +154,8 @@ https://vox.chat/api/voice-webhook
 ```
 
 3. Make sure **end-of-call report** / **end-of-call-report** is enabled (usually default when Server URL is set).  
-4. **Save**.
-
-Optional later: secret header `VAPI_WEBHOOK_SECRET` — skip for first test.
+4. Add custom header `x-vapi-secret` with the same value as Vercel `VAPI_WEBHOOK_SECRET`. Production **rejects** unsigned webhooks.  
+5. **Save**.
 
 ---
 

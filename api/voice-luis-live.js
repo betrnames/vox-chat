@@ -1,78 +1,26 @@
 /**
  * POST /api/voice-luis-live — browser “live person” handoff
- *
- * Browser WebRTC cannot transferCall to a cell (no PSTN leg).
- * When the visitor gives a callback number we:
- *  1) SMS Luis (Twilio)
- *  2) Place an outbound call FROM free Vapi number (209-502-3028) TO the visitor
- *     with an assistant that immediately transferCall's to Luis's cell
- *     → real live call via the free Vapi line
+ * Vapi tool server: require VAPI_WEBHOOK_SECRET in production.
  */
+import {
+  clean,
+  handleOptions,
+  healthPayload,
+  jsonError,
+  logSafe,
+  parseBody,
+  rateLimitKey,
+  readRawBody,
+  setNoStore,
+  verifyVapiWebhook,
+} from './_lib/security.js'
 import { normalizePhone, sendTwilioSms, twilioConfigured } from './reviewsShared.js'
-
-const RATE_LIMIT_MAX = 5
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000
-const rateLimitHits = new Map()
-
-function getClientIp(req) {
-  const headers = req.headers || {}
-  const xf = headers['x-forwarded-for'] || headers['x-real-ip'] || headers['x-vercel-forwarded-for']
-  if (typeof xf === 'string' && xf.length) return xf.split(',')[0].trim()
-  if (Array.isArray(xf) && xf[0]) return String(xf[0]).trim()
-  return (req.socket && req.socket.remoteAddress) || 'unknown'
-}
-
-function checkRateLimit(ip) {
-  const now = Date.now()
-  let entry = rateLimitHits.get(ip)
-  if (!entry || now >= entry.resetAt) {
-    entry = { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS }
-    rateLimitHits.set(ip, entry)
-  }
-  entry.count += 1
-  return entry.count <= RATE_LIMIT_MAX
-}
-
-const rateLimitCleanup = setInterval(function () {
-  const now = Date.now()
-  for (const [ip, entry] of rateLimitHits.entries()) {
-    if (now >= entry.resetAt) rateLimitHits.delete(ip)
-  }
-}, RATE_LIMIT_WINDOW_MS)
-if (typeof rateLimitCleanup.unref === 'function') rateLimitCleanup.unref()
 
 const VAPI_API = 'https://api.vapi.ai'
 const PHONE_NUMBER_ID = process.env.VAPI_PHONE_NUMBER_ID || ''
 const LUIS_E164 = () =>
   normalizePhone(process.env.LUIS_PHONE_NUMBER || process.env.REVIEW_OWNER_PHONE || '')
 const TRANSFER_TOOL_ID = process.env.VAPI_TRANSFER_TOOL_ID || ''
-
-function clean(s, max = 200) {
-  if (typeof s !== 'string') return ''
-  return s.trim().slice(0, max)
-}
-
-async function readBody(req) {
-  if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
-    return req.body
-  }
-  if (typeof req.body === 'string') {
-    try {
-      return JSON.parse(req.body)
-    } catch {
-      return {}
-    }
-  }
-  const chunks = []
-  for await (const c of req) chunks.push(c)
-  const raw = Buffer.concat(chunks).toString('utf8')
-  if (!raw) return {}
-  try {
-    return JSON.parse(raw)
-  } catch {
-    return {}
-  }
-}
 
 function unwrap(body) {
   if (!body || typeof body !== 'object') return body
@@ -118,10 +66,6 @@ async function smsLuis({ name, phone, reason, callId }) {
   return sendTwilioSms(owner, body, { kind: 'owner_alert' })
 }
 
-/**
- * Call the visitor from free Vapi number, then transfer them to Luis.
- * This creates a real PSTN path so transferCall can work.
- */
 async function callVisitorThenTransferToLuis({ name, phone, reason }) {
   const privateKey = (process.env.VAPI_PRIVATE_KEY || process.env.VAPI_API_KEY || '').trim()
   const luis = LUIS_E164()
@@ -155,7 +99,7 @@ Do not ask questions. Do not chat. One short connecting line only.
 Reason they wanted Luis: ${reason || 'live person'}.`,
             },
           ],
-          toolIds: [TRANSFER_TOOL_ID],
+          toolIds: TRANSFER_TOOL_ID ? [TRANSFER_TOOL_ID] : [],
         },
         voice: { provider: 'vapi', voiceId: 'Nico' },
         maxDurationSeconds: 120,
@@ -166,40 +110,36 @@ Reason they wanted Luis: ${reason || 'live person'}.`,
 
   const data = await res.json().catch(() => ({}))
   if (!res.ok) {
-    console.error('[voice-luis-live] visitor outbound', res.status, data)
-    const errMsg =
-      data?.message ||
-      data?.error ||
-      (typeof data === 'string' ? data : JSON.stringify(data).slice(0, 200))
-    return { ok: false, error: 'outbound_failed', detail: errMsg, status: res.status }
+    logSafe('[voice-luis-live] visitor outbound', { status: res.status })
+    return { ok: false, error: 'outbound_failed', status: res.status }
   }
   return { ok: true, callId: data.id }
 }
 
 export default async function handler(req, res) {
+  setNoStore(res)
+  if (handleOptions(req, res)) return
+
   if (req.method === 'GET') {
-    res.status(200).json({
-      ok: true,
-      webhook: 'voice-luis-live',
-      purpose:
-        'Browser live-person: SMS Luis + call visitor from free Vapi line then transfer to Luis cell',
-    })
+    res.status(200).json(healthPayload('voice-luis-live'))
     return
   }
 
   if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' })
-    return
-  }
-
-  const ip = getClientIp(req)
-  if (!checkRateLimit(ip)) {
-    res.status(429).json({ error: 'Too many requests' })
+    jsonError(res, 405, 'Method not allowed')
     return
   }
 
   try {
-    const body = await readBody(req)
+    const raw = await readRawBody(req)
+    const auth = verifyVapiWebhook(req, raw)
+    if (!auth.ok) {
+      logSafe('[voice-luis-live] auth', { code: auth.code })
+      jsonError(res, auth.status || 401, 'Unauthorized', { code: auth.code })
+      return
+    }
+
+    const body = parseBody(req, raw).value || {}
     const message = unwrap(body)
     const type = message?.type || body?.type || ''
 
@@ -218,13 +158,22 @@ export default async function handler(req, res) {
     const reason = clean(args.reason || args.note || args.message || 'asked for live person', 200)
     const callId = clean(message?.call?.id || body?.call?.id || '', 80)
 
+    // Rate-limit by visitor phone (or call), never by Vapi's shared egress IP.
+    const limited = await rateLimitKey(
+      `voice-luis-live:${phone || callId || 'unknown'}`,
+      8,
+      10 * 60 * 1000,
+    )
+    if (!limited.ok) {
+      jsonError(res, 429, 'Too many requests')
+      return
+    }
+
     const sms = await smsLuis({ name, phone, reason, callId })
     const luis = LUIS_E164()
     const visitorIsLuis = Boolean(phone && luis && phone === luis)
 
     let bridge = { ok: false, error: 'no_visitor_phone' }
-    // Bridge: call visitor from free Vapi line, then transferCall → Luis.
-    // Skip when visitor number is Luis's cell — transfer-to-self fails and drops the call.
     if (phone && !visitorIsLuis) {
       bridge = await callVisitorThenTransferToLuis({ name, phone, reason })
     } else if (visitorIsLuis) {
@@ -251,13 +200,13 @@ export default async function handler(req, res) {
 
     const result = {
       ok: Boolean(sms.ok || bridge.ok),
-      sms: sms.ok ? 'sent' : sms.error || 'failed',
-      liveBridge: bridge.ok ? 'calling_visitor_then_transfer' : bridge.error || 'failed',
+      sms: sms.ok ? 'sent' : 'failed',
+      liveBridge: bridge.ok ? 'calling_visitor_then_transfer' : 'failed',
       message: messageOut,
     }
 
-    console.log('[voice-luis-live]', {
-      name: name || null,
+    logSafe('[voice-luis-live]', {
+      hasName: Boolean(name),
       hasPhone: Boolean(phone),
       sms: result.sms,
       liveBridge: result.liveBridge,
@@ -272,7 +221,7 @@ export default async function handler(req, res) {
 
     res.status(200).json(result)
   } catch (e) {
-    console.error('[voice-luis-live]', e)
+    logSafe('[voice-luis-live]', { err: e && e.message })
     res.status(200).json({
       results: [
         {

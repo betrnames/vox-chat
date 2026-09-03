@@ -72,8 +72,8 @@ async function probeApi(): Promise<boolean> {
   try {
     const res = await fetch('/api/receptionist')
     if (!res.ok) return false
-    const data = (await res.json()) as { ok?: boolean; hasKey?: boolean }
-    return Boolean(data.ok && data.hasKey)
+    const data = (await res.json()) as { ok?: boolean; online?: boolean; hasKey?: boolean }
+    return Boolean(data.ok && (data.online ?? data.hasKey))
   } catch {
     return false
   }

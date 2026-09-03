@@ -52,7 +52,7 @@ export default function LegalPage() {
               <a href="#recording" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Call &amp; chat recording</a>
               <a href="#disclaimer" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Disclaimer</a>
               <a href="#fair-use" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Fair Use Policy</a>
-              <a href="#compliance" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Compliance Add-Ons</a>
+              <a href="#compliance" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">HIPAA & regulated data</a>
             </nav>
           </aside>
 
@@ -62,7 +62,7 @@ export default function LegalPage() {
           {/* Privacy Policy */}
           <section id="privacy" className="scroll-mt-24">
             <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">Privacy Policy</h2>
-            <p className="text-xs text-muted-foreground mb-6">Last updated: July 20, 2026</p>
+            <p className="text-xs text-muted-foreground mb-6">Last updated: September 2, 2026</p>
             <div className="space-y-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Information We Collect</h3>
@@ -70,15 +70,34 @@ export default function LegalPage() {
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">How We Use Your Information</h3>
-                <p>We use the information you submit to respond to your inquiry, provide a consultation, deliver AI automation services, send transactional texts or emails related to your request, and improve our product. We do not sell, rent, or share your personal information with third parties for their marketing purposes.</p>
+                <p>We use the information you submit to respond to your inquiry, provide a consultation, deliver AI automation services, send transactional texts or emails related to your request, and operate the product. We do not sell, rent, or share your personal information with third parties for their marketing purposes. We do not use your call or chat content to train third-party foundation models.</p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Processors we use</h3>
+                <p>
+                  To run the service we use infrastructure and AI vendors who process data on our behalf: Vercel (hosting),
+                  Vapi (voice), xAI and OpenAI (language models), Twilio (SMS and voice), Google (Sheets, if configured),
+                  and Formspree (email relay, if configured). Each vendor can see the data needed to provide their slice of
+                  the service. The standard product is not end-to-end encrypted — we and these processors can read
+                  messages and transcripts in order to deliver leads, summaries, and callbacks.
+                </p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Third-Party Services</h3>
-                <p>Form submissions are processed through Formspree, Inc., which temporarily stores your data to deliver it to us. Formspree's privacy policy applies to their handling of your data. We may also use analytics services to understand site traffic in aggregate.</p>
+                <p>Lead notifications may be emailed through Formspree, Inc. when that integration is enabled. Formspree's privacy policy applies to their handling of that data. We may also use analytics services to understand site traffic in aggregate.</p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Data Retention</h3>
-                <p>We retain your contact information for as long as necessary to fulfill your request and maintain our business relationship. You may request deletion of your data at any time by emailing us.</p>
+                <p>We retain your contact information for as long as necessary to fulfill your request and maintain our business relationship. You may request deletion of your data at any time by emailing us. Recordings and transcripts are kept only as long as needed to deliver the service and as required by law.</p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Security</h3>
+                <p>
+                  We protect inbound APIs with origin checks, rate limits, webhook secrets, and Twilio signature
+                  verification. Secrets live in the host environment, not in the browser. Logs are redacted so phone
+                  numbers and emails are not stored in full. No security measure is perfect; report issues to{' '}
+                  <a href="mailto:support@vox.chat" className="text-primary hover:underline">support@vox.chat</a>.
+                </p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Your Rights (California Residents)</h3>
@@ -193,9 +212,10 @@ export default function LegalPage() {
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">What we record</h3>
                 <p>
-                  Voice agent calls and AI Receptionist conversations may be recorded and/or transcribed for quality assurance, training, dispute
-                  resolution, and to deliver summaries, bookings, and notifications to the business owner. Demo interactions on vox.chat may also be
-                  logged for product improvement and lead follow-up.
+                  Voice agent calls and AI Receptionist conversations may be recorded and/or transcribed to deliver the
+                  service: lead capture, summaries, bookings, notifications to the business owner, quality review, and
+                  dispute resolution. Demo interactions on vox.chat may be logged for lead follow-up.
+                  We do not use your call or chat content to train third-party foundation models.
                 </p>
               </div>
               <div>
@@ -221,8 +241,9 @@ export default function LegalPage() {
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">AI systems</h3>
                 <p>
-                  Recordings may be processed by AI models to generate transcripts, extract lead fields, and improve agent quality. Automated systems are
-                  not a substitute for legal advice or human judgment in regulated situations.
+                  Recordings may be processed by AI models to generate transcripts and extract lead fields so we can
+                  notify the business. Automated systems are not a substitute for legal advice or human judgment in
+                  regulated situations.
                 </p>
               </div>
             </div>
@@ -303,48 +324,40 @@ export default function LegalPage() {
             </div>
           </section>
 
-          {/* Compliance & Security Add-Ons */}
+          {/* HIPAA & regulated data */}
           <section id="compliance" className="scroll-mt-24">
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">Compliance &amp; Security Add-Ons</h2>
-            <p className="text-xs text-muted-foreground mb-6">Last updated: July 23, 2026</p>
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">HIPAA & regulated data</h2>
+            <p className="text-xs text-muted-foreground mb-6">Last updated: September 2, 2026</p>
             <div className="space-y-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
-              <p>For businesses in healthcare, finance, or other regulated industries, Vox.chat offers optional compliance add-ons billed monthly in addition to your package price.</p>
               <div>
-                <h3 className="text-base font-semibold text-foreground mb-2">HIPAA Compliance — $2,500/mo</h3>
-                <p>Required for any business handling Protected Health Information (PHI) over voice or messaging. Includes:</p>
-                <ul className="list-disc pl-5 mt-2 space-y-1">
-                  <li>HIPAA-compliant voice AI infrastructure</li>
-                  <li>Business Associate Agreement (BAA) execution</li>
-                  <li>Encrypted call handling and storage meeting HIPAA technical safeguards</li>
-                  <li>Compliance configuration and ongoing monitoring</li>
-                  <li>Annual compliance review and documentation</li>
-                </ul>
-                <p className="mt-2">Who needs this: Medical and dental practices, behavioral health providers, home health agencies, telehealth services, medical billing companies, or any business where callers may disclose health information.</p>
+                <h3 className="text-base font-semibold text-foreground mb-2">This website is not HIPAA compliant</h3>
+                <p>
+                  The public vox.chat product (this website, the shared voice number, chat receptionist, and review texts)
+                  is <strong className="text-foreground">not</strong> HIPAA compliant and must not be used to collect,
+                  store, or transmit Protected Health Information (PHI). Do not discuss patient health information on
+                  demo calls or chats.
+                </p>
               </div>
               <div>
-                <h3 className="text-base font-semibold text-foreground mb-2">Zero Data Retention (ZDR) — $1,500/mo</h3>
-                <p>For businesses that require no call data, transcripts, or recordings to be stored after processing. Includes:</p>
-                <ul className="list-disc pl-5 mt-2 space-y-1">
-                  <li>Real-time processing with no persistent storage of call content</li>
-                  <li>No transcripts, recordings, or conversation logs retained</li>
-                  <li>Immediate purge of all call data after the session ends</li>
-                  <li>Compliance documentation confirming zero-retention architecture</li>
-                </ul>
-                <p className="mt-2">Who needs this: Legal firms, financial advisors, businesses with strict data minimization policies, or any organization where retaining customer conversation data poses regulatory or liability risk.</p>
+                <h3 className="text-base font-semibold text-foreground mb-2">Dedicated environment (custom contract)</h3>
+                <p>
+                  A HIPAA or zero-retention environment requires a separately contracted stack: signed Business Associate
+                  Agreements with Vox and every subprocessor, isolated infrastructure, encryption controls, and access
+                  logging. That is not a toggle on this website and is not enabled on the standard packages.
+                  Email{' '}
+                  <a href="mailto:support@vox.chat" className="text-primary hover:underline">
+                    support@vox.chat
+                  </a>{' '}
+                  if you need that. Until it is provisioned, we will refuse healthcare/PHI workloads.
+                </p>
               </div>
               <div>
-                <h3 className="text-base font-semibold text-foreground mb-2">Compliance Bundle — $3,500/mo</h3>
-                <p>Both HIPAA Compliance and Zero Data Retention together, saving $500/mo versus purchasing separately. Recommended for healthcare organizations that need the highest level of data protection.</p>
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-foreground mb-2">Important Notes</h3>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Compliance add-ons apply to your entire Vox.chat account — they cannot be enabled per-assistant or per-phone-number.</li>
-                  <li>Activation requires a brief compliance intake (typically 1–2 business days) to configure your environment correctly.</li>
-                  <li>HIPAA compliance requires a signed BAA before activation. We will provide the BAA for your review.</li>
-                  <li>Compliance add-ons are billed month-to-month with no long-term commitment, same as your core package.</li>
-                  <li>Removing a compliance add-on requires 30 days' written notice and confirmation that you no longer handle regulated data through Vox.chat.</li>
-                </ul>
+                <h3 className="text-base font-semibold text-foreground mb-2">Standard product data flow</h3>
+                <p>
+                  On the standard product, names, phones, emails, and conversation content are processed by Vapi, xAI
+                  and/or OpenAI, Vercel, Twilio, and (if configured) Google Sheets and Formspree so we can deliver the
+                  service. Google Sheets is an operations inbox, not a regulated system of record.
+                </p>
               </div>
             </div>
           </section>

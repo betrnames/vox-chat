@@ -33,7 +33,7 @@ VOX.CHAT SPECIFICS
 - SMS: Twilio, ~$0.013/message all-in
 - Forms: Formspree
 - Site edits: Grok CLI against the vox-chat-claude repo
-- Compliance add-ons: HIPAA ($2,500/mo), ZDR ($1,500/mo), Compliance Bundle ($3,500/mo)
+- Compliance: public vox.chat is NOT HIPAA / ZDR. Do not quote $2,500 / $1,500 add-ons as live self-serve. Dedicated regulated environments are custom contracts after BAAs.
 - Fair use: 2,500 voice min / 5,000 SMS / 5,000 chat sessions per month included
 
 TONE

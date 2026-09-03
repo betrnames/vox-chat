@@ -68,14 +68,19 @@ export default function SetupPage() {
               </div>
 
               <form
-                action="https://formspree.io/f/mwvdpgay"
+                action="/api/lead"
                 method="POST"
-                className="space-y-4 rounded-2xl border border-border/60 bg-card p-5 sm:p-7 shadow-md"
+                className="space-y-4 rounded-2xl border border-border/60 bg-card p-5 sm:p-7 shadow-md relative"
               >
                 <input type="hidden" name="site" value="vox.chat" />
                 <input type="hidden" name="form" value="start-setup" />
+                <input type="hidden" name="source" value="start-setup" />
                 <input type="hidden" name="_subject" value="Vox Start Setup — new intake" />
                 <input type="hidden" name="_next" value={nextUrl} />
+                <label className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+                  Website
+                  <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+                </label>
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>

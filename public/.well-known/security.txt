@@ -1,0 +1,6 @@
+Contact: mailto:support@vox.chat
+Expires: 2027-09-02T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://vox.chat/.well-known/security.txt
+Policy: https://vox.chat/legal.html#privacy
+Hiring: https://vox.chat/

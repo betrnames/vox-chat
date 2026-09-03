@@ -208,13 +208,18 @@ function Hero() {
                 <h2 className="text-lg font-semibold mb-1">Book a free consultation</h2>
                 <p className="text-sm text-muted-foreground mb-5">No contracts. Cancel anytime.</p>
                 <form
-                  action="https://formspree.io/f/mwvdpgay"
+                  action="/api/lead"
                   method="POST"
-                  className="space-y-3"
+                  className="space-y-3 relative"
                   onFocusCapture={handleFormInteraction}
                 >
                   <input type="hidden" name="site" value="vox.chat" />
                   <input type="hidden" name="source" value="hero" />
+                  <input type="hidden" name="_next" value="/?thanks=1" />
+                  <label className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+                    Website
+                    <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+                  </label>
                   <div className="grid grid-cols-2 gap-3">
                     <input
                       type="text"
@@ -1376,15 +1381,21 @@ function Contact() {
             </div>
           </div>
           <form
-            action="https://formspree.io/f/mwvdpgay"
+            action="/api/lead"
             method="POST"
-            className="space-y-4 rounded-2xl border p-6 sm:p-8 shadow-sm"
+            className="space-y-4 rounded-2xl border p-6 sm:p-8 shadow-sm relative"
             style={{
               borderColor: 'color-mix(in srgb, var(--color-chat) 30%, transparent)',
               background: 'linear-gradient(135deg, color-mix(in srgb, var(--color-chat) 6%, var(--card)) 0%, var(--card) 100%)',
             }}
           >
             <input type="hidden" name="site" value="vox.chat" />
+            <input type="hidden" name="source" value="contact" />
+            <input type="hidden" name="_next" value="/?thanks=1#contact" />
+            <label className="absolute -left-[9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+              Website
+              <input type="text" name="website" tabIndex={-1} autoComplete="off" />
+            </label>
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <input
                 type="text"
@@ -1627,10 +1638,22 @@ function MobileVoiceFab() {
 
 export default function App() {
   const [chatOpen, setChatOpen] = useState(false)
+  const [thanks, setThanks] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('thanks') === '1') setThanks(true)
+  }, [])
 
   return (
     <VapiVoiceProvider>
       <Nav />
+      {thanks && (
+        <div className="fixed top-16 left-0 right-0 z-40 border-b border-primary/30 bg-primary/10 px-5 py-3 text-center text-sm text-foreground">
+          Thanks — we got your info and will follow up shortly.
+        </div>
+      )}
       <main>
         <Hero />
         <Services />

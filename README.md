@@ -29,6 +29,12 @@ Missed after-hours calls cost contractors jobs. Vox answers 24/7, qualifies lead
 | Hosting | Vercel |
 | CRM / alerts | Google Sheets + SMS hooks |
 
+## Security
+
+Production webhooks **fail closed** without `VAPI_WEBHOOK_SECRET`. See [SECURITY.md](SECURITY.md) for the env checklist (Twilio signatures, Formspree, Upstash rate limits, origin allowlist).
+
+The public product is **not HIPAA compliant** and is not end-to-end encrypted. Processors can read conversation content to deliver leads.
+
 ## Quick start
 
 ```bash

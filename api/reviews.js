@@ -1,13 +1,24 @@
 /**
  * Vercel serverless — POST /api/reviews
  * Live Reviews POC: send satisfaction SMS via Twilio.
- *
- * Body: { phone, name?, business? }
- * Env: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER, GOOGLE_REVIEW_URL
  */
-import { writeLeadToSheet } from './googleSheet.js'
+import { deliverLead } from './_lib/leads.js'
 import {
+  browserOriginOk,
   clean,
+  handleOptions,
+  healthPayload,
+  honeypotTriggered,
+  jsonError,
+  logSafe,
+  parseBody,
+  rateLimitIp,
+  readRawBody,
+  rejectCors,
+  setCors,
+  setNoStore,
+} from './_lib/security.js'
+import {
   normalizePhone,
   pendingReviews,
   ratingAskBody,
@@ -15,172 +26,88 @@ import {
   twilioConfigured,
 } from './reviewsShared.js'
 
-const RATE_LIMIT_MAX = 3
-const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000
-const rateLimitHits = new Map()
-
-function getClientIp(req) {
-  const headers = req.headers || {}
-  const xf = headers['x-forwarded-for'] || headers['x-real-ip'] || headers['x-vercel-forwarded-for']
-  if (typeof xf === 'string' && xf.length) return xf.split(',')[0].trim()
-  if (Array.isArray(xf) && xf[0]) return String(xf[0]).trim()
-  return (req.socket && req.socket.remoteAddress) || 'unknown'
-}
-
-function checkRateLimit(ip) {
-  const now = Date.now()
-  let entry = rateLimitHits.get(ip)
-  if (!entry || now >= entry.resetAt) {
-    entry = { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS }
-    rateLimitHits.set(ip, entry)
-  }
-  entry.count += 1
-  return entry.count <= RATE_LIMIT_MAX
-}
-
-const rateCleanup = setInterval(() => {
-  const now = Date.now()
-  for (const [ip, entry] of rateLimitHits.entries()) {
-    if (now >= entry.resetAt) rateLimitHits.delete(ip)
-  }
-  for (const [phone, row] of pendingReviews.entries()) {
-    if (now - row.sentAt > 48 * 60 * 60 * 1000) pendingReviews.delete(phone)
-  }
-}, RATE_LIMIT_WINDOW_MS)
-if (typeof rateCleanup.unref === 'function') rateCleanup.unref()
-
-async function notifyChannels(payload) {
-  const formspree =
-    process.env.FORMSPREE_ENDPOINT ||
-    process.env.VITE_FORMSPREE_ENDPOINT ||
-    'https://formspree.io/f/mwvdpgay'
-
-  const body = {
-    name: payload.name || 'Reviews POC',
-    phone: payload.phone || '',
-    email: payload.email || '',
-    business: payload.business || '',
-    city: payload.city || '',
-    trade: payload.trade || '',
-    interest: 'reviews',
-    notes: payload.notes || '',
-    source: payload.source || 'live-reviews',
-    site: 'vox.chat',
-    _subject: payload._subject || `Vox Reviews: ${payload.notes || 'event'}`,
-    _format: 'plain',
-  }
-
-  const channels = []
-  try {
-    const r = await fetch(formspree, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(body),
-    })
-    if (r.ok) channels.push('email')
-  } catch (e) {
-    console.error('[reviews] formspree', e)
-  }
-
-  try {
-    const sheetOk = await writeLeadToSheet({
-      ...body,
-      timestamp: new Date().toISOString(),
-    })
-    if (sheetOk) channels.push('sheet')
-  } catch (e) {
-    console.error('[reviews] sheet', e)
-  }
-
-  return channels
-}
-
 export default async function handler(req, res) {
+  setNoStore(res)
   res.setHeader('Content-Type', 'application/json')
-  res.setHeader('Cache-Control', 'no-store')
-
-  if (req.method === 'OPTIONS') {
-    res.status(204).end()
-    return
-  }
+  if (handleOptions(req, res)) return
+  if (!setCors(req, res)) return rejectCors(res)
 
   if (req.method === 'GET') {
-    res.status(200).json({
-      ok: true,
-      online: twilioConfigured(),
-      product: 'vox-reviews',
-    })
+    res.status(200).json({ ...healthPayload('vox-reviews'), online: twilioConfigured() })
     return
   }
 
   if (req.method !== 'POST') {
-    res.status(405).json({ error: 'Method not allowed' })
+    jsonError(res, 405, 'Method not allowed')
     return
   }
 
-  const ip = getClientIp(req)
-  if (!checkRateLimit(ip)) {
-    res.status(429).json({
-      error: 'Too many review texts from this connection. Try again in a few minutes.',
+  if (!browserOriginOk(req)) {
+    jsonError(res, 403, 'Forbidden')
+    return
+  }
+
+  const limited = await rateLimitIp(req, 'reviews', 3, 10 * 60 * 1000)
+  if (!limited.ok) {
+    jsonError(res, 429, 'Too many review texts from this connection. Try again in a few minutes.', {
       code: 'rate_limit',
     })
     return
   }
 
   if (!twilioConfigured()) {
-    res.status(503).json({
-      error: 'Reviews SMS not configured yet. Call (209) 996-7102 or email support@vox.chat.',
-      fallback: true,
-      code: 'twilio_missing',
-    })
+    jsonError(res, 503, 'Reviews SMS is temporarily unavailable.', { fallback: true, code: 'offline' })
     return
   }
 
-  let body = req.body
-  if (typeof body === 'string') {
-    try {
-      body = JSON.parse(body)
-    } catch {
-      body = {}
+  let body
+  try {
+    const raw = await readRawBody(req)
+    body = parseBody(req, raw).value || {}
+  } catch (e) {
+    if (e.statusCode === 413) {
+      jsonError(res, 413, 'Payload too large')
+      return
     }
+    jsonError(res, 400, 'Invalid request')
+    return
   }
-  body = body || {}
+
+  if (honeypotTriggered(body)) {
+    res.status(200).json({ ok: true })
+    return
+  }
 
   const phone = normalizePhone(body.phone)
   if (!phone) {
-    res.status(400).json({ error: 'Enter a valid US mobile number.' })
+    jsonError(res, 400, 'Enter a valid US mobile number.')
     return
   }
 
   const name = clean(body.name, 80)
   const business = clean(body.business, 80)
-  // Free-form body used only after upgrade (TWILIO_TRIAL=false). Trial uses sms_feedback_surveys.
   const smsBody = ratingAskBody(name)
 
   const result = await sendTwilioSms(phone, smsBody, { kind: 'rating_ask' })
   if (!result.ok) {
-    res.status(502).json({
-      error: result.error || 'Could not send SMS',
-      code: result.code || 'twilio_error',
-      hint: 'Trial accounts can only text verified numbers.',
-    })
+    logSafe('[reviews] twilio', { code: result.code })
+    jsonError(res, 502, 'Could not send SMS. Try again shortly.', { code: 'twilio_error' })
     return
   }
 
   pendingReviews.set(phone, { name, business, sentAt: Date.now() })
 
-  notifyChannels({
+  deliverLead({
     name: name || 'Customer',
     phone,
     business,
+    interest: 'reviews',
     notes: 'review_request_sent | rating ask 1-5',
     source: 'live-reviews',
-    _subject: `Vox Reviews: request sent → ${phone}`,
   }).catch(() => {})
 
   res.status(200).json({
     ok: true,
-    phone,
     message: 'Review request sent. Reply 1–5 on that text to continue the flow.',
   })
 }

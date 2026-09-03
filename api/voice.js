@@ -1,11 +1,9 @@
 /**
  * Vercel serverless — GET /api/voice
- * Public status for Voice POC (no secrets).
- *
- * Env:
- *   VAPI_PHONE_NUMBER  — E.164 shown on site when set
- *   VAPI_API_KEY       — optional; presence means "configured"
+ * Public status for Voice POC (no secrets, no key presence leak).
  */
+import { handleOptions, healthPayload, jsonError, setNoStore } from './_lib/security.js'
+
 function cleanPhone(raw) {
   const s = String(raw || '').trim()
   if (!s) return ''
@@ -13,7 +11,7 @@ function cleanPhone(raw) {
   if (digits.length === 10) return `+1${digits}`
   if (digits.length === 11 && digits.startsWith('1')) return `+${digits}`
   if (s.startsWith('+') && digits.length >= 10) return `+${digits}`
-  return s
+  return ''
 }
 
 function formatDisplay(e164) {
@@ -25,16 +23,12 @@ function formatDisplay(e164) {
 }
 
 export default async function handler(req, res) {
+  setNoStore(res)
   res.setHeader('Content-Type', 'application/json')
-  res.setHeader('Cache-Control', 'no-store')
-
-  if (req.method === 'OPTIONS') {
-    res.status(204).end()
-    return
-  }
+  if (handleOptions(req, res)) return
 
   if (req.method !== 'GET') {
-    res.status(405).json({ error: 'Method not allowed' })
+    jsonError(res, 405, 'Method not allowed')
     return
   }
 
@@ -42,14 +36,10 @@ export default async function handler(req, res) {
   const configured = Boolean(phone)
 
   res.status(200).json({
-    ok: true,
-    product: 'vox-voice',
+    ...healthPayload('vox-voice'),
     online: configured,
     phone: phone || null,
     phoneDisplay: phone ? formatDisplay(phone) : null,
     telHref: phone ? `tel:${phone}` : null,
-    message: configured
-      ? 'Live AI phone agent available — call the number shown.'
-      : 'Voice agent not configured yet. Animated demo only.',
   })
 }
