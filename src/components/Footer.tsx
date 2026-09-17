@@ -1,3 +1,5 @@
+import { openCookiePreferences } from '../lib/consent'
+
 interface FooterProps {
   activePage?: 'home' | 'blog' | 'faq' | 'legal'
   homePadding?: boolean
@@ -71,6 +73,13 @@ export function Footer({ activePage = 'home', homePadding = false }: FooterProps
             <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground/40">Company</span>
             <div className="flex flex-col gap-2">
               <a href="/legal.html" className={link('legal')}>Terms & Privacy</a>
+              <button
+                type="button"
+                onClick={openCookiePreferences}
+                className="text-left text-sm text-muted-foreground/60 hover:text-foreground transition-colors"
+              >
+                Cookies
+              </button>
               <a href="mailto:support@vox.chat" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">support@vox.chat</a>
               <a href="https://betrnames.com" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">BetrNames</a>
             </div>

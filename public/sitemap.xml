@@ -133,6 +133,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://vox.chat/roi</loc>
+    <lastmod>2026-08-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://vox.chat/legal</loc>
     <lastmod>2026-07-18</lastmod>
     <changefreq>yearly</changefreq>

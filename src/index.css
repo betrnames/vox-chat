@@ -256,4 +256,9 @@ select.vox-select {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+#vox-cookie-consent {
+  position: relative;
+  z-index: 80;
+}
+
 /* Mobile bottom bar clearance is handled via Tailwind pb-24 on footer */

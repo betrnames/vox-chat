@@ -47,6 +47,7 @@ export default function LegalPage() {
           <aside className="hidden lg:block">
             <nav className="sticky top-24 space-y-1">
               <a href="#privacy" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Privacy Policy</a>
+              <a href="#cookies" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Cookies</a>
               <a href="#terms" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Terms of Service</a>
               <a href="#sms" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">SMS &amp; TCPA</a>
               <a href="#recording" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Call &amp; chat recording</a>
@@ -62,11 +63,11 @@ export default function LegalPage() {
           {/* Privacy Policy */}
           <section id="privacy" className="scroll-mt-24">
             <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">Privacy Policy</h2>
-            <p className="text-xs text-muted-foreground mb-6">Last updated: July 20, 2026</p>
+            <p className="text-xs text-muted-foreground mb-6">Last updated: September 16, 2026</p>
             <div className="space-y-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Information We Collect</h3>
-                <p>When you submit a form on vox.chat, start an AI Receptionist conversation, or otherwise contact us, we collect the information you provide: your name, business name, phone number, email address, and any message you include. We may also process call or chat content when you use our demos or services. We do not collect information passively beyond standard server logs (IP address, browser type, pages visited) and analytics in aggregate.</p>
+                <p>When you submit a form on vox.chat, start an AI Receptionist conversation, or otherwise contact us, we collect the information you provide: your name, business name, phone number, email address, and any message you include. We may also process call or chat content when you use our demos or services. We do not collect information passively beyond standard server logs (IP address, browser type, pages visited) and, if you allow analytics cookies, aggregate traffic data. See <a href="#cookies" className="text-primary hover:underline">Cookies</a>.</p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">How We Use Your Information</h3>
@@ -74,7 +75,7 @@ export default function LegalPage() {
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Third-Party Services</h3>
-                <p>Form submissions are processed through Formspree, Inc., which temporarily stores your data to deliver it to us. Formspree's privacy policy applies to their handling of your data. We may also use analytics services to understand site traffic in aggregate.</p>
+                <p>Form submissions are processed through Formspree, Inc., which temporarily stores your data to deliver it to us. Formspree's privacy policy applies to their handling of your data. If you accept analytics cookies, we use Google Analytics to understand site traffic in aggregate.</p>
               </div>
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Data Retention</h3>
@@ -87,6 +88,30 @@ export default function LegalPage() {
               <div>
                 <h3 className="text-base font-semibold text-foreground mb-2">Contact</h3>
                 <p>For privacy-related questions, email <a href="mailto:support@vox.chat" className="text-primary hover:underline">support@vox.chat</a>.</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Cookies */}
+          <section id="cookies" className="scroll-mt-24">
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">Cookies</h2>
+            <p className="text-xs text-muted-foreground mb-6">Last updated: September 16, 2026</p>
+            <div className="space-y-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">What we use</h3>
+                <p>vox.chat stores a small amount of data in your browser so the site works the way you left it. We do not use advertising cookies, and we do not sell personal information.</p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Necessary</h3>
+                <p>Always on. This includes your light/dark theme preference and your cookie choice itself (stored as <span className="font-mono text-xs">vox-theme</span> and <span className="font-mono text-xs">vox-cookie-consent</span> in localStorage). These are first-party and are not used for advertising.</p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Analytics</h3>
+                <p>Optional. If you accept, we load Google Analytics 4 (measurement ID G-N28W6ZESL4) to see which pages get used, in aggregate. Analytics scripts are not loaded until you accept. You can switch this off anytime.</p>
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-foreground mb-2">Your choice</h3>
+                <p>Use the cookie banner on first visit, or the Cookies link in the footer, to accept analytics, keep necessary cookies only, or change a previous choice. California residents can also email <a href="mailto:support@vox.chat" className="text-primary hover:underline">support@vox.chat</a> to exercise CCPA rights.</p>
               </div>
             </div>
           </section>
