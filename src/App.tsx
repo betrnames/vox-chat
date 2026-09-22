@@ -268,7 +268,7 @@ function Hero() {
                       <option value="voice">AI Phone Agent</option>
                       <option value="chat">AI Receptionist</option>
                       <option value="reviews">AI Review Agent</option>
-                      <option value="bundle">All Three</option>
+                      <option value="bundle">Bundle</option>
                     </select>
                   </div>
                   <button
@@ -391,23 +391,11 @@ const colorMap = {
 
 const services = [
   {
-    name: 'Vox Voice',
-    tagline: 'AI Phone Agent',
-    color: 'voice' as const,
-    popular: false,
-    features: [
-      'AI answers your business phone 24/7',
-      'Qualifies callers and collects details',
-      'Books appointments to your calendar',
-      'Instant text/email notification',
-      'Call recordings and transcripts',
-    ],
-  },
-  {
     name: 'Vox Receptionist',
     tagline: 'AI Receptionist',
     color: 'chat' as const,
-    popular: true,
+    popular: false,
+    price: 295,
     features: [
       'Greets and qualifies every visitor',
       'Custom-trained on your services & pricing',
@@ -417,10 +405,25 @@ const services = [
     ],
   },
   {
+    name: 'Vox Voice',
+    tagline: 'AI Phone Agent',
+    color: 'voice' as const,
+    popular: true,
+    price: 595,
+    features: [
+      'AI answers your business phone 24/7',
+      'Qualifies callers and collects details',
+      'Books appointments to your calendar',
+      'Instant text/email notification',
+      'Call recordings and transcripts',
+    ],
+  },
+  {
     name: 'Vox Reviews',
     tagline: 'AI Review Agent',
     color: 'review' as const,
     popular: false,
+    price: 395,
     features: [
       'Automated text 2hrs after job',
       'Follow-up at 48hrs if no response',
@@ -481,7 +484,11 @@ function Services() {
                     <span className={`w-2 h-2 rounded-full ${c.dot}`} />
                     <span className={`font-mono text-xs ${c.text}`}>{s.tagline}</span>
                   </div>
-                  <h3 className="text-xl font-bold mb-5">{s.name}</h3>
+                  <h3 className="text-xl font-bold">{s.name}</h3>
+                  <p className="mt-2 mb-5 flex items-baseline gap-1.5">
+                    <span className={`font-serif text-[2rem] leading-none font-bold tracking-tight ${c.text}`}>${s.price}</span>
+                    <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">/mo</span>
+                  </p>
                   <div className="border-t border-border/60 pt-5">
                     <ul className="space-y-3">
                       {s.features.map((f) => (
@@ -517,7 +524,18 @@ function Services() {
             )
           })}
         </div>
-        <div className="mt-12 text-center">
+        <div className="mt-8 rounded-2xl border border-primary/30 bg-card px-5 py-5 sm:px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-widest text-primary mb-1">Bundle</p>
+            <p className="text-sm text-foreground font-medium">All three — Voice, Receptionist, and Reviews</p>
+            <p className="text-sm text-muted-foreground mt-1">Saves $390/mo versus $1,285 separately. Month-to-month, no setup fee.</p>
+          </div>
+          <p className="flex items-baseline gap-1.5 shrink-0">
+            <span className="font-serif text-[2rem] leading-none font-bold tracking-tight text-primary">$895</span>
+            <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">/mo</span>
+          </p>
+        </div>
+        <div className="mt-8 text-center">
           <a
             href="#contact"
             className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border border-input text-muted-foreground font-medium text-sm hover:border-primary/40 hover:text-foreground transition-colors"
@@ -1438,7 +1456,7 @@ function Contact() {
                 <option value="voice">AI Phone Agent</option>
                 <option value="chat">AI Receptionist</option>
                 <option value="reviews">AI Review Agent</option>
-                <option value="bundle">All Three</option>
+                <option value="bundle">Bundle</option>
               </select>
             </div>
             <textarea
