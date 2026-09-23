@@ -86,7 +86,6 @@ export function Footer({ activePage = 'home', homePadding = false }: FooterProps
                 Cookies
               </button>
               <a href="mailto:support@vox.chat" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">support@vox.chat</a>
-              <a href="https://betrnames.com" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">BetrNames</a>
             </div>
           </div>
         </div>
