@@ -5,7 +5,9 @@ export function useTheme() {
   const [dark, setDark] = useState(() => {
     if (typeof window === 'undefined') return true
     try {
-      return localStorage.getItem('vox-theme') !== 'light'
+      const stored = localStorage.getItem('vox-theme')
+      if (stored !== null) return stored !== 'light'
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
     } catch {
       return true
     }
