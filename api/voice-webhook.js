@@ -141,7 +141,7 @@ async function notifyLead(lead) {
   const formspree =
     process.env.FORMSPREE_ENDPOINT ||
     process.env.VITE_FORMSPREE_ENDPOINT ||
-    'https://formspree.io/f/mwvdpgay'
+    'https://formspree.io/f/xzezgyen'
 
   try {
     const r = await fetch(formspree, {

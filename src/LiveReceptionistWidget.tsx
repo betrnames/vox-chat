@@ -112,6 +112,9 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
   const scrollRef = useRef<HTMLDivElement>(null)
   /** Desktop: lift launcher/panel when footer is in view so it doesn't cover footer links */
   const [liftForFooter, setLiftForFooter] = useState(false)
+  /** Pixels of the viewport the in-flow cookie bar currently covers, plus a gap. */
+  const [cookieClearance, setCookieClearance] = useState(0)
+  const [desktop, setDesktop] = useState(false)
 
   useEffect(() => {
     const goOnline = () => setOnline(true)
@@ -136,6 +139,52 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
     io.observe(footer)
     return () => io.disconnect()
   }, [])
+
+  useEffect(() => {
+    let frame = 0
+    const apply = (next: number) => {
+      setCookieClearance((prev) => (prev === next ? prev : next))
+    }
+    const coveringOf = (el: HTMLElement | null) => {
+      if (!el) return 0
+      if (parseFloat(getComputedStyle(el).opacity) < 0.05) return 0
+      const rect = el.getBoundingClientRect()
+      if (rect.bottom <= 0 || rect.top >= window.innerHeight) return 0
+      return Math.max(0, Math.round(window.innerHeight - Math.max(rect.top, 0)) + 16)
+    }
+    const measure = () => {
+      const flow = document.getElementById('vox-cookie-bar')
+      const fixed = document.getElementById('vox-cookie-fixed')
+      apply(Math.max(coveringOf(flow), coveringOf(fixed)))
+    }
+    const schedule = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(measure)
+    }
+    schedule()
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule)
+    const host = document.getElementById('vox-cookie-consent')
+    const mo = new MutationObserver(schedule)
+    if (host) mo.observe(host, { childList: true, subtree: true, attributes: true })
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+      mo.disconnect()
+    }
+  }, [])
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 640px)')
+    const apply = () => setDesktop(mq.matches)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
+  }, [])
+
+  const launcherBottom = Math.max(liftForFooter ? 144 : 24, cookieClearance)
+  const panelBottom = Math.max(liftForFooter ? 176 : 96, cookieClearance + 64)
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight
@@ -235,9 +284,8 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
       <button
         type="button"
         onClick={() => onOpenChange(!open)}
-        className={`hidden sm:flex fixed z-[60] right-6 items-center gap-2.5 rounded-full border border-border/60 bg-background/95 backdrop-blur-xl text-foreground shadow-lg shadow-black/10 dark:shadow-black/40 px-4 py-3 text-sm font-semibold hover:border-primary/40 hover:bg-muted active:scale-[0.98] transition-[bottom,transform] duration-200 ${
-          liftForFooter ? 'bottom-36' : 'bottom-6'
-        }`}
+        className="hidden sm:flex fixed z-[60] right-6 items-center gap-2.5 rounded-full border border-border/60 bg-background/95 backdrop-blur-xl text-foreground shadow-lg shadow-black/10 dark:shadow-black/40 px-4 py-3 text-sm font-semibold hover:border-primary/40 hover:bg-muted active:scale-[0.98] transition-[bottom,transform] duration-200"
+        style={{ bottom: launcherBottom }}
         aria-expanded={open}
         aria-controls="vox-live-receptionist"
       >
@@ -276,9 +324,8 @@ export default function LiveReceptionistWidget({ open, onOpenChange }: LiveRecep
             /* mobile: full width above bottom bar */
             left-0 right-0 bottom-14 top-auto h-[min(78dvh,560px)] rounded-t-2xl border-b-0
             /* desktop: floating card — lift with launcher when footer is visible */
-            sm:left-auto sm:right-6 sm:top-auto sm:w-[min(100vw-2rem,380px)] sm:h-[min(70vh,520px)] sm:rounded-2xl sm:border-b transition-[bottom] duration-200 ${
-              liftForFooter ? 'sm:bottom-44' : 'sm:bottom-24'
-            }`}
+            sm:left-auto sm:right-6 sm:top-auto sm:w-[min(100vw-2rem,380px)] sm:h-[min(70vh,520px)] sm:rounded-2xl sm:border-b transition-[bottom] duration-200`}
+          style={desktop ? { bottom: panelBottom } : undefined}
           role="dialog"
           aria-label="Vox AI Receptionist"
         >

@@ -53,7 +53,7 @@ async function notifyChannels(payload) {
   const formspree =
     process.env.FORMSPREE_ENDPOINT ||
     process.env.VITE_FORMSPREE_ENDPOINT ||
-    'https://formspree.io/f/mwvdpgay'
+    'https://formspree.io/f/xzezgyen'
 
   const body = {
     name: payload.name || 'Reviews POC',

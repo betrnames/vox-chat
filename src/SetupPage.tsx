@@ -68,7 +68,7 @@ export default function SetupPage() {
               </div>
 
               <form
-                action="https://formspree.io/f/mwvdpgay"
+                action="https://formspree.io/f/xzezgyen"
                 method="POST"
                 className="space-y-4 rounded-2xl border border-border/60 bg-card p-5 sm:p-7 shadow-md"
               >

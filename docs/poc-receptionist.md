@@ -29,7 +29,7 @@ Without the key, the widget falls back to “call/text / contact form.”
 
 Uses your existing Formspree form:
 
-`https://formspree.io/f/mwvdpgay`
+`https://formspree.io/f/xzezgyen`
 
 Override if needed:
 

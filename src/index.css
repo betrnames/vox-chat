@@ -256,9 +256,9 @@ select.vox-select {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* In-flow bar after #root. No z-index, so the mobile dock (z-65) stays above it. */
 #vox-cookie-consent {
-  position: relative;
-  z-index: 80;
+  position: static;
 }
 
 /* Mobile bottom bar clearance is handled via Tailwind pb-24 on footer */

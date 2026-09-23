@@ -1,47 +1,74 @@
-import { useEffect, useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import {
   OPEN_CONSENT_EVENT,
   readConsent,
   writeConsent,
 } from '../lib/consent'
 
-function Toggle({
-  checked,
-  disabled,
-  onChange,
-  labelledBy,
+function isHomePage() {
+  if (typeof window === 'undefined') return false
+  const path = window.location.pathname.replace(/\/+$/, '') || '/'
+  return path === '/' || path === '/index.html'
+}
+
+function CookieBarBody({
+  titleId,
+  copyId,
+  onSave,
 }: {
-  checked: boolean
-  disabled?: boolean
-  onChange?: (next: boolean) => void
-  labelledBy: string
+  titleId: string
+  copyId: string
+  onSave: (analytics: boolean) => void
 }) {
   return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      aria-labelledby={labelledBy}
-      disabled={disabled}
-      onClick={() => onChange?.(!checked)}
-      className={`relative inline-flex h-6 w-10 shrink-0 items-center rounded-full border transition-colors ${
-        checked ? 'bg-primary border-primary' : 'bg-muted border-border'
-      } ${disabled ? 'opacity-60 cursor-not-allowed' : ''}`}
-    >
-      <span
-        className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
-          checked ? 'translate-x-5' : 'translate-x-1'
-        }`}
-      />
-    </button>
+    <div className="max-w-6xl mx-auto px-6 sm:px-10 py-4 sm:py-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="min-w-0 sm:max-w-2xl">
+        <div className="flex items-center gap-2 mb-1.5">
+          <span className="inline-flex items-center gap-1" aria-hidden="true">
+            <span className="w-1.5 h-1.5 rounded-full bg-voice" />
+            <span className="w-1.5 h-1.5 rounded-full bg-chat" />
+            <span className="w-1.5 h-1.5 rounded-full bg-review" />
+          </span>
+          <h2 id={titleId} className="font-serif text-sm font-semibold tracking-tight">
+            Cookies
+          </h2>
+        </div>
+        <p id={copyId} className="text-sm text-muted-foreground leading-relaxed">
+          Necessary cookies keep the site working. Optional analytics (Google Analytics) help us
+          see which pages get used. No ads.{' '}
+          <a href="/legal.html#cookies" className="text-foreground/80 underline underline-offset-2 hover:text-foreground">
+            Cookie policy
+          </a>
+        </p>
+      </div>
+
+      <div className="flex gap-2 sm:gap-3 sm:shrink-0">
+        <button
+          type="button"
+          onClick={() => onSave(false)}
+          className="flex-1 sm:flex-none px-4 py-2.5 rounded-lg border border-input text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors min-h-11"
+        >
+          Necessary only
+        </button>
+        <button
+          type="button"
+          onClick={() => onSave(true)}
+          className="flex-1 sm:flex-none px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors min-h-11"
+        >
+          Accept
+        </button>
+      </div>
+    </div>
   )
 }
 
 export function CookieConsent() {
-  const titleId = useId()
-  const copyId = useId()
-  const necessaryId = useId()
-  const analyticsId = useId()
+  const flowTitleId = useId()
+  const flowCopyId = useId()
+  const fixedTitleId = useId()
+  const fixedCopyId = useId()
+  const flowRef = useRef<HTMLDivElement>(null)
+  const fixedRef = useRef<HTMLDivElement>(null)
 
   const [open, setOpen] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -52,113 +79,97 @@ export function CookieConsent() {
     }
     return readConsent() === null
   })
-  const [prefs, setPrefs] = useState(false)
-  const [analytics, setAnalytics] = useState(() => readConsent()?.analytics ?? false)
+  const [scrollTick, setScrollTick] = useState(0)
+  const [fixedOpacity, setFixedOpacity] = useState(1)
+  const onHome = isHomePage()
 
   useEffect(() => {
     const onOpen = () => {
-      setAnalytics(readConsent()?.analytics ?? false)
-      setPrefs(true)
       setOpen(true)
+      setScrollTick((n) => n + 1)
     }
     window.addEventListener(OPEN_CONSENT_EVENT, onOpen)
     return () => window.removeEventListener(OPEN_CONSENT_EVENT, onOpen)
   }, [])
 
-  const save = (nextAnalytics: boolean) => {
-    writeConsent(nextAnalytics)
-    setAnalytics(nextAnalytics)
+  useEffect(() => {
+    if (!open) return
+    const params = new URLSearchParams(window.location.search)
+    const fromQuery = params.has('cookies') || params.has('consent')
+    if (scrollTick === 0 && !fromQuery) return
+    document.getElementById('vox-cookie-bar')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [open, scrollTick])
+
+  useEffect(() => {
+    if (!open) return
+    let frame = 0
+    const measure = () => {
+      const flow = flowRef.current
+      const fixed = fixedRef.current
+      if (!flow || !fixed) return
+      // Fade the viewport bar out before the footer copy reaches it, so they never stack.
+      const gap = flow.getBoundingClientRect().top - fixed.getBoundingClientRect().top
+      const raw = Math.min(1, Math.max(0, (gap - 48) / 220))
+      const next = Math.round(raw * 20) / 20
+      setFixedOpacity((prev) => (prev === next ? prev : next))
+    }
+    const schedule = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(measure)
+    }
+    schedule()
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+    }
+  }, [open])
+
+  const save = (analytics: boolean) => {
+    writeConsent(analytics)
     setOpen(false)
-    setPrefs(false)
   }
 
   if (!open) return null
 
+  const fixedHidden = fixedOpacity < 0.05
+
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[80] p-3 sm:p-6 safe-area-bottom flex justify-center">
+    <>
       <div
-        role="dialog"
-        aria-modal="false"
-        aria-labelledby={titleId}
-        aria-describedby={copyId}
-        className="pointer-events-auto vox-slideup mx-auto w-full max-w-xl rounded-2xl border border-border/70 bg-background/95 backdrop-blur-xl shadow-xl shadow-black/20 dark:shadow-black/50"
+        ref={flowRef}
+        id="vox-cookie-bar"
+        role="region"
+        aria-labelledby={flowTitleId}
+        aria-describedby={flowCopyId}
+        inert={fixedHidden ? undefined : true}
+        className={`w-full border-t border-border bg-card text-card-foreground ${
+          /* Home footer pb-24 clears the mobile dock. Eat the extra 3rem, then pad so actions stay above the dock. */
+          onHome ? 'max-sm:-mt-12 max-sm:pb-[calc(6rem+env(safe-area-inset-bottom,0px))]' : ''
+        }`}
       >
-        <div className="p-4 sm:p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="inline-flex items-center gap-1" aria-hidden="true">
-              <span className="w-1.5 h-1.5 rounded-full bg-voice" />
-              <span className="w-1.5 h-1.5 rounded-full bg-chat" />
-              <span className="w-1.5 h-1.5 rounded-full bg-review" />
-            </span>
-            <h2 id={titleId} className="font-serif text-sm font-semibold tracking-tight">
-              Cookies
-            </h2>
-          </div>
-
-          <p id={copyId} className="text-sm text-muted-foreground leading-relaxed">
-            Necessary cookies keep the site working. Optional analytics (Google Analytics) help us
-            see which pages get used. No ads.{' '}
-            <a href="/legal.html#cookies" className="text-foreground/80 underline underline-offset-2 hover:text-foreground">
-              Cookie policy
-            </a>
-          </p>
-
-          {prefs && (
-            <div className="mt-4 space-y-3 rounded-xl border border-border/60 bg-muted/40 p-3">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p id={necessaryId} className="text-sm font-medium text-foreground">
-                    Necessary
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Theme and your cookie choice. Always on.
-                  </p>
-                </div>
-                <Toggle checked disabled labelledBy={necessaryId} />
-              </div>
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p id={analyticsId} className="text-sm font-medium text-foreground">
-                    Analytics
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Google Analytics, loaded only if you allow it.
-                  </p>
-                </div>
-                <Toggle
-                  checked={analytics}
-                  onChange={setAnalytics}
-                  labelledBy={analyticsId}
-                />
-              </div>
-            </div>
-          )}
-
-          <div className="mt-4 flex flex-col-reverse sm:flex-row sm:items-center gap-2 sm:gap-3">
-            <button
-              type="button"
-              onClick={() => (prefs ? setPrefs(false) : setPrefs(true))}
-              className="sm:mr-auto px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors min-h-11"
-            >
-              {prefs ? 'Back' : 'Customize'}
-            </button>
-            <button
-              type="button"
-              onClick={() => save(false)}
-              className="px-4 py-2.5 rounded-lg border border-input text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors min-h-11"
-            >
-              Necessary only
-            </button>
-            <button
-              type="button"
-              onClick={() => save(prefs ? analytics : true)}
-              className="px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/80 transition-colors min-h-11"
-            >
-              {prefs ? 'Save' : 'Accept'}
-            </button>
-          </div>
-        </div>
+        <CookieBarBody titleId={flowTitleId} copyId={flowCopyId} onSave={save} />
       </div>
-    </div>
+
+      <div
+        ref={fixedRef}
+        id="vox-cookie-fixed"
+        role="region"
+        aria-labelledby={fixedTitleId}
+        aria-describedby={fixedCopyId}
+        inert={fixedHidden ? true : undefined}
+        aria-hidden={fixedHidden}
+        style={{ opacity: fixedOpacity, pointerEvents: fixedHidden ? 'none' : 'auto' }}
+        className={`fixed inset-x-0 z-[70] w-full border-t border-border bg-card text-card-foreground shadow-[0_-12px_32px_-20px_rgba(0,0,0,0.7)] ${
+          onHome
+            ? 'bottom-[calc(4.5rem+env(safe-area-inset-bottom,0px))] sm:bottom-0'
+            : 'bottom-0 pb-[env(safe-area-inset-bottom,0px)]'
+        }`}
+      >
+        <CookieBarBody titleId={fixedTitleId} copyId={fixedCopyId} onSave={save} />
+      </div>
+    </>
   )
 }

@@ -82,7 +82,7 @@ export default async function handler(req, res) {
       timestamp: new Date().toISOString(),
     }
 
-    const formspree = process.env.FORMSPREE_ENDPOINT || 'https://formspree.io/f/mwvdpgay'
+    const formspree = process.env.FORMSPREE_ENDPOINT || 'https://formspree.io/f/xzezgyen'
     try {
       const r = await fetch(formspree, {
         method: 'POST',

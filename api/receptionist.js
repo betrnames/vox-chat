@@ -134,7 +134,7 @@ async function notifyLead(lead) {
 
   if (!payload.phone && !payload.email) return channels
 
-  const formspree = process.env.FORMSPREE_ENDPOINT || 'https://formspree.io/f/mwvdpgay'
+  const formspree = process.env.FORMSPREE_ENDPOINT || 'https://formspree.io/f/xzezgyen'
   try {
     const r = await fetch(formspree, {
       method: 'POST',

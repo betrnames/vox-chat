@@ -47,7 +47,7 @@ export async function notifyLead(lead: CapturedLead): Promise<{ ok: boolean; cha
   const formspree =
     serverEnv('FORMSPREE_ENDPOINT') ||
     serverEnv('VITE_FORMSPREE_ENDPOINT') ||
-    'https://formspree.io/f/mwvdpgay'
+    'https://formspree.io/f/xzezgyen'
 
   try {
     const r = await fetch(formspree, {

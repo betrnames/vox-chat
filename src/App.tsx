@@ -208,7 +208,7 @@ function Hero() {
                 <h2 className="text-lg font-semibold mb-1">Book a free consultation</h2>
                 <p className="text-sm text-muted-foreground mb-5">No contracts. Cancel anytime.</p>
                 <form
-                  action="https://formspree.io/f/mwvdpgay"
+                  action="https://formspree.io/f/xzezgyen"
                   method="POST"
                   className="space-y-3"
                   onFocusCapture={handleFormInteraction}
@@ -479,18 +479,18 @@ function Services() {
                     </span>
                   </div>
                 )}
-                <div className={`p-5 sm:p-6 ${s.popular ? 'pt-8' : ''}`}>
+                <div className={`p-5 sm:p-6 flex flex-col items-center text-center ${s.popular ? 'pt-8' : ''}`}>
                   <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-md ${c.badge} mb-3`}>
                     <span className={`w-2 h-2 rounded-full ${c.dot}`} />
                     <span className={`font-mono text-xs ${c.text}`}>{s.tagline}</span>
                   </div>
                   <h3 className="text-xl font-bold">{s.name}</h3>
-                  <p className="mt-2 mb-5 flex items-baseline gap-1.5">
+                  <p className="mt-2 mb-5 flex items-baseline justify-center gap-1.5">
                     <span className={`font-serif text-[2rem] leading-none font-bold tracking-tight ${c.text}`}>${s.price}</span>
                     <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">/mo</span>
                   </p>
-                  <div className="border-t border-border/60 pt-5">
-                    <ul className="space-y-3">
+                  <div className="w-full border-t border-border/60 pt-5">
+                    <ul className="mx-auto w-fit max-w-full space-y-3 text-left sm:mx-0 sm:w-full">
                       {s.features.map((f) => (
                         <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
                           <svg className={`w-4 h-4 mt-0.5 shrink-0 ${c.check}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -504,36 +504,42 @@ function Services() {
                 </div>
                 <div className="mt-auto px-5 sm:px-6 pb-5 sm:pb-6 space-y-2">
                   <a
-                    href={`#demo-${s.color === 'voice' ? 'voice' : s.color === 'chat' ? 'chat' : 'review'}`}
+                    href="#contact"
                     className={`flex w-full items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
                       s.popular
                         ? 'bg-primary text-primary-foreground hover:bg-primary/80'
                         : 'border border-input text-foreground hover:border-primary/40 hover:text-primary'
                     }`}
                   >
+                    Subscribe
+                  </a>
+                  <a
+                    href={`#demo-${s.color === 'voice' ? 'voice' : s.color === 'chat' ? 'chat' : 'review'}`}
+                    className="flex w-full items-center justify-center gap-2 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
                     Try the demo
                   </a>
-                  <CallNowButton
-                    className="flex w-full items-center justify-center gap-2 py-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-50"
-                    browserLabel="or call now"
-                    activeLabel="end call"
-                    connectingLabel="connecting…"
-                  />
                 </div>
               </div>
             )
           })}
         </div>
-        <div className="mt-8 rounded-2xl border border-primary/30 bg-card px-5 py-5 sm:px-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
+        <div className="mt-8 rounded-2xl border border-primary/40 bg-card px-4 py-4 sm:px-6 sm:py-5 flex flex-col items-center gap-4 text-center sm:flex-row sm:items-center sm:justify-between sm:gap-6 sm:text-left">
+          <p className="order-1 flex items-baseline justify-center gap-1.5 sm:order-2">
+            <span className="font-serif text-[2rem] leading-none font-bold tracking-tight text-primary">$895</span>
+            <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">/mo</span>
+          </p>
+          <div className="order-2 min-w-0 sm:order-1 sm:flex-1">
             <p className="font-mono text-[11px] uppercase tracking-widest text-primary mb-1">Bundle</p>
             <p className="text-sm text-foreground font-medium">All three — Voice, Receptionist, and Reviews</p>
             <p className="text-sm text-muted-foreground mt-1">Saves $390/mo versus $1,285 separately. Month-to-month, no setup fee.</p>
           </div>
-          <p className="flex items-baseline gap-1.5 shrink-0">
-            <span className="font-serif text-[2rem] leading-none font-bold tracking-tight text-primary">$895</span>
-            <span className="font-mono text-[11px] uppercase tracking-wider text-muted-foreground">/mo</span>
-          </p>
+          <a
+            href="#contact"
+            className="order-3 inline-flex w-full sm:w-auto min-h-11 items-center justify-center rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-[box-shadow,background-color] hover:bg-primary/80 [box-shadow:0_0_22px_1px_color-mix(in_srgb,var(--primary)_62%,transparent)] hover:[box-shadow:0_0_28px_3px_color-mix(in_srgb,var(--primary)_78%,transparent)]"
+          >
+            Bundle
+          </a>
         </div>
         <div className="mt-8 text-center">
           <a
@@ -1394,7 +1400,7 @@ function Contact() {
             </div>
           </div>
           <form
-            action="https://formspree.io/f/mwvdpgay"
+            action="https://formspree.io/f/xzezgyen"
             method="POST"
             className="space-y-4 rounded-2xl border p-6 sm:p-8 shadow-sm"
             style={{
