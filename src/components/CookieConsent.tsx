@@ -21,7 +21,7 @@ function CookieBarBody({
   onSave: (analytics: boolean) => void
 }) {
   return (
-    <div className="max-w-6xl mx-auto px-6 sm:px-10 py-4 sm:py-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="max-w-6xl mx-auto px-6 sm:px-10 py-4 sm:py-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between box-border">
       <div className="min-w-0 sm:max-w-2xl">
         <div className="flex items-center gap-2 mb-1.5">
           <span className="inline-flex items-center gap-1" aria-hidden="true">
