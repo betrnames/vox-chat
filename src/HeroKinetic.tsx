@@ -83,10 +83,12 @@ export function HeroKinetic() {
       let amp = height * 0.06
       if (media) {
         const canvasTop = canvas.getBoundingClientRect().top
-        const under = media.getBoundingClientRect().bottom - canvasTop + 12
-        const start = Math.min(height - 28, Math.max(0, under))
-        bases = [start / height, (start + 12) / height, (start + 24) / height]
-        amp = 14
+        const formBottom = media.getBoundingClientRect().bottom - canvasTop
+        // Crest sits just under the form. The rest of the wave runs off the hero.
+        amp = 46
+        const crest = formBottom + 8
+        const baseline = crest + amp * 1.28
+        bases = [baseline / height, (baseline + 8) / height, (baseline + 16) / height]
       }
       const waves = [
         { color: styles.getPropertyValue('--voice').trim() || '#FF6B4A', base: bases[0], amp, phase: 0.4 },

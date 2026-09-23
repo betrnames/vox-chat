@@ -120,9 +120,9 @@ function Hero() {
         <div className="grid lg:grid-cols-[1fr_1fr] gap-12 lg:gap-24 items-center">
           {/* Left — headline */}
           <div className="text-center lg:text-left">
-            <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border border-input bg-muted text-muted-foreground text-[11px] sm:text-xs font-mono mb-6 mx-auto lg:mx-0 max-w-[calc(100%-0.5rem)]">
-              <span className="block w-1.5 h-1.5 shrink-0 rounded-full bg-primary animate-pulse" aria-hidden="true" />
-              <span className="leading-none text-left">AI automation for HVAC, plumbing &amp; electrical</span>
+            <div className="mx-auto mb-6 inline-flex max-w-full items-center justify-center gap-1.5 rounded-full border border-input bg-muted px-3 py-1.5 text-center font-mono text-[11px] leading-snug text-muted-foreground sm:text-xs lg:mx-0">
+              <span className="block h-1.5 w-1.5 shrink-0 rounded-full bg-primary animate-pulse" aria-hidden="true" />
+              <span>Automation for HVAC, plumbing &amp; electrical</span>
             </div>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.08] mb-5">
               Never miss a call, lead, <span className="text-primary">or review.</span>
