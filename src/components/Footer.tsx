@@ -1,4 +1,6 @@
 import { openCookiePreferences } from '../lib/consent'
+import { Splat } from '../Splat'
+import { ThemeSwitch, useTheme } from '../theme'
 
 interface FooterProps {
   activePage?: 'home' | 'blog' | 'faq' | 'legal'
@@ -13,13 +15,16 @@ const cities = [
 ]
 
 export function Footer({ activePage = 'home', homePadding = false }: FooterProps) {
+  const { dark, toggle } = useTheme()
   const anchor = (hash: string) => activePage === 'home' ? hash : `/${hash}`
   const link = (page: string) =>
     activePage === page ? 'text-sm text-foreground transition-colors' : 'text-sm text-muted-foreground/60 hover:text-foreground transition-colors'
 
   return (
-    <footer className={`border-t border-border pt-12 ${homePadding ? 'pb-24 sm:pb-12' : 'pb-12'} px-6 sm:px-10`}>
-      <div className="max-w-6xl mx-auto">
+    <footer className={`relative pt-16 ${homePadding ? 'pb-24 sm:pb-12' : 'pb-12'} px-6 sm:px-10`}>
+      <Splat spread color="bg-chat/20" className="-left-[22%] -top-24" />
+      <Splat spread color="bg-review/15" className="-right-[14%] bottom-2" />
+      <div className="relative z-10 max-w-6xl mx-auto">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12">
           <div className="col-span-2 sm:col-span-1 flex flex-col gap-4">
             <div className="flex items-center gap-2">
@@ -98,9 +103,12 @@ export function Footer({ activePage = 'home', homePadding = false }: FooterProps
           </p>
         </div>
 
-        <div className="mt-6 pt-6 border-t border-border/10 flex items-center justify-between">
-          <span className="font-mono text-[11px] text-muted-foreground/60">&copy; {new Date().getFullYear()} Vox.chat</span>
-          <span className="font-mono text-[11px] text-muted-foreground/60">Your business. Never offline.</span>
+        <div className="mt-6 pt-6 border-t border-border/10 flex items-center justify-between gap-3">
+          <span className="inline-flex items-center gap-3 shrink-0">
+            <span className="font-mono text-[11px] text-muted-foreground/60 whitespace-nowrap">&copy; {new Date().getFullYear()} Vox.chat</span>
+            <ThemeSwitch dark={dark} onToggle={toggle} compact />
+          </span>
+          <span className="font-mono text-[11px] text-muted-foreground/60 text-right">Your business. Never offline.</span>
         </div>
       </div>
     </footer>

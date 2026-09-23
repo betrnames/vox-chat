@@ -12,18 +12,8 @@ import {
   VAPI_FREE_NUMBER_TEL,
   prefersNativePhoneDial,
 } from './lib/phones'
-
-function HeroWaves() {
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-      <svg viewBox="0 0 1400 500" fill="none" preserveAspectRatio="none" className="absolute inset-0 w-full h-full">
-        <path d="M0 280 Q150 220 300 260 T600 240 T900 270 T1200 230 T1400 260" stroke="var(--voice)" strokeWidth="1.5" strokeLinecap="round" opacity="0.12" fill="none" />
-        <path d="M0 260 Q180 300 350 250 T700 280 T1000 240 T1300 270 T1400 250" stroke="var(--chat)" strokeWidth="1.5" strokeLinecap="round" opacity="0.12" fill="none" />
-        <path d="M0 300 Q200 250 400 290 T750 260 T1050 290 T1350 250 T1400 280" stroke="var(--review)" strokeWidth="1.5" strokeLinecap="round" opacity="0.12" fill="none" />
-      </svg>
-    </div>
-  )
-}
+import { HeroKinetic } from './HeroKinetic'
+import { Splat } from './Splat'
 
 function Nav() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -119,8 +109,13 @@ function Hero() {
   }, [])
 
   return (
-    <section className="relative pt-32 sm:pt-44 pb-24 sm:pb-36 px-5 bg-gradient-to-t from-primary/10 via-primary/5 to-transparent overflow-hidden">
-      <HeroWaves />
+    <section className="relative pt-32 sm:pt-44 pb-24 sm:pb-36 px-5">
+      <HeroKinetic />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.07] via-white/[0.035] to-transparent" />
+      <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-3/5">
+        <Splat color="bg-chat/25" className="-left-[14%] top-4 scale-110" />
+        <Splat color="bg-white/10" className="-right-[12%] top-[22%] scale-125" />
+      </div>
       <div className="relative max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-[1fr_1fr] gap-12 lg:gap-24 items-center">
           {/* Left — headline */}
@@ -175,7 +170,7 @@ function Hero() {
           </div>
 
           {/* Right — video → form cross-fade */}
-          <div className="relative aspect-square w-full max-w-[580px] mx-auto lg:mx-0">
+          <div data-hero-media className="relative aspect-square w-full max-w-[580px] mx-auto lg:mx-0">
             {/* Video layer */}
             <div
               className="absolute inset-0 transition-opacity duration-700 ease-in-out flex items-center justify-center"
@@ -314,8 +309,8 @@ function HowItWorks() {
   ]
 
   return (
-    <section className="py-24 sm:py-32 px-5">
-      <div className="max-w-6xl mx-auto">
+    <section className="relative py-24 sm:py-32 px-5">
+      <div className="relative max-w-6xl mx-auto">
         <div className="max-w-2xl lg:max-w-none lg:text-center mb-16">
           <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">How it works</p>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight">
@@ -436,16 +431,8 @@ const services = [
 
 function Services() {
   return (
-    <section id="services" className="py-24 sm:py-32 px-5 bg-muted relative overflow-hidden">
-      <svg className="absolute inset-0 w-full h-full opacity-[0.04] pointer-events-none" aria-hidden="true">
-        <defs>
-          <pattern id="grid-services" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M40 0H0v40" fill="none" stroke="currentColor" strokeWidth="1"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid-services)"/>
-      </svg>
-      <div className="max-w-4xl mx-auto relative">
+    <section id="services" className="relative py-24 sm:py-32 px-5">
+      <div className="relative max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">Services</p>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight mb-4">
@@ -1213,16 +1200,8 @@ function Demos() {
   const activeDesc = tabs.find((t) => t.id === activeTab)!.desc
 
   return (
-    <section id="demos" className="py-24 sm:py-32 px-5 bg-muted relative overflow-hidden scroll-mt-20">
-      <svg className="absolute inset-0 w-full h-full opacity-[0.04] pointer-events-none" aria-hidden="true">
-        <defs>
-          <pattern id="dots-demos" width="24" height="24" patternUnits="userSpaceOnUse">
-            <circle cx="2" cy="2" r="1.5" fill="currentColor"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#dots-demos)"/>
-      </svg>
-      <div className="max-w-6xl mx-auto relative">
+    <section id="demos" className="relative py-24 sm:py-32 px-5 scroll-mt-20">
+      <div className="relative max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-[1fr_1.4fr] gap-12 lg:gap-16 items-start">
           <div className="lg:sticky lg:top-24">
             <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">Interactive demos</p>
@@ -1275,8 +1254,8 @@ function ROI() {
   ]
 
   return (
-    <section className="py-24 sm:py-32 px-5">
-      <div className="max-w-5xl mx-auto">
+    <section className="relative py-24 sm:py-32 px-5">
+      <div className="relative max-w-5xl mx-auto">
         <div className="text-center mb-16">
           <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">Results</p>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight mb-4">
@@ -1327,16 +1306,8 @@ function BuiltFor() {
   ]
 
   return (
-    <section className="py-24 sm:py-32 px-5 bg-muted relative overflow-hidden">
-      <svg className="absolute inset-0 w-full h-full opacity-[0.04] pointer-events-none" aria-hidden="true">
-        <defs>
-          <pattern id="diag-built" width="16" height="16" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="16" stroke="currentColor" strokeWidth="1"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#diag-built)"/>
-      </svg>
-      <div className="max-w-5xl mx-auto relative">
+    <section className="relative py-24 sm:py-32 px-5">
+      <div className="relative max-w-5xl mx-auto">
         <div className="text-center mb-16">
           <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">Built for your trade</p>
           <h2 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight mb-4">
@@ -1372,8 +1343,8 @@ function BuiltFor() {
 
 function Contact() {
   return (
-    <section id="contact" className="py-24 sm:py-32 px-5">
-      <div className="max-w-6xl mx-auto">
+    <section id="contact" className="relative py-24 sm:py-32 px-5">
+      <div className="relative max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-[1fr_1.2fr] gap-12 lg:gap-16 items-start">
           <div className="lg:sticky lg:top-24">
             <p className="font-mono text-xs uppercase tracking-widest text-primary mb-3">Get started</p>

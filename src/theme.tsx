@@ -3,10 +3,12 @@ import { useState, useEffect } from 'react'
 /** Shared light/dark theme (localStorage key: vox-theme) */
 export function useTheme() {
   const [dark, setDark] = useState(() => {
-    if (typeof window === 'undefined') return false
-    const stored = localStorage.getItem('vox-theme')
-    if (stored) return stored === 'dark'
-    return document.documentElement.classList.contains('dark')
+    if (typeof window === 'undefined') return true
+    try {
+      return localStorage.getItem('vox-theme') !== 'light'
+    } catch {
+      return true
+    }
   })
 
   useEffect(() => {
@@ -21,9 +23,11 @@ export function useTheme() {
 export function ThemeSwitch({
   dark,
   onToggle,
+  compact = false,
 }: {
   dark: boolean
   onToggle: () => void
+  compact?: boolean
 }) {
   return (
     <button
@@ -32,14 +36,14 @@ export function ThemeSwitch({
       aria-checked={dark}
       onClick={onToggle}
       aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border transition-colors ${
-        dark ? 'bg-primary border-primary' : 'bg-muted border-border'
-      }`}
+      className={`relative inline-flex shrink-0 items-center rounded-full border transition-colors ${
+        compact ? 'h-4 w-7' : 'h-7 w-12'
+      } ${dark ? 'border-white/10 bg-black/55 shadow-[inset_0_1px_4px_rgba(0,0,0,0.85)]' : 'bg-muted border-border'}`}
     >
       <span
-        className={`inline-block h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${
-          dark ? 'translate-x-6' : 'translate-x-1'
-        }`}
+        className={`inline-block rounded-full bg-white shadow-sm transition-transform ${
+          compact ? 'h-3 w-3' : 'h-5 w-5'
+        } ${dark ? (compact ? 'translate-x-3' : 'translate-x-6') : 'translate-x-0.5'}`}
       />
     </button>
   )

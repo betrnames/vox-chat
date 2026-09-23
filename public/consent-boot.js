@@ -1,5 +1,11 @@
 /** Load Google Analytics only after cookie consent. */
 (function () {
+  try {
+    if (localStorage.getItem('vox-theme') !== 'light') {
+      document.documentElement.classList.add('dark')
+    }
+  } catch (e) {}
+
   var GA_ID = 'G-N28W6ZESL4'
   var KEY = 'vox-cookie-consent'
   var loaded = false
