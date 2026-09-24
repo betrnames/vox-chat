@@ -109,7 +109,7 @@ function Hero() {
   }, [])
 
   return (
-    <section className="relative pt-32 sm:pt-44 pb-24 sm:pb-36 px-5 overflow-hidden">
+    <section className="relative pt-32 sm:pt-44 pb-24 sm:pb-36 px-5 overflow-x-clip">
       <HeroKinetic />
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.07] via-white/[0.035] to-transparent" />
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-3/5">
@@ -1501,7 +1501,7 @@ function MobileBottomBar({
   const fillPath = topEdge ? `${topEdge} L${shellW} ${shellH} L0 ${shellH} Z` : ''
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[65] sm:hidden pb-[env(safe-area-inset-bottom,0px)] w-full max-w-full overflow-hidden pointer-events-none">
+    <div className="fixed bottom-0 left-0 right-0 z-[65] sm:hidden pb-[env(safe-area-inset-bottom,0px)] pointer-events-none">
       <div className="relative safe-area-bottom w-full pointer-events-auto">
         <div
           ref={shellRef}
