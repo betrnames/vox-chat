@@ -153,11 +153,8 @@ function Hero() {
             </ul>
 
             {/* CTAs */}
-            <div              <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3 mt-8">>
-              <a
-                href="#demos"
-                className="flex items-center justify-center py-2.5 rounded-lg border border-input text-foreground text-sm font-semibold hover:border-primary/40 hover:text-primary transition-colors text-center"
-              >
+            <div className="flex flex-col sm:grid sm:grid-cols-2 gap-3 mt-8">
+              <a href="#demos" className="flex items-center justify-center py-2.5 rounded-lg border border-input text-foreground text-sm font-semibold hover:border-primary/40 hover:text-primary transition-colors text-center">
                 Demo
               </a>
               <CallNowButton
