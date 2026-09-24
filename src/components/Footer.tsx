@@ -21,7 +21,7 @@ export function Footer({ activePage = 'home', homePadding = false }: FooterProps
     activePage === page ? 'text-sm text-foreground transition-colors' : 'text-sm text-muted-foreground/60 hover:text-foreground transition-colors'
 
   return (
-    <footer className={`relative pt-16 ${homePadding ? 'pb-24 sm:pb-12' : 'pb-12'} px-6 sm:px-10`}>
+    <footer className={`relative pt-16 ${homePadding ? 'pb-24 sm:pb-12' : 'pb-12'} px-6 sm:px-10 pb-[env(safe-area-inset-bottom,0px)]`}>
       <Splat spread color="bg-chat/20" className="-left-[22%] -top-24" />
       <Splat spread color="bg-review/15" className="-right-[14%] bottom-2" />
       <div className="relative z-10 max-w-6xl mx-auto">
