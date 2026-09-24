@@ -7,7 +7,7 @@
 - Tone: premium, direct, zero fluff
 
 ## Design System
-- **Background:** #0A0A0F (near-black)
+- **Background:** #23211f (warm dark charcoal)
 - **Primary accent:** #00D4AA (green)
 - **Voice service:** #FF6B4A (warm red-orange)
 - **Chat service:** #4A9EFF (blue)

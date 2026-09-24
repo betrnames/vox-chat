@@ -21,18 +21,18 @@ export function Footer({ activePage = 'home', homePadding = false }: FooterProps
     activePage === page ? 'text-sm text-foreground transition-colors' : 'text-sm text-muted-foreground/60 hover:text-foreground transition-colors'
 
   return (
-    <footer className={`relative pt-16 ${homePadding ? 'pb-24 sm:pb-12' : 'pb-12'} px-6 sm:px-10 pb-[env(safe-area-inset-bottom,0px)]`}>
+    <footer className={`relative pt-16 overflow-hidden ${homePadding ? 'pb-[calc(7.5rem+env(safe-area-inset-bottom,0px))] sm:pb-12' : 'pb-[calc(3rem+env(safe-area-inset-bottom,0px))] sm:pb-12'} px-5 sm:px-10`}>
       <Splat spread color="bg-chat/20" className="-left-[22%] -top-24" />
       <Splat spread color="bg-review/15" className="-right-[14%] bottom-2" />
       <div className="relative z-10 max-w-6xl mx-auto">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 sm:gap-12">
-          <div className="col-span-2 sm:col-span-1 flex flex-col gap-4">
+        <div className="grid grid-cols-2 min-[440px]:grid-cols-3 sm:grid-cols-4 gap-x-6 gap-y-8 sm:gap-12">
+          <div className="col-span-2 min-[440px]:col-span-3 sm:col-span-1 flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-voice" />
               <span className="w-2 h-2 rounded-full bg-chat" />
               <span className="w-2 h-2 rounded-full bg-review" />
             </div>
-            <p className="text-sm text-muted-foreground/60 leading-relaxed">
+            <p className="text-sm text-muted-foreground/60 leading-relaxed max-w-sm">
               AI voice, chat, and review automation for local service businesses.
             </p>
             <div className="flex items-center gap-3">
@@ -53,13 +53,16 @@ export function Footer({ activePage = 'home', homePadding = false }: FooterProps
             <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground/40">Services</span>
             <div className="flex flex-col gap-2">
               <a href={anchor('#services')} className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-voice" />Vox Voice
+                <span className="w-1.5 h-1.5 rounded-full bg-voice shrink-0" />
+                <span>Vox Voice</span>
               </a>
               <a href={anchor('#services')} className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-chat" />Vox Receptionist
+                <span className="w-1.5 h-1.5 rounded-full bg-chat shrink-0" />
+                <span>Vox Receptionist</span>
               </a>
               <a href={anchor('#services')} className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-review" />Vox Reviews
+                <span className="w-1.5 h-1.5 rounded-full bg-review shrink-0" />
+                <span>Vox Reviews</span>
               </a>
             </div>
           </div>
@@ -74,10 +77,10 @@ export function Footer({ activePage = 'home', homePadding = false }: FooterProps
             </div>
           </div>
 
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 col-span-2 min-[440px]:col-span-1">
             <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground/40">Company</span>
             <div className="flex flex-col gap-2">
-              <a href="/legal.html" className={link('legal')}>Terms & Privacy</a>
+              <a href="/legal.html" className={link('legal')}>Terms &amp; Privacy</a>
               <button
                 type="button"
                 onClick={openCookiePreferences}
@@ -85,29 +88,31 @@ export function Footer({ activePage = 'home', homePadding = false }: FooterProps
               >
                 Cookies
               </button>
-              <a href="mailto:support@vox.chat" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors">support@vox.chat</a>
+              <a href="mailto:support@vox.chat" className="text-sm text-muted-foreground/60 hover:text-foreground transition-colors break-all min-[440px]:break-normal">support@vox.chat</a>
             </div>
           </div>
         </div>
 
         <div className="mt-10 pt-6 border-t border-border/20">
           <p className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground/30 mb-3">Service Area</p>
-          <p className="text-[13px] text-muted-foreground/40 leading-relaxed">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[12px] sm:text-[13px] text-muted-foreground/40 leading-relaxed">
             {cities.map((city, i) => (
-              <span key={city}>
-                {city}
-                {i < cities.length - 1 && <span className="mx-1.5 text-muted-foreground/20">&middot;</span>}
+              <span key={city} className="inline-flex items-center">
+                <span>{city}</span>
+                {i < cities.length - 1 && (
+                  <span className="ml-2 text-muted-foreground/20 select-none" aria-hidden="true">&middot;</span>
+                )}
               </span>
             ))}
-          </p>
+          </div>
         </div>
 
-        <div className="mt-6 pt-6 border-t border-border/10 flex items-center justify-between gap-3">
+        <div className="mt-6 pt-6 border-t border-border/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <span className="inline-flex items-center gap-3 shrink-0">
             <span className="font-mono text-[11px] text-muted-foreground/60 whitespace-nowrap">&copy; {new Date().getFullYear()} Vox.chat</span>
             <ThemeSwitch dark={dark} onToggle={toggle} compact />
           </span>
-          <span className="font-mono text-[11px] text-muted-foreground/60 text-right">Your business. Never offline.</span>
+          <span className="font-mono text-[11px] text-muted-foreground/60 text-left sm:text-right">Your business. Never offline.</span>
         </div>
       </div>
     </footer>

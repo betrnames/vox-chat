@@ -61,22 +61,22 @@
 }
 
 .dark {
-  --background: #0a0a0a;
+  --background: #23211f;
   --foreground: #ffffff;
-  --card: #141414;
+  --card: #2c2a27;
   --card-foreground: #ffffff;
-  --popover: #262626;
+  --popover: #353330;
   --popover-foreground: #ffffff;
   --primary: #ffffff;
-  --primary-foreground: #0a0a0a;
+  --primary-foreground: #23211f;
   --secondary: rgba(255, 255, 255, 0.06);
   --secondary-foreground: #ffffff;
-  --muted: #161616;
+  --muted: #2c2a27;
   --muted-foreground: rgba(255, 255, 255, 0.55);
   --accent: rgba(103, 153, 254, 0.16);
   --accent-foreground: #6799fe;
   --destructive: #ff6b61;
-  --destructive-foreground: #0a0a0a;
+  --destructive-foreground: #23211f;
   --border: rgba(255, 255, 255, 0.1);
   --input: rgba(255, 255, 255, 0.08);
   --ring: #6799fe;
@@ -85,10 +85,10 @@
   --chart-3: oklch(0.5778 0.0759 254.1573);
   --chart-4: oklch(0.5016 0.0849 259.4902);
   --chart-5: oklch(0.4241 0.0952 264.0306);
-  --sidebar: #0a0a0a;
+  --sidebar: #23211f;
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #ffffff;
-  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-primary-foreground: #23211f;
   --sidebar-accent: rgba(103, 153, 254, 0.16);
   --sidebar-accent-foreground: #6799fe;
   --sidebar-border: rgba(255, 255, 255, 0.1);
@@ -180,7 +180,6 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
-    overflow-y: auto;
     overscroll-behavior-x: none;
     touch-action: pan-y;
     -webkit-text-size-adjust: 100%;
@@ -188,9 +187,8 @@
   }
   body {
     @apply bg-background text-foreground font-sans;
-    overflow-x: hidden;
     width: 100%;
-    max-width: 100vw;
+    max-width: 100%;
     position: relative;
     /* Ensure content doesn't get cut off by the Samsung nav bar */
     padding-bottom: env(safe-area-inset-bottom, 0px);

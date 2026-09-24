@@ -1476,7 +1476,7 @@ function MobileBottomBar({
   useEffect(() => {
     const el = shellRef.current
     if (!el) return
-    const measure = () => setShellW(el.getBoundingClientRect().width)
+    const measure = () => setShellW(Math.min(el.getBoundingClientRect().width, window.innerWidth))
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(el)
