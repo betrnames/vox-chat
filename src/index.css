@@ -179,7 +179,6 @@
   html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
     overscroll-behavior-x: none;
     touch-action: pan-y;
     -webkit-text-size-adjust: 100%;
@@ -192,6 +191,11 @@
     position: relative;
     /* Ensure content doesn't get cut off by the Samsung nav bar */
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  #root {
+    overflow-x: clip;
+    width: 100%;
+    min-height: 100%;
   }
   h1,
   h2,

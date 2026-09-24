@@ -109,7 +109,7 @@ function Hero() {
   }, [])
 
   return (
-    <section className="relative pt-32 sm:pt-44 pb-24 sm:pb-36 px-5">
+    <section className="relative pt-32 sm:pt-44 pb-24 sm:pb-36 px-5 overflow-hidden">
       <HeroKinetic />
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.07] via-white/[0.035] to-transparent" />
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-3/5">
@@ -1474,13 +1474,15 @@ function MobileBottomBar({
   const [shellW, setShellW] = useState(0)
 
   useEffect(() => {
-    const el = shellRef.current
-    if (!el) return
-    const measure = () => setShellW(Math.min(el.getBoundingClientRect().width, window.innerWidth))
+    const measure = () => {
+      const el = shellRef.current
+      const vpWidth = document.documentElement.clientWidth || window.innerWidth
+      const elWidth = el ? el.getBoundingClientRect().width : vpWidth
+      setShellW(Math.min(elWidth, vpWidth))
+    }
     measure()
-    const ro = new ResizeObserver(measure)
-    ro.observe(el)
-    return () => ro.disconnect()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
   }, [])
 
   const cx = shellW / 2
@@ -1499,11 +1501,11 @@ function MobileBottomBar({
   const fillPath = topEdge ? `${topEdge} L${shellW} ${shellH} L0 ${shellH} Z` : ''
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[65] sm:hidden pb-[env(safe-area-inset-bottom,0px)]">
-      <div className="relative safe-area-bottom">
+    <div className="fixed bottom-0 left-0 right-0 z-[65] sm:hidden pb-[env(safe-area-inset-bottom,0px)] w-full max-w-full overflow-hidden pointer-events-none">
+      <div className="relative safe-area-bottom w-full pointer-events-auto">
         <div
           ref={shellRef}
-          className="absolute inset-x-0 bottom-0 pointer-events-none z-[1]"
+          className="absolute inset-x-0 bottom-0 pointer-events-none z-[1] w-full"
           style={{ height: shellH }}
           aria-hidden
         >
@@ -1535,7 +1537,7 @@ function MobileBottomBar({
           />
         </div>
 
-        <div className="relative z-[2] flex items-end justify-between h-14 px-2 max-w-lg mx-auto gap-1 overflow-visible">
+        <div className="relative z-[2] flex items-end justify-between h-14 px-3 w-full max-w-lg mx-auto gap-1 overflow-visible">
           <a
             href="#demos"
             className="flex flex-1 flex-col items-center justify-center gap-0.5 h-14 min-h-11 text-muted-foreground/40 active:text-muted-foreground transition-colors"
