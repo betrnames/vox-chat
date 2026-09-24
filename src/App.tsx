@@ -1502,7 +1502,7 @@ function MobileBottomBar({
   const fillPath = topEdge ? `${topEdge} L${shellW} ${shellH} L0 ${shellH} Z` : ''
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[65] sm:hidden">
+    <div className="fixed bottom-0 left-0 right-0 z-[65] sm:hidden pb-[env(safe-area-inset-bottom,0px)]">
       <div className="relative safe-area-bottom">
         <div
           ref={shellRef}
