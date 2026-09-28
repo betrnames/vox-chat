@@ -118,3 +118,28 @@ ctx.globalAlpha = 1
 const out = path.join(__dirname, '..', 'public', 'og-image.png')
 fs.writeFileSync(out, canvas.toBuffer('image/png'))
 console.log('wrote', out, `(${W}x${H})`)
+
+// Convert all blog SVGs to 1200x630 PNGs for social sharing platforms
+const sharp = require('sharp')
+const blogDir = path.join(__dirname, '..', 'public', 'blog')
+
+async function generateBlogOgImages() {
+  if (!fs.existsSync(blogDir)) return
+  const files = fs.readdirSync(blogDir).filter((f) => f.endsWith('.svg'))
+  let count = 0
+  for (const file of files) {
+    const svgPath = path.join(blogDir, file)
+    const pngPath = path.join(blogDir, file.replace(/\.svg$/, '.png'))
+    await sharp(svgPath, { density: 150 })
+      .resize(W, H, { fit: 'cover' })
+      .png({ compressionLevel: 9, adaptiveFiltering: true })
+      .toFile(pngPath)
+    count++
+  }
+  console.log(`generated ${count} blog OG images in ${blogDir} (${W}x${H} PNG)`)
+}
+
+generateBlogOgImages().catch((err) => {
+  console.error('Failed generating blog OG images:', err)
+  process.exit(1)
+})
