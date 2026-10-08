@@ -4,45 +4,19 @@
  */
 import { writeLeadToSheet } from './googleSheet.js'
 import { twilioConfigured, sendTwilioSms, normalizePhone } from './reviewsShared.js'
+import {
+  clean,
+  getClientIp,
+  checkRateLimit,
+  fetchWithTimeout,
+  reqId,
+} from './_lib.js'
 
 const RATE_LIMIT_MAX = 5
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000
-const rateLimitHits = new Map()
-
-function getClientIp(req) {
-  const headers = req.headers || {}
-  const xf = headers['x-forwarded-for'] || headers['x-real-ip'] || headers['x-vercel-forwarded-for']
-  if (typeof xf === 'string' && xf.length) return xf.split(',')[0].trim()
-  if (Array.isArray(xf) && xf[0]) return String(xf[0]).trim()
-  return (req.socket && req.socket.remoteAddress) || 'unknown'
-}
-
-function checkRateLimit(ip) {
-  const now = Date.now()
-  let entry = rateLimitHits.get(ip)
-  if (!entry || now >= entry.resetAt) {
-    entry = { count: 0, resetAt: now + RATE_LIMIT_WINDOW_MS }
-    rateLimitHits.set(ip, entry)
-  }
-  entry.count += 1
-  return entry.count <= RATE_LIMIT_MAX
-}
-
-const rateLimitCleanup = setInterval(function () {
-  const now = Date.now()
-  for (const [ip, entry] of rateLimitHits.entries()) {
-    if (now >= entry.resetAt) rateLimitHits.delete(ip)
-  }
-}, RATE_LIMIT_WINDOW_MS)
-if (typeof rateLimitCleanup.unref === 'function') rateLimitCleanup.unref()
-
-function clean(s, max) {
-  max = max || 200
-  if (typeof s !== 'string') return ''
-  return s.trim().slice(0, max)
-}
 
 export default async function handler(req, res) {
+  const id = reqId()
   try {
     res.setHeader('Cache-Control', 'no-store')
 
@@ -51,13 +25,14 @@ export default async function handler(req, res) {
     }
 
     const ip = getClientIp(req)
-    if (!checkRateLimit(ip)) {
-      return res.status(429).json({ error: 'Too many requests', ok: false })
+    if (!checkRateLimit(ip, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS)) {
+      console.warn('[lead]', id, 'rate_limited', ip)
+      return res.status(429).json({ error: 'Too many requests', ok: false, id })
     }
 
-    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {}
+    const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
     if (!body.phone && !body.email) {
-      return res.status(400).json({ error: 'phone or email required' })
+      return res.status(400).json({ error: 'phone or email required', id })
     }
 
     const channels = []
@@ -84,21 +59,25 @@ export default async function handler(req, res) {
 
     const formspree = process.env.FORMSPREE_ENDPOINT || 'https://formspree.io/f/xzezgyen'
     try {
-      const r = await fetch(formspree, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(payload),
-      })
+      const r = await fetchWithTimeout(
+        formspree,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(payload),
+        },
+        10_000,
+      )
       if (r.ok) channels.push('email')
     } catch (e) {
-      /* non-fatal */
+      console.error('[lead]', id, 'formspree', e.name === 'AbortError' ? 'timeout' : e.message)
     }
 
     try {
       const sheetChannel = await writeLeadToSheet(payload)
       if (sheetChannel) channels.push(sheetChannel)
     } catch (e) {
-      console.error('[lead] sheet', e)
+      console.error('[lead]', id, 'sheet', e.message)
     }
 
     // SMS alert to owner
@@ -109,13 +88,14 @@ export default async function handler(req, res) {
         const smsResult = await sendTwilioSms(ownerPhone, smsBody, { kind: 'owner_alert' })
         if (smsResult.ok) channels.push('sms')
       } catch (e) {
-        console.error('[lead] sms', e)
+        console.error('[lead]', id, 'sms', e.message)
       }
     }
 
-    return res.status(channels.length ? 200 : 502).json({ ok: channels.length > 0, channels })
+    console.log('[lead]', id, { channels, interest: payload.interest })
+    return res.status(channels.length ? 200 : 502).json({ ok: channels.length > 0, channels, id })
   } catch (e) {
-    console.error('[lead]', e)
-    return res.status(500).json({ error: 'Server error', ok: false, channels: [] })
+    console.error('[lead]', id, e.message)
+    return res.status(500).json({ error: 'Server error', ok: false, channels: [], id })
   }
 }

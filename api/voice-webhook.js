@@ -6,11 +6,11 @@
  */
 import { writeLeadToSheet } from './googleSheet.js'
 import { normalizePhone, sendTwilioSms, twilioConfigured } from './reviewsShared.js'
-
-function clean(s, max = 200) {
-  if (typeof s !== 'string') return ''
-  return s.trim().slice(0, max)
-}
+import {
+  clean,
+  fetchWithTimeout,
+  reqId,
+} from './_lib.js'
 
 async function readBody(req) {
   if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
@@ -20,17 +20,17 @@ async function readBody(req) {
     try {
       return JSON.parse(req.body)
     } catch {
-      return {}
+      return {};
     }
   }
   const chunks = []
   for await (const c of req) chunks.push(c)
   const raw = Buffer.concat(chunks).toString('utf8')
-  if (!raw) return {}
+  if (!raw) return {};
   try {
     return JSON.parse(raw)
   } catch {
-    return {}
+    return {};
   }
 }
 
@@ -58,12 +58,8 @@ function transcriptText(payload) {
 }
 
 function extractLeadFromPayload(payload) {
-  const analysis = payload.analysis || {}
-  const structured =
-    analysis.structuredData ||
-    analysis.structured_data ||
-    payload.structuredData ||
-    {}
+  const analysis = payload.analysis || {};
+  const structured = analysis.structuredData || analysis.structured_data || payload.structuredData || {};
 
   let name = clean(structured.name || structured.customerName || '', 120)
   let phone = clean(structured.phone || structured.phoneNumber || structured.callback || '', 40)
@@ -115,7 +111,7 @@ function extractLeadFromPayload(payload) {
   }
 }
 
-async function notifyLead(lead) {
+async function notifyLead(lead, id) {
   const channels = []
   const payload = {
     name: lead.name || 'Voice caller',
@@ -138,27 +134,28 @@ async function notifyLead(lead) {
     return channels
   }
 
-  const formspree =
-    process.env.FORMSPREE_ENDPOINT ||
-    process.env.VITE_FORMSPREE_ENDPOINT ||
-    'https://formspree.io/f/xzezgyen'
+  const formspree = process.env.FORMSPREE_ENDPOINT || process.env.VITE_FORMSPREE_ENDPOINT || 'https://formspree.io/f/xzezgyen'
 
   try {
-    const r = await fetch(formspree, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify(payload),
-    })
+    const r = await fetchWithTimeout(
+      formspree,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload),
+      },
+      10_000,
+    )
     if (r.ok) channels.push('email')
   } catch (e) {
-    console.error('[voice-webhook] formspree', e)
+    console.error('[voice-webhook]', id, 'formspree', e.name === 'AbortError' ? 'timeout' : e.message)
   }
 
   try {
     const ok = await writeLeadToSheet(payload)
     if (ok) channels.push('sheet')
   } catch (e) {
-    console.error('[voice-webhook] sheet', e)
+    console.error('[voice-webhook]', id, 'sheet', e.message)
   }
 
   const owner = normalizePhone(process.env.REVIEW_OWNER_PHONE || '')
@@ -166,15 +163,20 @@ async function notifyLead(lead) {
     const body = `Vox Voice lead: ${payload.name} · ${payload.phone}${
       payload.interest ? ` · ${payload.interest}` : ''
     }${payload.notes ? ` · ${payload.notes.slice(0, 80)}` : ''} — call them back`
-    // Trial uses templates; free-form after TWILIO_TRIAL=false
-    const result = await sendTwilioSms(owner, body, { kind: 'owner_alert' })
-    if (result.ok) channels.push('sms')
+    try {
+      const result = await sendTwilioSms(owner, body, { kind: 'owner_alert' })
+      if (result.ok) channels.push('sms')
+    } catch (e) {
+      console.error('[voice-webhook]', id, 'sms', e.message)
+    }
   }
 
   return channels
 }
 
 export default async function handler(req, res) {
+  const id = reqId()
+
   if (req.method === 'GET') {
     res.status(200).json({ ok: true, webhook: 'voice-webhook', product: 'vox-voice' })
     return
@@ -194,37 +196,32 @@ export default async function handler(req, res) {
     if (secret) {
       const hdr = req.headers['x-vapi-secret'] || req.headers['x-webhook-secret']
       if (hdr !== secret) {
+        console.warn('[voice-webhook]', id, 'unauthorized')
         res.status(401).json({ error: 'Unauthorized' })
         return
       }
     }
 
     if (type === 'end-of-call-report' || type === 'end-of-call-report-message' || payload?.endedReason || payload?.artifact) {
-      // Prefer explicit end-of-call; also accept payloads that look like call reports
-      const isEnd =
-        type === 'end-of-call-report' ||
-        type === 'end-of-call-report-message' ||
-        (payload?.artifact && (payload?.analysis || payload?.endedReason))
+      const isEnd = type === 'end-of-call-report' || type === 'end-of-call-report-message' || (payload?.artifact && (payload?.analysis || payload?.endedReason))
 
       if (isEnd || type === 'end-of-call-report') {
         const lead = extractLeadFromPayload(payload)
-        // Only notify if we have something useful
         if (lead.phone || lead.email || (lead.name && lead.name !== 'Voice caller')) {
-          const channels = await notifyLead(lead)
-          console.log('[voice-webhook] lead', { ...lead, channels })
-          res.status(200).json({ ok: true, notified: channels })
+          const channels = await notifyLead(lead, id)
+          console.log('[voice-webhook]', id, 'lead', { interest: lead.interest, channels })
+          res.status(200).json({ ok: true, notified: channels, id })
           return
         }
-        console.log('[voice-webhook] end-of-call no lead fields', type)
-        res.status(200).json({ ok: true, notified: [] })
+        console.log('[voice-webhook]', id, 'end-of-call no lead fields', type)
+        res.status(200).json({ ok: true, notified: [], id })
         return
       }
     }
 
-    // Ack everything else so Vapi doesn't retry forever
-    res.status(200).json({ ok: true, ignored: type || 'unknown' })
+    res.status(200).json({ ok: true, ignored: type || 'unknown', id })
   } catch (e) {
-    console.error('[voice-webhook]', e)
-    res.status(200).json({ ok: false, error: 'processed with error' })
+    console.error('[voice-webhook]', id, e.message)
+    res.status(200).json({ ok: false, error: 'processed with error', id })
   }
 }
