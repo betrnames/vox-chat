@@ -15,7 +15,7 @@
 
 import crypto from 'node:crypto'
 
-function loadServiceAccount() {
+export function loadServiceAccount() {
   const b64 = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_BASE64
   if (b64) {
     try {
@@ -50,13 +50,13 @@ function loadServiceAccount() {
   return { email, key: key.replace(/\\n/g, '\n') }
 }
 
-async function getAccessToken(email, privateKey) {
+export async function getAccessToken(email, privateKey, scope) {
   const now = Math.floor(Date.now() / 1000)
   const header = Buffer.from(JSON.stringify({ alg: 'RS256', typ: 'JWT' })).toString('base64url')
   const claim = Buffer.from(
     JSON.stringify({
       iss: email,
-      scope: 'https://www.googleapis.com/auth/spreadsheets',
+      scope: scope || 'https://www.googleapis.com/auth/spreadsheets',
       aud: 'https://oauth2.googleapis.com/token',
       iat: now,
       exp: now + 3600,
@@ -127,12 +127,13 @@ function rowFromPayload(payload) {
     payload.city || '',
     payload.phone || '',
     payload.email || '',
-    'New',
+    payload.status || 'New',
     interest,
     '',
     '',
-    interest === 'audit' || interest === 'bundle' ? 'Book audit' : 'Follow up',
-    '',
+    payload.nextStep ||
+      (interest === 'audit' || interest === 'bundle' ? 'Book audit' : 'Follow up'),
+    payload.nextDate || '',
     notes,
   ]
 }
@@ -224,6 +225,29 @@ export async function appendLeadViaWebhook(payload) {
     })
   }
   return r.ok || r.status === 200 || r.status === 302
+}
+
+/** True if Notes column already contains this call id (stops double rows). */
+export async function sheetAlreadyHas(needle) {
+  if (!needle) return false
+  const sheetId = process.env.GOOGLE_SHEET_ID
+  const sa = loadServiceAccount()
+  if (!sheetId || !sa?.email || !sa?.key) return false
+  const token = await getAccessToken(sa.email, sa.key)
+  if (!token) return false
+  const rangeEnv = process.env.GOOGLE_SHEET_RANGE || 'Leads!A:O'
+  const tab = rangeEnv.includes('!') ? rangeEnv.split('!')[0] : 'Leads'
+  const startRow = Number(process.env.GOOGLE_SHEET_DATA_START_ROW || 5)
+  const scanEnd = Number(process.env.GOOGLE_SHEET_DATA_SCAN_END || 80)
+  const range = `${tab}!O${startRow}:O${scanEnd}`
+  const res = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${encodeURIComponent(range)}`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  )
+  if (!res.ok) return false
+  const data = await res.json()
+  const rows = data.values || []
+  return rows.some((row) => String(row[0] || '').includes(needle))
 }
 
 export async function writeLeadToSheet(payload) {

@@ -6,6 +6,7 @@
  */
 import { writeLeadToSheet } from './googleSheet.js'
 import { normalizePhone, sendTwilioSms, twilioConfigured } from './reviewsShared.js'
+import { maybeDispatchFromCall } from './voice-dispatch.js'
 
 function clean(s, max = 200) {
   if (typeof s !== 'string') return ''
@@ -207,6 +208,12 @@ export default async function handler(req, res) {
         (payload?.artifact && (payload?.analysis || payload?.endedReason))
 
       if (isEnd || type === 'end-of-call-report') {
+        const dispatch = await maybeDispatchFromCall(payload)
+        if (dispatch.handled) {
+          console.log('[voice-webhook] dispatch', dispatch.kind)
+          res.status(200).json({ ok: true, dispatch: dispatch.kind })
+          return
+        }
         const lead = extractLeadFromPayload(payload)
         // Only notify if we have something useful
         if (lead.phone || lead.email || (lead.name && lead.name !== 'Voice caller')) {
