@@ -23,27 +23,16 @@ const pages = [
   { out: 'legal.html', module: '/src/LegalPage.tsx' },
   { out: 'setup.html', module: '/src/SetupPage.tsx' },
   { out: 'roi.html', module: '/src/ROIPage.tsx' },
-  { out: 'blog/automation-roi.html', module: '/src/BlogPost.tsx', props: { slug: 'automation-roi' } },
-  { out: 'blog/missed-calls.html', module: '/src/BlogPost.tsx', props: { slug: 'missed-calls' } },
-  { out: 'blog/chatbots-vs-forms.html', module: '/src/BlogPost.tsx', props: { slug: 'chatbots-vs-forms' } },
-  { out: 'blog/google-reviews.html', module: '/src/BlogPost.tsx', props: { slug: 'google-reviews' } },
-  { out: 'blog/plumber-after-hours.html', module: '/src/BlogPost.tsx', props: { slug: 'plumber-after-hours' } },
-  { out: 'blog/electrician-leads.html', module: '/src/BlogPost.tsx', props: { slug: 'electrician-leads' } },
-  {
-    out: 'blog/manteca-contractors-double-google-reviews.html',
-    module: '/src/BlogPost.tsx',
-    props: { slug: 'manteca-contractors-double-google-reviews' },
-  },
-  {
-    out: 'blog/turlock-missed-calls-costing-thousands.html',
-    module: '/src/BlogPost.tsx',
-    props: { slug: 'turlock-missed-calls-costing-thousands' },
-  },
-  {
-    out: 'blog/ai-automation-guide-central-valley-contractors.html',
-    module: '/src/BlogPost.tsx',
-    props: { slug: 'ai-automation-guide-central-valley-contractors' },
-  },
+  // Blog posts are discovered from blog/*.html so new posts can't be missed.
+  ...fs
+    .readdirSync(path.join(root, 'blog'))
+    .filter((f) => f.endsWith('.html'))
+    .sort()
+    .map((f) => ({
+      out: `blog/${f}`,
+      module: '/src/BlogPost.tsx',
+      props: { slug: f.replace(/\.html$/, '') },
+    })),
 ]
 
 function injectAppHtml(template, appHtml) {

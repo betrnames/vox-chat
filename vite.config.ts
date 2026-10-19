@@ -2,6 +2,7 @@ import { defineConfig, loadEnv, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { resolve, dirname } from 'path'
+import { readdirSync } from 'fs'
 import { fileURLToPath, pathToFileURL } from 'url'
 import type { IncomingMessage, ServerResponse } from 'http'
 
@@ -293,8 +294,9 @@ function reviewsApiPlugin(): Plugin {
                   : `Thanks — glad it went well. Mind a 30-second Google review? ${link}`
                 pendingReviews.delete(from)
               } else {
-                reply =
-                  "Sorry it wasn't a 5. We're not sending a public review link — the owner will reach out shortly."
+                const link = reviewUrl()
+                const who = name ? ` ${name}` : ''
+                reply = `Thanks for the feedback${who} — sorry it wasn't a 5. The owner will reach out to make it right. If you'd like to share your experience publicly, here's our Google review page: ${link}`
                 pendingReviews.delete(from)
               }
               // Trial: no free-form TwiML — send template via API
@@ -436,25 +438,12 @@ export default defineConfig(({ mode }) => {
           main: resolve(__dirname, 'index.html'),
           faq: resolve(__dirname, 'faq.html'),
           blog: resolve(__dirname, 'blog.html'),
-          'blog-automation-roi': resolve(__dirname, 'blog/automation-roi.html'),
-          'blog-missed-calls': resolve(__dirname, 'blog/missed-calls.html'),
-          'blog-chatbots-vs-forms': resolve(__dirname, 'blog/chatbots-vs-forms.html'),
-          'blog-google-reviews': resolve(__dirname, 'blog/google-reviews.html'),
-          'blog-plumber-after-hours': resolve(__dirname, 'blog/plumber-after-hours.html'),
-          'blog-electrician-leads': resolve(__dirname, 'blog/electrician-leads.html'),
-          'blog-manteca-reviews': resolve(__dirname, 'blog/manteca-contractors-double-google-reviews.html'),
-          'blog-turlock-missed-calls': resolve(__dirname, 'blog/turlock-missed-calls-costing-thousands.html'),
-          'blog-ai-automation-guide': resolve(__dirname, 'blog/ai-automation-guide-central-valley-contractors.html'),
-          'blog-modesto-hvac': resolve(__dirname, 'blog/modesto-hvac-never-lose-customer-voicemail.html'),
-          'blog-stockton-plumbers': resolve(__dirname, 'blog/stockton-plumbers-emergency-calls.html'),
-          'blog-tracy-contractors': resolve(__dirname, 'blog/tracy-contractors-rank-google-maps.html'),
-          'blog-modesto-roofers': resolve(__dirname, 'blog/modesto-roofers-storm-season-calls.html'),
-          'blog-turlock-after-hours': resolve(__dirname, 'blog/turlock-after-hours-answering-contractors.html'),
-          'blog-ai-vs-traditional': resolve(__dirname, 'blog/ai-answering-vs-traditional-answering-service-hvac.html'),
-          'blog-reviews-vs-referrals': resolve(__dirname, 'blog/google-reviews-vs-referrals-electricians.html'),
-          'blog-managed-vs-diy': resolve(__dirname, 'blog/managed-ai-vs-diy-dashboards-contractors.html'),
-          'blog-need-receptionist': resolve(__dirname, 'blog/do-i-need-receptionist-hvac-company.html'),
-          'blog-answer-calls-on-job': resolve(__dirname, 'blog/how-to-answer-calls-while-on-a-job.html'),
+          // Every blog/*.html is an entry, matching scripts/prerender.mjs, so new posts can't be missed.
+          ...Object.fromEntries(
+            readdirSync(resolve(__dirname, 'blog'))
+              .filter((f) => f.endsWith('.html'))
+              .map((f) => [`blog-${f.replace(/\.html$/, '')}`, resolve(__dirname, 'blog', f)]),
+          ),
           legal: resolve(__dirname, 'legal.html'),
           roi: resolve(__dirname, 'roi.html'),
           // Unlisted intake — not linked from nav/footer/sitemap

@@ -138,6 +138,12 @@ export function positiveFollowUpBody(name) {
   return `Thanks${who} — glad it went well. Mind a 30-second Google review? ${link}`
 }
 
-export function negativeFollowUpBody() {
-  return "Sorry it wasn't a 5. We're not sending a public review link — the owner will reach out shortly."
+/**
+ * Every customer gets the same public review link regardless of rating (no review gating —
+ * Google and FTC rules prohibit filtering who is asked to post). Private feedback is optional.
+ */
+export function negativeFollowUpBody(name) {
+  const link = reviewUrl()
+  const who = name ? ` ${name}` : ''
+  return `Thanks for the feedback${who} — sorry it wasn't a 5. The owner will reach out to make it right. If you'd like to share your experience publicly, here's our Google review page: ${link}`
 }

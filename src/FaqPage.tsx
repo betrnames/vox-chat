@@ -89,8 +89,8 @@ const categories = [
     questions: [
       {
         id: 'negative-reviews',
-        q: 'How does the AI review agent prevent negative reviews?',
-        a: 'The system sends a private satisfaction check first. Happy customers get directed to Google Reviews. Unhappy customers are routed to you privately so you can resolve the issue before it becomes public. This filters negative sentiment before it hits your profile.',
+        q: 'How does the AI review agent handle unhappy customers?',
+        a: 'Every customer gets the same one-tap link to your Google review page, whatever their experience. When someone reports a problem, you also get an instant alert so you can reach out and make it right. Customers can share private feedback with you if they prefer, but no one is filtered out of leaving a public review.',
       },
       {
         id: 'review-timing',
@@ -126,7 +126,7 @@ const categories = [
       {
         id: 'roi',
         q: 'What\'s the ROI for a typical service business?',
-        a: 'Most service businesses see 300%+ ROI within the first month. The average HVAC company misses $2,500/week in calls alone. Answering even half those calls typically pays for the entire subscription many times over.',
+        a: 'Results depend on your call volume and ticket size. The average HVAC company misses about $2,500/week in calls, so recovering just one or two jobs a month usually covers the $595/month voice plan.',
       },
       {
         id: 'integrations',

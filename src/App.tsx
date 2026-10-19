@@ -5,6 +5,8 @@ import { advanceReceptionist, type ChatMemory, type ChatStep } from './reception
 import { TypingDots } from './TypingDots'
 import LiveReceptionistWidget from './LiveReceptionistWidget'
 import ConsentNote from './ConsentNote'
+import LeadSuccess from './LeadSuccess'
+import { useLeadForm } from './leadForm'
 import { VapiVoiceProvider, useVapiVoice } from './voice/VapiVoice'
 import { CallNowButton } from './voice/CallNowButton'
 import {
@@ -98,6 +100,8 @@ function Hero() {
       }, 800)
     }, 20000)
   }, [])
+
+  const heroLead = useLeadForm('hero')
 
   const handleFormInteraction = useCallback(() => {
     formInteracted.current = true
@@ -199,9 +203,13 @@ function Hero() {
               >
                 <h2 className="text-lg font-semibold mb-1">Book a free consultation</h2>
                 <p className="text-sm text-muted-foreground mb-5">No contracts. Cancel anytime.</p>
+                {heroLead.status === 'done' ? (
+                  <LeadSuccess />
+                ) : (
                 <form
                   action="https://formspree.io/f/xzezgyen"
                   method="POST"
+                  onSubmit={heroLead.onSubmit}
                   className="space-y-3"
                   onFocusCapture={handleFormInteraction}
                 >
@@ -266,11 +274,13 @@ function Hero() {
                   <button
                     type="submit"
                     className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/80 transition-colors"
+                    disabled={heroLead.status === 'sending'}
                   >
-                    Book now
+                    {heroLead.status === 'sending' ? 'Sending…' : 'Book now'}
                   </button>
                   <ConsentNote />
                 </form>
+                )}
               </div>
             </div>
           </div>
@@ -420,7 +430,7 @@ const services = [
       'Automated text 2hrs after job',
       'Follow-up at 48hrs if no response',
       'Direct link to Google review page',
-      'Negative review alert to owner',
+      'Instant owner alert on low ratings',
       'Monthly review growth report',
     ],
   },
@@ -1016,7 +1026,7 @@ function ReviewDemo() {
           ...m,
           {
             from: 'system',
-            text: "Sorry it wasn't a 5. We're not sending a public review link — the owner will reach out shortly.",
+            text: "Thanks for the feedback — sorry it wasn't a 5. The owner will reach out to make it right. If you'd like to share your experience publicly, here's our Google review page: https://g.page/r/review-demo",
           },
         ])
         setTyping('left')
@@ -1027,7 +1037,7 @@ function ReviewDemo() {
           ...m,
           {
             from: 'owner',
-            text: `Owner alert: Mike Torres rated ${n}/5 after AC repair in Manteca. Call before this becomes a public review.`,
+            text: `Owner alert: Mike Torres rated ${n}/5 after AC repair in Manteca. Call to make it right.`,
           },
         ])
         setTyping('left')
@@ -1038,7 +1048,7 @@ function ReviewDemo() {
           ...m,
           {
             from: 'status',
-            text: 'Google link blocked · private recovery path · public profile protected',
+            text: 'Google link sent · owner alerted · recovery call queued',
           },
         ])
         setDone(true)
@@ -1129,7 +1139,7 @@ function ReviewDemo() {
                       : 'bg-destructive/10 text-destructive border-destructive/20'
                   }`}
                 >
-                  {rating >= 4 ? 'Positive path complete' : 'Negative path complete — public profile protected'}
+                  {rating >= 4 ? 'Positive path complete' : 'Low-rating path complete — owner alerted'}
                 </span>
               </div>
             )}
@@ -1339,6 +1349,7 @@ function BuiltFor() {
 }
 
 function Contact() {
+  const lead = useLeadForm('contact')
   return (
     <section id="contact" className="relative py-24 sm:py-32 px-5">
       <div className="relative max-w-6xl mx-auto">
@@ -1367,9 +1378,13 @@ function Contact() {
               </div>
             </div>
           </div>
+          {lead.status === 'done' ? (
+            <LeadSuccess />
+          ) : (
           <form
             action="https://formspree.io/f/xzezgyen"
             method="POST"
+            onSubmit={lead.onSubmit}
             className="space-y-4 rounded-2xl border p-6 sm:p-8 shadow-sm"
             style={{
               borderColor: 'color-mix(in srgb, var(--color-chat) 30%, transparent)',
@@ -1377,6 +1392,7 @@ function Contact() {
             }}
           >
             <input type="hidden" name="site" value="vox.chat" />
+            <input type="hidden" name="source" value="contact" />
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <input
                 type="text"
@@ -1442,11 +1458,13 @@ function Contact() {
             <button
               type="submit"
               className="w-full py-3.5 rounded-lg bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/80 transition-colors"
+              disabled={lead.status === 'sending'}
             >
-              Book free consultation
+              {lead.status === 'sending' ? 'Sending…' : 'Book free consultation'}
             </button>
             <ConsentNote />
           </form>
+          )}
         </div>
       </div>
     </section>

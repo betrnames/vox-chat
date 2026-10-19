@@ -69,7 +69,7 @@ export default async function handler(req, res) {
       city: clean(body.city, 80),
       trade: clean(body.trade, 40),
       interest: clean(body.interest, 40),
-      notes: clean(body.notes, 500),
+      notes: clean(body.notes, 2000),
       source: clean(body.source, 80) || 'api-lead',
       site: 'vox.chat',
       _subject:
