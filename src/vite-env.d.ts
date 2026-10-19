@@ -13,4 +13,5 @@ interface Window {
   dataLayer?: unknown[]
   gtag?: (...args: unknown[]) => void
   __voxApplyConsent?: (analytics: boolean) => void
+  __voxTrack?: (name: string, params?: Record<string, unknown>) => void
 }
