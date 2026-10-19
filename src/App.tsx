@@ -5,6 +5,8 @@ import { advanceReceptionist, type ChatMemory, type ChatStep } from './reception
 import { TypingDots } from './TypingDots'
 import LiveReceptionistWidget from './LiveReceptionistWidget'
 import ConsentNote from './ConsentNote'
+import LeadSuccess from './LeadSuccess'
+import { useLeadForm } from './leadForm'
 import { VapiVoiceProvider, useVapiVoice } from './voice/VapiVoice'
 import { CallNowButton } from './voice/CallNowButton'
 import {
@@ -98,6 +100,8 @@ function Hero() {
       }, 800)
     }, 20000)
   }, [])
+
+  const heroLead = useLeadForm('hero')
 
   const handleFormInteraction = useCallback(() => {
     formInteracted.current = true
@@ -199,9 +203,13 @@ function Hero() {
               >
                 <h2 className="text-lg font-semibold mb-1">Book a free consultation</h2>
                 <p className="text-sm text-muted-foreground mb-5">No contracts. Cancel anytime.</p>
+                {heroLead.status === 'done' ? (
+                  <LeadSuccess />
+                ) : (
                 <form
                   action="https://formspree.io/f/xzezgyen"
                   method="POST"
+                  onSubmit={heroLead.onSubmit}
                   className="space-y-3"
                   onFocusCapture={handleFormInteraction}
                 >
@@ -266,11 +274,13 @@ function Hero() {
                   <button
                     type="submit"
                     className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-semibold text-sm hover:bg-primary/80 transition-colors"
+                    disabled={heroLead.status === 'sending'}
                   >
-                    Book now
+                    {heroLead.status === 'sending' ? 'Sending…' : 'Book now'}
                   </button>
                   <ConsentNote />
                 </form>
+                )}
               </div>
             </div>
           </div>
@@ -1339,6 +1349,7 @@ function BuiltFor() {
 }
 
 function Contact() {
+  const lead = useLeadForm('contact')
   return (
     <section id="contact" className="relative py-24 sm:py-32 px-5">
       <div className="relative max-w-6xl mx-auto">
@@ -1367,9 +1378,13 @@ function Contact() {
               </div>
             </div>
           </div>
+          {lead.status === 'done' ? (
+            <LeadSuccess />
+          ) : (
           <form
             action="https://formspree.io/f/xzezgyen"
             method="POST"
+            onSubmit={lead.onSubmit}
             className="space-y-4 rounded-2xl border p-6 sm:p-8 shadow-sm"
             style={{
               borderColor: 'color-mix(in srgb, var(--color-chat) 30%, transparent)',
@@ -1377,6 +1392,7 @@ function Contact() {
             }}
           >
             <input type="hidden" name="site" value="vox.chat" />
+            <input type="hidden" name="source" value="contact" />
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <input
                 type="text"
@@ -1442,11 +1458,13 @@ function Contact() {
             <button
               type="submit"
               className="w-full py-3.5 rounded-lg bg-primary text-primary-foreground font-semibold text-base hover:bg-primary/80 transition-colors"
+              disabled={lead.status === 'sending'}
             >
-              Book free consultation
+              {lead.status === 'sending' ? 'Sending…' : 'Book free consultation'}
             </button>
             <ConsentNote />
           </form>
+          )}
         </div>
       </div>
     </section>

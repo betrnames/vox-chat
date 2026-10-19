@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import './index.css'
 import ConsentNote from './ConsentNote'
+import { useLeadForm } from './leadForm'
 
 function param(name: string): string {
   if (typeof window === 'undefined') return ''
@@ -13,7 +14,8 @@ const fieldClass =
 const labelClass = 'block text-xs font-medium text-muted-foreground mb-1.5'
 
 export default function SetupPage() {
-  const submitted = useMemo(() => param('done') === '1' || param('thanks') === '1', [])
+  const lead = useLeadForm('start-setup')
+  const submitted = useMemo(() => param('done') === '1' || param('thanks') === '1', []) || lead.status === 'done'
 
   const defaults = useMemo(
     () => ({
@@ -70,6 +72,7 @@ export default function SetupPage() {
               <form
                 action="https://formspree.io/f/xzezgyen"
                 method="POST"
+                onSubmit={lead.onSubmit}
                 className="space-y-4 rounded-2xl border border-border/60 bg-card p-5 sm:p-7 shadow-md"
               >
                 <input type="hidden" name="site" value="vox.chat" />
