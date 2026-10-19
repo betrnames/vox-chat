@@ -126,7 +126,7 @@ const categories = [
       {
         id: 'roi',
         q: 'What\'s the ROI for a typical service business?',
-        a: 'Most service businesses see 300%+ ROI within the first month. The average HVAC company misses $2,500/week in calls alone. Answering even half those calls typically pays for the entire subscription many times over.',
+        a: 'Results depend on your call volume and ticket size. The average HVAC company misses about $2,500/week in calls, so recovering just one or two jobs a month usually covers the $595/month voice plan.',
       },
       {
         id: 'integrations',
