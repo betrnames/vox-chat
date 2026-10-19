@@ -89,8 +89,8 @@ const categories = [
     questions: [
       {
         id: 'negative-reviews',
-        q: 'How does the AI review agent prevent negative reviews?',
-        a: 'The system sends a private satisfaction check first. Happy customers get directed to Google Reviews. Unhappy customers are routed to you privately so you can resolve the issue before it becomes public. This filters negative sentiment before it hits your profile.',
+        q: 'How does the AI review agent handle unhappy customers?',
+        a: 'Every customer gets the same one-tap link to your Google review page, whatever their experience. When someone reports a problem, you also get an instant alert so you can reach out and make it right. Customers can share private feedback with you if they prefer, but no one is filtered out of leaving a public review.',
       },
       {
         id: 'review-timing',

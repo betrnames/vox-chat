@@ -155,7 +155,7 @@ export default async function handler(req, res) {
       timestamp: new Date().toISOString(),
     }).catch(() => {})
   } else {
-    reply = negativeFollowUpBody()
+    reply = negativeFollowUpBody(name)
     pendingReviews.delete(from)
 
     notifyOwner({
@@ -163,7 +163,7 @@ export default async function handler(req, res) {
       phone: from,
       business,
       rating,
-      notes: `negative_${rating} | google_link_blocked | private recovery`,
+      notes: `negative_${rating} | google_link_sent | owner_follow_up`,
       _subject: `Vox Reviews ALERT: ${name || from} rated ${rating}/5`,
     }).catch(() => {})
   }

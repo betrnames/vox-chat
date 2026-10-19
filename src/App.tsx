@@ -420,7 +420,7 @@ const services = [
       'Automated text 2hrs after job',
       'Follow-up at 48hrs if no response',
       'Direct link to Google review page',
-      'Negative review alert to owner',
+      'Instant owner alert on low ratings',
       'Monthly review growth report',
     ],
   },
@@ -1016,7 +1016,7 @@ function ReviewDemo() {
           ...m,
           {
             from: 'system',
-            text: "Sorry it wasn't a 5. We're not sending a public review link — the owner will reach out shortly.",
+            text: "Thanks for the feedback — sorry it wasn't a 5. The owner will reach out to make it right. If you'd like to share your experience publicly, here's our Google review page: https://g.page/r/review-demo",
           },
         ])
         setTyping('left')
@@ -1027,7 +1027,7 @@ function ReviewDemo() {
           ...m,
           {
             from: 'owner',
-            text: `Owner alert: Mike Torres rated ${n}/5 after AC repair in Manteca. Call before this becomes a public review.`,
+            text: `Owner alert: Mike Torres rated ${n}/5 after AC repair in Manteca. Call to make it right.`,
           },
         ])
         setTyping('left')
@@ -1038,7 +1038,7 @@ function ReviewDemo() {
           ...m,
           {
             from: 'status',
-            text: 'Google link blocked · private recovery path · public profile protected',
+            text: 'Google link sent · owner alerted · recovery call queued',
           },
         ])
         setDone(true)
@@ -1129,7 +1129,7 @@ function ReviewDemo() {
                       : 'bg-destructive/10 text-destructive border-destructive/20'
                   }`}
                 >
-                  {rating >= 4 ? 'Positive path complete' : 'Negative path complete — public profile protected'}
+                  {rating >= 4 ? 'Positive path complete' : 'Low-rating path complete — owner alerted'}
                 </span>
               </div>
             )}

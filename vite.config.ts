@@ -293,8 +293,9 @@ function reviewsApiPlugin(): Plugin {
                   : `Thanks — glad it went well. Mind a 30-second Google review? ${link}`
                 pendingReviews.delete(from)
               } else {
-                reply =
-                  "Sorry it wasn't a 5. We're not sending a public review link — the owner will reach out shortly."
+                const link = reviewUrl()
+                const who = name ? ` ${name}` : ''
+                reply = `Thanks for the feedback${who} — sorry it wasn't a 5. The owner will reach out to make it right. If you'd like to share your experience publicly, here's our Google review page: ${link}`
                 pendingReviews.delete(from)
               }
               // Trial: no free-form TwiML — send template via API
