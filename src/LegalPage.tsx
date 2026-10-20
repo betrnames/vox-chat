@@ -53,7 +53,7 @@ export default function LegalPage() {
               <a href="#recording" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Call &amp; chat recording</a>
               <a href="#disclaimer" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Disclaimer</a>
               <a href="#fair-use" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Fair Use Policy</a>
-              <a href="#compliance" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">Compliance Add-Ons</a>
+              <a href="#compliance" className="block px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">HIPAA & regulated data</a>
             </nav>
           </aside>
 
@@ -328,48 +328,40 @@ export default function LegalPage() {
             </div>
           </section>
 
-          {/* Compliance & Security Add-Ons */}
+          {/* HIPAA & regulated data */}
           <section id="compliance" className="scroll-mt-24">
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">Compliance &amp; Security Add-Ons</h2>
-            <p className="text-xs text-muted-foreground mb-6">Last updated: July 23, 2026</p>
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-6 pb-3 border-b border-border/60">HIPAA & regulated data</h2>
+            <p className="text-xs text-muted-foreground mb-6">Last updated: October 20, 2026</p>
             <div className="space-y-6 text-sm sm:text-base text-muted-foreground leading-relaxed">
-              <p>For businesses in healthcare, finance, or other regulated industries, Vox.chat offers optional compliance add-ons billed monthly in addition to your package price.</p>
               <div>
-                <h3 className="text-base font-semibold text-foreground mb-2">HIPAA Compliance — $2,500/mo</h3>
-                <p>Required for any business handling Protected Health Information (PHI) over voice or messaging. Includes:</p>
-                <ul className="list-disc pl-5 mt-2 space-y-1">
-                  <li>HIPAA-compliant voice AI infrastructure</li>
-                  <li>Business Associate Agreement (BAA) execution</li>
-                  <li>Encrypted call handling and storage meeting HIPAA technical safeguards</li>
-                  <li>Compliance configuration and ongoing monitoring</li>
-                  <li>Annual compliance review and documentation</li>
-                </ul>
-                <p className="mt-2">Who needs this: Medical and dental practices, behavioral health providers, home health agencies, telehealth services, medical billing companies, or any business where callers may disclose health information.</p>
+                <h3 className="text-base font-semibold text-foreground mb-2">This website is not HIPAA compliant</h3>
+                <p>
+                  The public vox.chat product (this website, the shared voice number, chat receptionist, and review texts)
+                  is <strong className="text-foreground">not</strong> HIPAA compliant and must not be used to collect,
+                  store, or transmit Protected Health Information (PHI). Do not discuss patient health information on
+                  demo calls or chats.
+                </p>
               </div>
               <div>
-                <h3 className="text-base font-semibold text-foreground mb-2">Zero Data Retention (ZDR) — $1,500/mo</h3>
-                <p>For businesses that require no call data, transcripts, or recordings to be stored after processing. Includes:</p>
-                <ul className="list-disc pl-5 mt-2 space-y-1">
-                  <li>Real-time processing with no persistent storage of call content</li>
-                  <li>No transcripts, recordings, or conversation logs retained</li>
-                  <li>Immediate purge of all call data after the session ends</li>
-                  <li>Compliance documentation confirming zero-retention architecture</li>
-                </ul>
-                <p className="mt-2">Who needs this: Legal firms, financial advisors, businesses with strict data minimization policies, or any organization where retaining customer conversation data poses regulatory or liability risk.</p>
+                <h3 className="text-base font-semibold text-foreground mb-2">Dedicated environment (custom contract)</h3>
+                <p>
+                  A HIPAA or zero-retention environment requires a separately contracted stack: signed Business Associate
+                  Agreements with Vox and every subprocessor, isolated infrastructure, encryption controls, and access
+                  logging. That is not a toggle on this website and is not enabled on the standard packages.
+                  Email{' '}
+                  <a href="mailto:support@vox.chat" className="text-primary hover:underline">
+                    support@vox.chat
+                  </a>{' '}
+                  if you need that. Until it is provisioned, we will refuse healthcare/PHI workloads.
+                </p>
               </div>
               <div>
-                <h3 className="text-base font-semibold text-foreground mb-2">Compliance Bundle — $3,500/mo</h3>
-                <p>Both HIPAA Compliance and Zero Data Retention together, saving $500/mo versus purchasing separately. Recommended for healthcare organizations that need the highest level of data protection.</p>
-              </div>
-              <div>
-                <h3 className="text-base font-semibold text-foreground mb-2">Important Notes</h3>
-                <ul className="list-disc pl-5 space-y-1">
-                  <li>Compliance add-ons apply to your entire Vox.chat account — they cannot be enabled per-assistant or per-phone-number.</li>
-                  <li>Activation requires a brief compliance intake (typically 1–2 business days) to configure your environment correctly.</li>
-                  <li>HIPAA compliance requires a signed BAA before activation. We will provide the BAA for your review.</li>
-                  <li>Compliance add-ons are billed month-to-month with no long-term commitment, same as your core package.</li>
-                  <li>Removing a compliance add-on requires 30 days' written notice and confirmation that you no longer handle regulated data through Vox.chat.</li>
-                </ul>
+                <h3 className="text-base font-semibold text-foreground mb-2">Standard product data flow</h3>
+                <p>
+                  On the standard product, names, phones, emails, and conversation content are processed by Vapi, xAI
+                  and/or OpenAI, Vercel, Twilio, and (if configured) Google Sheets and Formspree so we can deliver the
+                  service. Google Sheets is an operations inbox, not a regulated system of record.
+                </p>
               </div>
             </div>
           </section>
