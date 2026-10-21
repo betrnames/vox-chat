@@ -140,6 +140,17 @@ const categories = [
       },
     ],
   },
+  {
+    id: 'privacy',
+    label: 'Privacy & data',
+    questions: [
+      {
+        id: 'hipaa',
+        q: 'Are you HIPAA compliant?',
+        a: 'No. The public vox.chat product is not HIPAA compliant and must not be used for patient or health information. A dedicated environment with Business Associate Agreements is a custom contract, not a self-serve add-on. See /legal.html#compliance',
+      },
+    ],
+  },
 ]
 
 export default function FaqPage() {
