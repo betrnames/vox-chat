@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import './index.css'
 import ConsentNote from './ConsentNote'
-import { useLeadForm } from './leadForm'
+import { useLeadForm, SpamGuardFields } from './leadForm'
 
 function param(name: string): string {
   if (typeof window === 'undefined') return ''
@@ -76,6 +76,7 @@ export default function SetupPage() {
                 className="space-y-4 rounded-2xl border border-border/60 bg-card p-5 sm:p-7 shadow-md"
               >
                 <input type="hidden" name="site" value="vox.chat" />
+                <SpamGuardFields />
                 <input type="hidden" name="form" value="start-setup" />
                 <input type="hidden" name="_subject" value="Vox Start Setup — new intake" />
                 <input type="hidden" name="_next" value={nextUrl} />

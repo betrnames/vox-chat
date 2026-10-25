@@ -6,7 +6,7 @@ import { TypingDots } from './TypingDots'
 import LiveReceptionistWidget from './LiveReceptionistWidget'
 import ConsentNote from './ConsentNote'
 import LeadSuccess from './LeadSuccess'
-import { useLeadForm } from './leadForm'
+import { useLeadForm, SpamGuardFields } from './leadForm'
 import { VapiVoiceProvider, useVapiVoice } from './voice/VapiVoice'
 import { CallNowButton } from './voice/CallNowButton'
 import {
@@ -214,6 +214,7 @@ function Hero() {
                   onFocusCapture={handleFormInteraction}
                 >
                   <input type="hidden" name="site" value="vox.chat" />
+                  <SpamGuardFields />
                   <input type="hidden" name="source" value="hero" />
                   <div className="grid grid-cols-2 gap-3">
                     <input
@@ -1392,6 +1393,7 @@ function Contact() {
             }}
           >
             <input type="hidden" name="site" value="vox.chat" />
+            <SpamGuardFields />
             <input type="hidden" name="source" value="contact" />
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <input
