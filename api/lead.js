@@ -3,6 +3,7 @@
  * Direct lead capture (email + Google Sheet).
  */
 import { writeLeadToSheet } from './googleSheet.js'
+import { checkLead } from '../src/spamGuard.js'
 import { twilioConfigured, sendTwilioSms, normalizePhone } from './reviewsShared.js'
 
 const RATE_LIMIT_MAX = 5
@@ -60,6 +61,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'phone or email required' })
     }
 
+    const verdict = checkLead(body, { cityExpected: !!body.cityExpected })
     const channels = []
     const payload = {
       name: clean(body.name, 120) || 'Unknown',
@@ -77,10 +79,24 @@ export default async function handler(req, res) {
         (clean(body.interest) || 'Lead') +
         ' - ' +
         (clean(body.name) || clean(body.phone) || 'new'),
+      email_normalized: verdict.normalizedEmail,
+      spam_flags: verdict.flags.join(',') || undefined,
       _replyto: clean(body.email, 120) || 'email@vox.chat',
       _format: 'plain',
       timestamp: new Date().toISOString(),
     }
+
+    if (verdict.spam) {
+      // Bot-looking lead: keep a record in the sheet only (no email, no SMS).
+      console.warn('[lead] spam blocked', verdict.reasons.join(','))
+      try {
+        await writeLeadToSheet({ ...payload, source: 'SPAM(' + verdict.reasons.join(',') + ') ' + payload.source })
+      } catch (e) {
+        /* non-fatal */
+      }
+      return res.status(422).json({ ok: false, error: 'rejected' })
+    }
+    if (verdict.flags.length) payload._subject = '[CHECK: ' + verdict.flags.join(',') + '] ' + payload._subject
 
     const formspree = process.env.FORMSPREE_ENDPOINT || 'https://formspree.io/f/xzezgyen'
     try {
